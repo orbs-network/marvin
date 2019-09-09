@@ -1,0 +1,87 @@
+version: "2.1"
+
+services:
+  ganache:
+    image: trufflesuite/ganache-cli
+    command: ganache-cli --gasLimit 90000000000 --gasPrice 1 -a 10 -m "vanish junk genuine web seminar cook absurd royal ability series taste method identify elevator liquid"
+    ports:
+      - 8545:8545
+    networks:
+      orbs-network:
+        ipv4_address: 192.168.199.6
+
+  orbs-network-node-1:
+    image: orbs:export
+    environment:
+      ETHEREUM_ENDPOINT: http://ganache:8545/
+    ports:
+      - 8080:8080
+    volumes:
+      - ./_logs/:/opt/orbs/logs
+      - ./$CONSENSUSALGO-config/:/opt/orbs/config
+      - ./_tmp/blocks/node1/:/usr/local/var/orbs/
+    command: /opt/orbs/orbs-node --silent --config /opt/orbs/config/node1.json --log /opt/orbs/logs/node1.log
+    sysctls:
+      net.core.somaxconn: 25000
+    networks:
+      orbs-network:
+        ipv4_address: 192.168.199.2
+
+  orbs-network-node-2:
+    image: orbs:export
+    environment:
+      ETHEREUM_ENDPOINT: http://ganache:8545/
+    ports:
+      - 8081:8080
+    volumes:
+      - ./_logs/:/opt/orbs/logs
+      - ./$CONSENSUSALGO-config/:/opt/orbs/config
+      - ./_tmp/blocks/node2/:/usr/local/var/orbs/
+    command: /opt/orbs/orbs-node --silent --config /opt/orbs/config/node2.json --log /opt/orbs/logs/node2.log
+    sysctls:
+      net.core.somaxconn: 25000
+    networks:
+      orbs-network:
+        ipv4_address: 192.168.199.3
+
+  orbs-network-node-3:
+    image: orbs:export
+    environment:
+      ETHEREUM_ENDPOINT: http://ganache:8545/
+    ports:
+      - 8082:8080
+    volumes:
+      - ./_logs/:/opt/orbs/logs
+      - ./$CONSENSUSALGO-config/:/opt/orbs/config
+      - ./_tmp/blocks/node3/:/usr/local/var/orbs/
+    command: /opt/orbs/orbs-node --silent --config /opt/orbs/config/node3.json --log /opt/orbs/logs/node3.log
+    sysctls:
+      net.core.somaxconn: 25000
+    networks:
+      orbs-network:
+        ipv4_address: 192.168.199.4
+
+  orbs-network-node-4:
+    image: orbs:export
+    environment:
+      ETHEREUM_ENDPOINT: http://ganache:8545/
+    ports:
+      - 8083:8080
+    volumes:
+      - ./_logs/:/opt/orbs/logs
+      - ./$CONSENSUSALGO-config/:/opt/orbs/config
+      - ./_tmp/blocks/node4/:/usr/local/var/orbs/
+    command: /opt/orbs/orbs-node --silent --config /opt/orbs/config/node4.json --log /opt/orbs/logs/node4.log
+    sysctls:
+      net.core.somaxconn: 25000
+    networks:
+      orbs-network:
+        ipv4_address: 192.168.199.5
+
+networks:
+  orbs-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.199.0/24
