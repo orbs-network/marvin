@@ -15,10 +15,9 @@ rm -rf _tmp/blocks
 # Clean log folders
 rm -rf _logs
 
-CONSENSUSALGO="leanhelix"
 export REMOTE_ENV="true"
 
-docker-compose up -d
+CONSENSUSALGO="leanhelix" docker-compose up -d
 
 echo "Your testing network is up and running"
 echo "It's API endpoints are:"
@@ -26,5 +25,17 @@ echo "***************************************"
 echo "Node 1:"
 echo "http://localhost:8080/api/v1/"
 echo "http://localhost:8080/metrics"
+echo ""
+echo "Node 2:"
+echo "http://localhost:8081/api/v1/"
+echo "http://localhost:8081/metrics"
+echo ""
+echo "Node 3:"
+echo "http://localhost:8082/api/v1/"
+echo "http://localhost:8082/metrics"
+echo ""
+echo "Node 4:"
+echo "http://localhost:8083/api/v1/"
+echo "http://localhost:8083/metrics"
 
 exit 0

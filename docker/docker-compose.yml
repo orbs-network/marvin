@@ -7,7 +7,7 @@ services:
     ports:
       - 8545:8545
     networks:
-      orbs-network:
+      orbs:
         ipv4_address: 192.168.199.6
 
   orbs-network-node-1:
@@ -24,7 +24,7 @@ services:
     sysctls:
       net.core.somaxconn: 25000
     networks:
-      orbs-network:
+      orbs:
         ipv4_address: 192.168.199.2
 
   orbs-network-node-2:
@@ -41,7 +41,7 @@ services:
     sysctls:
       net.core.somaxconn: 25000
     networks:
-      orbs-network:
+      orbs:
         ipv4_address: 192.168.199.3
 
   orbs-network-node-3:
@@ -58,7 +58,7 @@ services:
     sysctls:
       net.core.somaxconn: 25000
     networks:
-      orbs-network:
+      orbs:
         ipv4_address: 192.168.199.4
 
   orbs-network-node-4:
@@ -75,11 +75,11 @@ services:
     sysctls:
       net.core.somaxconn: 25000
     networks:
-      orbs-network:
+      orbs:
         ipv4_address: 192.168.199.5
 
 networks:
-  orbs-network:
+  orbs:
     driver: bridge
     ipam:
       driver: default
