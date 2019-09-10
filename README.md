@@ -10,10 +10,25 @@ Named after [Marvin the Paranoid Android](https://en.wikipedia.org/wiki/Marvin_t
 
 # Architecture
 
-## Druid
+## Prometheus
+* A dockerized Prometheus server is installed on AWS.
 
 ## Client
 
 ## Grafana
 
 ## ELK
+
+# Developer Notes
+
+## Running Prometheus locally
+See https://prometheus.io/docs/prometheus/latest/installation/
+To start with a config file located at `/tmp/prometheus.yml`, use: 
+>  docker run --network=host --mount source=prometheus,target=/etc/prometheus prom/prometheus
+
+## Running Grafana
+This project uses Orbs' Hosted Grafana solution which is also used by the production network.
+It is configured with a built-in Prometheus instance that accepts data by [remote_write](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_write).
+Project [Kartoha](https://github.com/orbs-network/kartoha) can be used to generate the Prometheus `yml` config file.
+
+## Running Prometheus on local machine
