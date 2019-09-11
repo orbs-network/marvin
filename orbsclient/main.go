@@ -6,6 +6,4 @@ func main() {
 
 func run(cfg *config) {
 
-	util.SendTransaction()
-
 }

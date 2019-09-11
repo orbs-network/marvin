@@ -11,12 +11,17 @@ Named after [Marvin the Paranoid Android](https://en.wikipedia.org/wiki/Marvin_t
 # Architecture
 
 ## Prometheus
-* A dockerized Prometheus server is installed on AWS.
+* Browse to http://localhost:9099/graph
+> From inside docker, Prometheus is served on port 9090
+
+## Grafana
+* Browse to http://localhost:3000/
+* Directly to dashboard: http://localhost:3000/d/yiCOQa5Wz/prometheus-2-0-stats?refresh=1m&orgId=1
 
 ## Client
 
 See the [client guide](orbsclient/CLIENT.md)
-## Grafana
+
 
 ## ELK
 
