@@ -1,0 +1,86 @@
+global:
+  scrape_interval: 5s
+  scrape_timeout: 5s
+  evaluation_interval: 5s
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+      scheme: http
+      timeout: 10s
+scrape_configs:
+  #
+  #
+  - job_name: orbs-local-1-1000
+    scrape_interval: 5s
+    scrape_timeout: 5s
+    metrics_path: '/metrics.prometheus'
+    scheme: http
+    static_configs:
+      - targets: [ 'localhost:9090' ]
+        labels:
+          machine: 'local1'
+          vchain: 1000
+
+  #
+  #
+  #
+  - job_name: orbs-local-2-1000
+    scrape_interval: 5s
+    scrape_timeout: 5s
+    metrics_path: '/metrics.prometheus'
+    scheme: http
+    static_configs:
+      - targets: [ 'localhost:9091' ]
+        labels:
+          machine: 'local2'
+          vchain: 1000
+
+  #
+  #
+  #
+  - job_name: orbs-local-3-1000
+    scrape_interval: 5s
+    scrape_timeout: 5s
+    metrics_path: '/metrics.prometheus'
+    scheme: http
+    static_configs:
+      - targets: [ 'localhost:9092' ]
+        labels:
+          machine: 'local3'
+          vchain: 1000
+
+  #
+  #
+  #
+  - job_name: orbs-local-4-1000
+    scrape_interval: 5s
+    scrape_timeout: 5s
+    metrics_path: '/metrics.prometheus'
+    scheme: http
+    static_configs:
+      - targets: [ 'localhost:9093' ]
+        labels:
+          machine: 'local4'
+          vchain: 1000
+
+#
+#
+# https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_write
+remote_write:
+  - url: https://prometheus-us-central1.grafana.net/api/prom
+    # Timeout for requests to the remote write endpoint
+    remote_timeout: 20s
+    basic_auth:
+      username: 6421
+      password: ${GRAFANA_HOSTED_PROMETHEUS_API_KEY}
+    queue_config:
+      # Number of samples to buffer per shard before we start dropping them
+      capacity: 1000
+      # Maximum number of shards, i.e. amount of concurrency
+      max_shards: 10
+      min_shards: 1
+      # Maximum number of samples per send
+      max_samples_per_send: 1000
+      batch_send_deadline: 10s
+      min_backoff: 30ms
