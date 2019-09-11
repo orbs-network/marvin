@@ -19,7 +19,7 @@ services:
       orbs:
         ipv4_address: 192.168.199.6
 
-  orbs-network-node-1:
+  node1:
     image: orbs:export
     environment:
       ETHEREUM_ENDPOINT: http://ganache:8545/
@@ -36,7 +36,7 @@ services:
       orbs:
         ipv4_address: 192.168.199.2
 
-  orbs-network-node-2:
+  node2:
     image: orbs:export
     environment:
       ETHEREUM_ENDPOINT: http://ganache:8545/
@@ -53,7 +53,7 @@ services:
       orbs:
         ipv4_address: 192.168.199.3
 
-  orbs-network-node-3:
+  node3:
     image: orbs:export
     environment:
       ETHEREUM_ENDPOINT: http://ganache:8545/
@@ -70,7 +70,7 @@ services:
       orbs:
         ipv4_address: 192.168.199.4
 
-  orbs-network-node-4:
+  node4:
     image: orbs:export
     environment:
       ETHEREUM_ENDPOINT: http://ganache:8545/
