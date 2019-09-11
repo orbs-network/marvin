@@ -1,6 +1,7 @@
 package orbsclient
 
 import (
+	util "github.com/orbs-network/marvin/orbsclient/util"
 	"github.com/orbs-network/orbs-client-sdk-go/codec"
 	orbsClient "github.com/orbs-network/orbs-client-sdk-go/orbs"
 

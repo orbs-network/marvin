@@ -15,6 +15,7 @@ Named after [Marvin the Paranoid Android](https://en.wikipedia.org/wiki/Marvin_t
 
 ## Client
 
+See the [client guide](orbsclient/CLIENT.md)
 ## Grafana
 
 ## ELK
