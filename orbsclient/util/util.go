@@ -1,13 +1,17 @@
-package orbsclient
+package util
 
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/orbs-network/orbs-client-sdk-go/codec"
 	"github.com/orbs-network/orbs-client-sdk-go/crypto/encoding"
 	"github.com/orbs-network/orbs-client-sdk-go/crypto/keys"
+	orbsClient "github.com/orbs-network/orbs-client-sdk-go/orbs"
 	"io/ioutil"
 	"os"
 )
+
+const TestKeysFilename = "addresses.json"
 
 type ed25519KeyPairHex struct {
 	publicKey  string
@@ -25,6 +29,14 @@ var ed25519KeyPairs = []ed25519KeyPairHex{
 	{"469bd276271aa6d59e387018cf76bd00f55c702931c13e80896eec8a32b22082", "0d953392b90e5cf5f0162cb289ff1b77a358921201aa5c91c902b38aa22a1878469bd276271aa6d59e387018cf76bd00f55c702931c13e80896eec8a32b22082"},
 	{"102073b28749be1e3daf5e5947605ec7d43c3183edb48a3aac4c9542cdbaf748", "57249e0b586083a60df94044971416cb9fdd373855aac9e04bceb4c96e53559e102073b28749be1e3daf5e5947605ec7d43c3183edb48a3aac4c9542cdbaf748"},
 	{"70d92324eb8d24b7c7ed646e1996f94dcd52934a031935b9ac2d0e5bbcfa357c", "f1c41ba8a1d78f7cdc4f4ff23f3b736e30c630085697d6503e16ac899646f5ab70d92324eb8d24b7c7ed646e1996f94dcd52934a031935b9ac2d0e5bbcfa357c"},
+}
+
+func SendTransaction() (response *codec.SendTransactionResponse, err error) {
+
+	client := orbsClient.NewClient("http://127.0.0.1:7050/vchains/1000", 1000, codec.NETWORK_TYPE_TEST_NET)
+	addresses := ReadAddressesFromFile(TestKeysFilename)
+	payload, _, _ := client.CreateTransaction(OwnerOfAllSupply.PublicKey(), OwnerOfAllSupply.PrivateKey(), "ResettableBenchmarkToken", "transfer", uint64(123), addresses[0])
+	return client.SendTransaction(payload)
 }
 
 func Ed25519KeyPairForTests(setIndex int) *keys.Ed25519KeyPair {
@@ -95,7 +107,7 @@ func getTestKeysFromFile(filename string) map[string]*RawKey {
 	return all
 }
 
-func readAddressesFromFile(filename string) [][]byte {
+func ReadAddressesFromFile(filename string) [][]byte {
 	keys := getTestKeysFromFile(filename)
 	if keys == nil {
 		return nil

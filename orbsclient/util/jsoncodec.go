@@ -1,4 +1,4 @@
-package orbsclient
+package util
 
 import "encoding/json"
 
