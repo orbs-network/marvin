@@ -1,6 +1,15 @@
 version: "2.1"
 
 services:
+  tsdb:
+    image: prom/prometheus
+    ports:
+      - 9099:9090
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      orbs:
+        ipv4_address: 192.168.199.100
   ganache:
     image: trufflesuite/ganache-cli
     command: ganache-cli --gasLimit 90000000000 --gasPrice 1 -a 10 -m "vanish junk genuine web seminar cook absurd royal ability series taste method identify elevator liquid"
