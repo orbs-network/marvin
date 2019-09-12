@@ -1,4 +1,4 @@
-module github.com/orbs-network/marvin
+module github.com/orbs-network/marvin/orbsclient
 
 go 1.12
 

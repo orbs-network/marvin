@@ -1,9 +1,9 @@
 package orbsclient
 
 import (
+	"github.com/orbs-network/marvin/orbsclient/clientutil"
 	"github.com/orbs-network/orbs-client-sdk-go/codec"
 	orbsClient "github.com/orbs-network/orbs-client-sdk-go/orbs"
-
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -14,7 +14,7 @@ func TestCanCreateOrbsSdkClient(t *testing.T) {
 }
 
 func TestSendTransaction(t *testing.T) {
-	res, err := util.SendTransaction()
+	res, err := clientutil.SendTransaction()
 	require.NoError(t, err, "returned error")
 	require.Equal(t, codec.TRANSACTION_STATUS_COMMITTED, res.TransactionStatus, "not committed")
 }

@@ -1,4 +1,4 @@
-package util
+package clientutil
 
 import (
 	"encoding/hex"
@@ -33,7 +33,7 @@ var ed25519KeyPairs = []ed25519KeyPairHex{
 
 func SendTransaction() (response *codec.SendTransactionResponse, err error) {
 
-	client := orbsClient.NewClient("http://127.0.0.1:7050/vchains/1000", 1000, codec.NETWORK_TYPE_TEST_NET)
+	client := orbsClient.NewClient("http://127.0.0.1:7050/", 1000, codec.NETWORK_TYPE_TEST_NET)
 	addresses := ReadAddressesFromFile(TestKeysFilename)
 	payload, _, _ := client.CreateTransaction(OwnerOfAllSupply.PublicKey(), OwnerOfAllSupply.PrivateKey(), "ResettableBenchmarkToken", "transfer", uint64(123), addresses[0])
 	return client.SendTransaction(payload)
