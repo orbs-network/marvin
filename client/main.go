@@ -1,4 +1,4 @@
-package orbsclient
+package client
 
 func main() {
 	run(Config())

@@ -1,4 +1,4 @@
-package orbsclient
+package client
 
 import "time"
 

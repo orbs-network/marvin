@@ -20,7 +20,7 @@ Named after [Marvin the Paranoid Android](https://en.wikipedia.org/wiki/Marvin_t
 
 ## Client
 
-See the [client guide](orbsclient/CLIENT.md)
+See the [client guide](client/CLIENT.md)
 
 
 ## ELK
