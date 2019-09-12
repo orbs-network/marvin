@@ -5,13 +5,15 @@ services:
     image: grafana/grafana:5.1.0
     ports:
       - 3000:3000
-    user: "104"
+    volumes:
+      - ./grafana/grafana-volume:/var/lib/grafana
   tsdb:
     image: prom/prometheus
     ports:
       - 9099:9090
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus-volume:/prometheus
     networks:
       orbs:
         ipv4_address: 192.168.199.100

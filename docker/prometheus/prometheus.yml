@@ -20,7 +20,7 @@ scrape_configs:
       - targets: ["node1:8080"]
         labels:
           machine: "node1"
-          vchain: 1000
+          vchain: 42
   - job_name: node2
     metrics_path: "/metrics.prometheus"
     scheme: http
@@ -28,7 +28,7 @@ scrape_configs:
       - targets: ["node2:8080"]
         labels:
           machine: "node2"
-          vchain: 1000
+          vchain: 42
   - job_name: node3
     metrics_path: "/metrics.prometheus"
     scheme: http
@@ -36,7 +36,7 @@ scrape_configs:
       - targets: ["node3:8080"]
         labels:
           machine: "node3"
-          vchain: 1000
+          vchain: 42
   - job_name: node4
     metrics_path: "/metrics.prometheus"
     scheme: http
@@ -44,4 +44,4 @@ scrape_configs:
       - targets: ["node4:8080"]
         labels:
           machine: "node4"
-          vchain: 1000
+          vchain: 42
