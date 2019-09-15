@@ -17,7 +17,7 @@ scrape_configs:
     metrics_path: "/metrics.prometheus"
     scheme: http
     static_configs:
-      - targets: ["http://35.161.123.97/vchains/2013"]
+      - targets: ["35.161.123.97/vchains/2013"]
         labels:
           machine: "node1"
           vchain: 2013
@@ -25,7 +25,7 @@ scrape_configs:
     metrics_path: "/metrics.prometheus"
     scheme: http
     static_configs:
-      - targets: ["http://35.167.243.123/vchains/2013"]
+      - targets: ["35.167.243.123/vchains/2013"]
         labels:
           machine: "node2"
           vchain: 2013
@@ -33,7 +33,7 @@ scrape_configs:
     metrics_path: "/metrics.prometheus"
     scheme: http
     static_configs:
-      - targets: ["http://52.35.218.240/vchains/2013"]
+      - targets: ["52.35.218.240/vchains/2013"]
         labels:
           machine: "node3"
           vchain: 2013
@@ -41,7 +41,7 @@ scrape_configs:
     metrics_path: "/metrics.prometheus"
     scheme: http
     static_configs:
-      - targets: ["http://52.42.4.94/vchains/2013"]
+      - targets: ["52.42.4.94/vchains/2013"]
         labels:
           machine: "node4"
           vchain: 2013
@@ -49,7 +49,7 @@ scrape_configs:
     metrics_path: "/metrics.prometheus"
     scheme: http
     static_configs:
-      - targets: ["http://52.26.26.163/vchains/2013"]
+      - targets: ["52.26.26.163/vchains/2013"]
         labels:
           machine: "node5"
           vchain: 2013
