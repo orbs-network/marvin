@@ -1,4 +1,4 @@
-package client
+package runner
 
 import (
 	"github.com/orbs-network/marvin/client/util"

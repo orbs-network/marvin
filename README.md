@@ -10,6 +10,11 @@ Named after [Marvin the Paranoid Android](https://en.wikipedia.org/wiki/Marvin_t
 
 # Architecture
 
+## Testnet
+TBD
+Config for now: https://boyar-testnet-bootstrap.s3-us-west-2.amazonaws.com/boyar/config.json
+
+
 ## Prometheus
 * Browse to http://localhost:9099/graph
 > From inside docker, Prometheus is served on port 9090
