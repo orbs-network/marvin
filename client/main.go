@@ -27,11 +27,10 @@ func run(cfg *runner.Config) {
 	r := &runner.Runner{
 		Config: cfg,
 	}
-	res, err := r.Execute()
+	err := r.Execute()
 	if err != nil {
 		util.Info("Error: %s", err)
 		os.Exit(1)
 	}
-	util.Info("Response: %s", res.TransactionStatus)
 	util.Info("End")
 }
