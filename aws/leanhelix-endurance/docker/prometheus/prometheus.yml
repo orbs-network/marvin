@@ -14,42 +14,42 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9090"]
   - job_name: node1
-    metrics_path: "/metrics.prometheus"
+    metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
-      - targets: ["35.161.123.97/vchains/2013"]
+      - targets: ["35.161.123.97"]
         labels:
           machine: "node1"
           vchain: 2013
   - job_name: node2
-    metrics_path: "/metrics.prometheus"
+    metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
-      - targets: ["35.167.243.123/vchains/2013"]
+      - targets: ["35.167.243.123"]
         labels:
           machine: "node2"
           vchain: 2013
   - job_name: node3
-    metrics_path: "/metrics.prometheus"
+    metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
-      - targets: ["52.35.218.240/vchains/2013"]
+      - targets: ["52.35.218.240"]
         labels:
           machine: "node3"
           vchain: 2013
   - job_name: node4
-    metrics_path: "/metrics.prometheus"
+    metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
-      - targets: ["52.42.4.94/vchains/2013"]
+      - targets: ["52.42.4.94"]
         labels:
           machine: "node4"
           vchain: 2013
   - job_name: node5
-    metrics_path: "/metrics.prometheus"
+    metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
-      - targets: ["52.26.26.163/vchains/2013"]
+      - targets: ["52.26.26.163"]
         labels:
           machine: "node5"
           vchain: 2013
