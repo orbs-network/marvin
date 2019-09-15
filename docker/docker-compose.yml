@@ -1,6 +1,22 @@
 version: "2.1"
 
 services:
+  grafana:
+    image: grafana/grafana:5.1.0
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/grafana-volume:/var/lib/grafana
+  tsdb:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus-volume:/prometheus
+    networks:
+      orbs:
+        ipv4_address: 192.168.199.100
   ganache:
     image: trufflesuite/ganache-cli
     command: ganache-cli --gasLimit 90000000000 --gasPrice 1 -a 10 -m "vanish junk genuine web seminar cook absurd royal ability series taste method identify elevator liquid"
@@ -10,12 +26,12 @@ services:
       orbs:
         ipv4_address: 192.168.199.6
 
-  orbs-network-node-1:
+  node1:
     image: orbs:export
     environment:
       ETHEREUM_ENDPOINT: http://ganache:8545/
     ports:
-      - 8080:8080
+      - 7050:8080
     volumes:
       - ./_logs/:/opt/orbs/logs
       - ./$CONSENSUSALGO-config/:/opt/orbs/config
@@ -27,12 +43,12 @@ services:
       orbs:
         ipv4_address: 192.168.199.2
 
-  orbs-network-node-2:
+  node2:
     image: orbs:export
     environment:
       ETHEREUM_ENDPOINT: http://ganache:8545/
     ports:
-      - 8081:8080
+      - 7051:8080
     volumes:
       - ./_logs/:/opt/orbs/logs
       - ./$CONSENSUSALGO-config/:/opt/orbs/config
@@ -44,12 +60,12 @@ services:
       orbs:
         ipv4_address: 192.168.199.3
 
-  orbs-network-node-3:
+  node3:
     image: orbs:export
     environment:
       ETHEREUM_ENDPOINT: http://ganache:8545/
     ports:
-      - 8082:8080
+      - 7052:8080
     volumes:
       - ./_logs/:/opt/orbs/logs
       - ./$CONSENSUSALGO-config/:/opt/orbs/config
@@ -61,12 +77,12 @@ services:
       orbs:
         ipv4_address: 192.168.199.4
 
-  orbs-network-node-4:
+  node4:
     image: orbs:export
     environment:
       ETHEREUM_ENDPOINT: http://ganache:8545/
     ports:
-      - 8083:8080
+      - 7053:8080
     volumes:
       - ./_logs/:/opt/orbs/logs
       - ./$CONSENSUSALGO-config/:/opt/orbs/config
