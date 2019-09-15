@@ -1,0 +1,17 @@
+version: "2.1"
+
+services:
+  tsdb:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - /home/ubuntu/prom-storage:/prometheus
+
+  grafana:
+    image: grafana/grafana:5.1.0
+    ports:
+      - 3000:3000
+    volumes:
+      - /home/ubuntu/grafana:/var/lib/grafana
