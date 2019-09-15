@@ -1,8 +1,49 @@
 {
+  "__inputs": [
+    {
+      "name": "DS_MARVIN-PROMETHEUS",
+      "label": "Marvin-Prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "5.1.0"
+    },
+    {
+      "type": "panel",
+      "id": "graph",
+      "name": "Graph",
+      "version": "5.0.0"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "5.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "singlestat",
+      "name": "Singlestat",
+      "version": "5.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": "5.0.0"
+    }
+  ],
   "annotations": {
     "list": [
       {
-        "$$hashKey": "object:753",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -16,8 +57,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 2,
-  "iteration": 1568544400358,
+  "id": null,
+  "iteration": 1568546671942,
   "links": [],
   "panels": [
     {
@@ -29,7 +70,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -82,7 +123,6 @@
       "tableColumn": "",
       "targets": [
         {
-          "$$hashKey": "object:940",
           "expr": "max(BlockStorage_BlockHeight)",
           "format": "time_series",
           "instant": true,
@@ -115,7 +155,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#299c46"
       ],
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -199,7 +239,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -282,7 +322,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "format": "s",
       "gauge": {
         "maxValue": 100,
@@ -365,7 +405,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -448,7 +488,7 @@
         "endCountdownTime": "2019-03-29T11:16:00.000Z",
         "endText": "00:00:00"
       },
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "dateSettings": {
         "dateFormat": "YYYY-MM-DD",
         "fontSize": "24px",
@@ -505,7 +545,7 @@
     },
     {
       "columns": [],
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fontSize": "100%",
       "gridPos": {
         "h": 14,
@@ -585,7 +625,7 @@
     },
     {
       "columns": [],
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fontSize": "100%",
       "gridPos": {
         "h": 14,
@@ -655,7 +695,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "description": "Transactions per second in closed blocks",
       "fill": 0,
       "fillGradient": 0,
@@ -748,7 +788,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
@@ -850,7 +890,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -941,7 +981,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "decimals": 0,
       "fill": 0,
       "fillGradient": 0,
@@ -1033,7 +1073,7 @@
     },
     {
       "columns": [],
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "description": "Measured on BlockStorage service",
       "fontSize": "100%",
       "gridPos": {
@@ -1097,7 +1137,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1189,7 +1229,7 @@
     },
     {
       "columns": [],
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fontSize": "100%",
       "gridPos": {
         "h": 14,
@@ -1249,7 +1289,7 @@
     },
     {
       "columns": [],
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fontSize": "100%",
       "gridPos": {
         "h": 14,
@@ -1328,7 +1368,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1418,7 +1458,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
@@ -1510,7 +1550,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1600,7 +1640,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1691,7 +1731,7 @@
       "cacheTimeout": null,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1782,7 +1822,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1872,7 +1912,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 0,
       "fillGradient": 0,
       "gridPos": {
@@ -1964,7 +2004,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 0,
       "gridPos": {
         "h": 6,
@@ -2051,7 +2091,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 0,
       "gridPos": {
         "h": 6,
@@ -2171,7 +2211,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "gridPos": {
         "h": 4,
@@ -2274,7 +2314,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "gridPos": {
         "h": 5,
@@ -2370,7 +2410,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "gridPos": {
         "h": 5,
@@ -2457,7 +2497,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "gridPos": {
         "h": 5,
@@ -2544,7 +2584,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "gridPos": {
         "h": 5,
@@ -2631,7 +2671,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "gridPos": {
         "h": 5,
@@ -2718,7 +2758,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "gridPos": {
         "h": 5,
@@ -2805,7 +2845,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "gridPos": {
         "h": 6,
@@ -2892,7 +2932,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "gridPos": {
         "h": 6,
@@ -2979,7 +3019,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 0,
       "gridPos": {
         "h": 6,
@@ -3066,7 +3106,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 0,
       "gridPos": {
         "h": 6,
@@ -3127,7 +3167,6 @@
       },
       "yaxes": [
         {
-          "$$hashKey": "object:1138",
           "format": "s",
           "label": null,
           "logBase": 1,
@@ -3136,7 +3175,6 @@
           "show": true
         },
         {
-          "$$hashKey": "object:1139",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -3155,7 +3193,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Marvin-Prometheus",
+      "datasource": "${DS_MARVIN-PROMETHEUS}",
       "fill": 1,
       "gridPos": {
         "h": 8,
@@ -3309,5 +3347,5 @@
   "timezone": "",
   "title": "Detailed",
   "uid": "Eqvddt3iz",
-  "version": 2
+  "version": 1
 }
