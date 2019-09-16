@@ -10,6 +10,11 @@ Named after [Marvin the Paranoid Android](https://en.wikipedia.org/wiki/Marvin_t
 
 # Architecture
 
+## Testnet
+TBD
+Config for now: https://boyar-testnet-bootstrap.s3-us-west-2.amazonaws.com/boyar/config.json
+
+
 ## Prometheus
 * Browse to http://localhost:9099/graph
 > From inside docker, Prometheus is served on port 9090
@@ -38,3 +43,39 @@ It is configured with a built-in Prometheus instance that accepts data by [remot
 Project [Kartoha](https://github.com/orbs-network/kartoha) can be used to generate the Prometheus `yml` config file.
 
 ## Running Prometheus on local machine
+
+
+## Sequence diagram
+Paste the following [here](sequencediagram.org):
+
+```
+title Testnet-master
+actor User
+participant CircleCI
+participant Stress-Client
+participant TestNet
+participant Prometheus
+participant Grafana
+participant Github
+participant Slack
+
+
+User->CircleCI: //Merge
+aboxright over CircleCI: Run build & tests
+
+CircleCI->Prometheus: Mark test start
+CircleCI->Stress-Client: Run test
+activate Stress-Client
+Stress-Client->TestNet: Send TX
+deactivate Stress-Client
+CircleCI->Prometheus: Mark test end
+Prometheus->Stress-Client: Pull results
+box over Stress-Client: Process results
+
+activate Stress-Client
+deactivate Stress-Client
+
+CircleCI->Github: Write results as Github comment / Grafana URL
+User->Grafana: Browse for results
+Github->Slack: Send Webook with results
+```
