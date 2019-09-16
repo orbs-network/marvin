@@ -1,7 +1,7 @@
 FROM golang:1.12.9
 
 WORKDIR /src
-
 ADD client .
+RUN go build -o client main.go
 
-CMD ["go", "test", "-v", "-count=1", "./..."]
+CMD ["./client"]
