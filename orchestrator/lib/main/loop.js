@@ -1,4 +1,5 @@
 const mysql = require('mysql');
+const { exec } = require('child-process-promise')
 const connection = mysql.createConnection({
     host: 'localhost',
     user: process.env.MYSQL_USER,
@@ -10,7 +11,6 @@ console.log('Connecting to MySQL')
 connection.connect();
 console.log('Connected to MySQL!')
 
-const mockData = require('./data.json')
 const { insertTransaction } = require('./mysql')
 
 const defaultLoadSteps = [
@@ -46,30 +46,68 @@ async function enduranceLoop({ steps = defaultLoadSteps }) {
 
     do {
         for (let k in steps) {
-            let currentStep = steps[k]
-            console.log('Running endurance step: ', currentStep.displayName)
-            await storeBatchOutputs(JSON.stringify(mockData))
+            await executeStep(steps[k])
         }
 
         for (let k in reverseSteps) {
-            let currentStep = reverseSteps[k]
-            console.log('Running endurance step: ', currentStep.displayName)
+            await executeStep(reverseSteps[k])
         }
 
         console.log('finished an endurance loop!')
         console.log('')
 
+        await cleanUpPrevClientRuns()
         await new Promise((resolve) => { setTimeout(resolve, 10 * 1000) })
     } while (true);
+}
+
+async function executeStep(currentStep) {
+    console.log('Running endurance step: ', currentStep.displayName)
+    let results = await runClientContainers({ instances: currentStep.endurance })
+    console.log('Finished endurance step, preparing to save results to MySQL')
+
+    await Promise.all(results.map(result => {
+        if (result.exitCode === 0) {
+            return storeBatchOutputs(result.stdout)
+        } else {
+            console.log('WARN: Could not store batch results because of an error', result)
+        }
+    }))
+    await new Promise((resolve) => { setTimeout(resolve, 5 * 1000) })
 }
 
 async function storeBatchOutputs(dataAsString) {
     const data = JSON.parse(dataAsString)
 
     await Promise.all(data.transactions.map(tx => {
-        console.log(tx)
         return insertTransaction(tx, connection)
     }))
+}
+
+async function runClientContainers({ instances = 1 }) {
+    const clients = []
+    for (let i = 0; i < instances; i++) {
+        clients.push({
+            id: i,
+        })
+    }
+
+    const clientsResults = await Promise.all(clients.map(async (o) => {
+        const result = await exec('docker run endurance:client ./client config/testnet-aws.json IDO,5')
+
+        return {
+            id: o.id,
+            exitCode: result.childProcess.exitCode,
+            stderr: result.stderr,
+            stdout: result.stdout,
+        }
+    }))
+
+    return clientsResults
+}
+
+function cleanUpPrevClientRuns() {
+    return exec("(docker ps -a | grep endurance:client | awk '{print $1}' || echo :) | xargs docker rm -fv")
 }
 
 process.on('exit', () => {
