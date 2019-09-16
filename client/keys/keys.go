@@ -3,7 +3,6 @@ package keys
 import (
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"github.com/orbs-network/marvin/client/util"
 	"github.com/orbs-network/orbs-client-sdk-go/crypto/encoding"
 	"github.com/orbs-network/orbs-client-sdk-go/crypto/keys"
@@ -110,7 +109,6 @@ func readAccounts(filename string) map[string]*RawKey {
 			Address:    address,
 		}
 	}
-	fmt.Printf("Found %d addresses\n", len(all))
 	return all
 }
 

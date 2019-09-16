@@ -33,7 +33,7 @@ func (runner *Runner) Execute() (*reporter.Report, error) {
 	client := orbsClient.NewClient(url, uint32(vchain), codec.NETWORK_TYPE_TEST_NET)
 
 	report := &reporter.Report{
-		Name:              "STRESS",
+		Name:              runConf.name,
 		Error:             "",
 		StartTime:         util.TimeToISO(time.Now()),
 		EndTime:           "",
@@ -51,21 +51,28 @@ func (runner *Runner) Execute() (*reporter.Report, error) {
 			break
 		}
 		target := addresses[ctrlRand.Intn(len(addresses))]
-		util.Info("Sending to URL: %s to account %s", url, hex.EncodeToString(target))
+		util.Debug("Sending to URL: %s to account %s", url, hex.EncodeToString(target))
+		startTxTime := time.Now()
 		res, err := TrySend(client, target)
+		endTxTime := time.Now()
+		txDuration := uint64(endTxTime.Sub(startTxTime) / time.Millisecond)
 		if err == nil {
-			util.Info("Sent successfully: %s", res.TransactionStatus)
+			util.Debug("Sent successfully: %s", res.TransactionStatus)
+
 			tx = &reporter.Transaction{
+				PApiUrl:     client.Endpoint,
 				TxId:        res.TxHash,
 				Result:      string(res.TransactionStatus),
 				BlockHeight: res.BlockHeight,
+				Duration:    txDuration,
 			}
 		} else {
-			util.Info("Error: %s", err)
+			util.Debug("Error: %s", err)
 			tx = &reporter.Transaction{
 				TxId:        nil,
 				Result:      err.Error(),
 				BlockHeight: 0,
+				Duration:    txDuration,
 			}
 			errorTxs++
 
