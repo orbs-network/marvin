@@ -10,6 +10,10 @@ func Info(format string, a ...interface{}) {
 	fmt.Printf(fmt.Sprintf("%s %s\n", nowISO(), s))
 }
 
+func Debug(format string, a ...interface{}) {
+
+}
+
 func nowISO() string {
 	// Full ISO8601 is "2006-01-02T15:04:05.000Z"
 	return time.Now().Format("15:04:05.000Z ")

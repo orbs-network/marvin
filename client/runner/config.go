@@ -3,15 +3,18 @@ package runner
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/orbs-network/marvin/client/keys"
 	"github.com/orbs-network/marvin/client/util"
 	"io/ioutil"
+	"strconv"
+	"strings"
 	"time"
 )
 
 type Config struct {
 	netConfig *nodeConfiguration
 	runConfig *runConfiguration
-	addresses [][]byte
+	accounts  [][]byte
 }
 
 type nodeConfiguration struct {
@@ -21,6 +24,7 @@ type nodeConfiguration struct {
 
 type runConfiguration struct {
 	runTime time.Duration
+	name    string
 }
 
 type VirtualChainId uint32
@@ -50,12 +54,12 @@ func CreateConfig(cfgPath string, runConfigStr string) *Config {
 		panic(fmt.Sprintf("Failed parsing runConfig=%s: %s", runConfigStr, err))
 	}
 
-	addresses := util.ReadAddressesFromFile(util.TestKeysFilename)
+	accounts := keys.ReadAccountsFromFile(keys.TestAccountsFilename)
 
 	return &Config{
 		netConfig: netConfig,
 		runConfig: runConfig,
-		addresses: addresses,
+		accounts:  accounts,
 	}
 }
 
@@ -76,8 +80,22 @@ func parseStringConfig(input string) (*nodeConfiguration, error) {
 	return &value, nil
 }
 
-func ParseRunConfig(runConfigStr string) (*runConfiguration, error) {
+func ParseRunConfig(s string) (*runConfiguration, error) {
 
-	return &runConfiguration{runTime: 5 * time.Second}, nil
+	tokens := strings.Split(s, ",")
+	if len(tokens) < 2 {
+		util.Die("Error in command line: too few run config properties: %s", s)
+	}
+
+	runName := tokens[0]
+	sec, err := strconv.Atoi(tokens[1])
+	if err != nil {
+		util.Die("Error in runtime param: %s", err)
+	}
+
+	return &runConfiguration{
+		name:    runName,
+		runTime: time.Duration(sec) * time.Second,
+	}, nil
 
 }
