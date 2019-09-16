@@ -6,10 +6,17 @@ const connection = mysql.createConnection({
     password: process.env.MYSQL_PASSWORD,
     database: 'marvin'
 });
+const verbosity = process.env.VERBOSE === 'true'
 
-console.log('Connecting to MySQL')
+function info() {
+    if (verbosity) {
+        console.log.apply(this, arguments)
+    }
+}
+
+info('Connecting to MySQL')
 connection.connect();
-console.log('Connected to MySQL!')
+info('Connected to MySQL!')
 
 const { insertTransaction } = require('./mysql')
 
@@ -53,8 +60,8 @@ async function enduranceLoop({ steps = defaultLoadSteps }) {
             await executeStep(reverseSteps[k])
         }
 
-        console.log('finished an endurance loop!')
-        console.log('')
+        info('finished an endurance loop!')
+        info('')
 
         await cleanUpPrevClientRuns()
         await new Promise((resolve) => { setTimeout(resolve, 10 * 1000) })
@@ -62,15 +69,15 @@ async function enduranceLoop({ steps = defaultLoadSteps }) {
 }
 
 async function executeStep(currentStep) {
-    console.log('Running endurance step: ', currentStep.displayName)
+    info('Running endurance step: ', currentStep.displayName)
     let results = await runClientContainers({ instances: currentStep.endurance })
-    console.log('Finished endurance step, preparing to save results to MySQL')
+    info('Finished endurance step, preparing to save results to MySQL')
 
     await Promise.all(results.map(result => {
         if (result.exitCode === 0) {
             return storeBatchOutputs(result.stdout)
         } else {
-            console.log('WARN: Could not store batch results because of an error', result)
+            info('WARN: Could not store batch results because of an error', result.stderr)
         }
     }))
     await new Promise((resolve) => { setTimeout(resolve, 5 * 1000) })
@@ -111,7 +118,7 @@ function cleanUpPrevClientRuns() {
 }
 
 process.on('exit', () => {
-    console.log('Closing the connection to MySQL');
+    info('Closing the connection to MySQL');
     connection.end();
 })
 
