@@ -3,7 +3,7 @@ package runner
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/orbs-network/marvin/client/util"
+	"github.com/orbs-network/marvin/client/keys"
 	"io/ioutil"
 	"time"
 )
@@ -11,7 +11,7 @@ import (
 type Config struct {
 	netConfig *nodeConfiguration
 	runConfig *runConfiguration
-	addresses [][]byte
+	accounts  [][]byte
 }
 
 type nodeConfiguration struct {
@@ -50,12 +50,12 @@ func CreateConfig(cfgPath string, runConfigStr string) *Config {
 		panic(fmt.Sprintf("Failed parsing runConfig=%s: %s", runConfigStr, err))
 	}
 
-	addresses := util.ReadAddressesFromFile(util.TestKeysFilename)
+	accounts := keys.ReadAccountsFromFile(keys.TestAccountsFilename)
 
 	return &Config{
 		netConfig: netConfig,
 		runConfig: runConfig,
-		addresses: addresses,
+		accounts:  accounts,
 	}
 }
 
@@ -76,7 +76,7 @@ func parseStringConfig(input string) (*nodeConfiguration, error) {
 	return &value, nil
 }
 
-func ParseRunConfig(runConfigStr string) (*runConfiguration, error) {
+func ParseRunConfig(_ string) (*runConfiguration, error) {
 
 	return &runConfiguration{runTime: 5 * time.Second}, nil
 
