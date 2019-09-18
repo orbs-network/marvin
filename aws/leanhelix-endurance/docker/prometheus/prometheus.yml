@@ -78,7 +78,7 @@ scrape_configs:
         labels:
           machine: "node3"
           vchain: 2014
-  - job_name: node4
+  - job_name: node4_v111
     metrics_path: "/vchains/2014/metrics.prometheus"
     scheme: http
     static_configs:
@@ -86,7 +86,7 @@ scrape_configs:
         labels:
           machine: "node4"
           vchain: 2014
-  - job_name: node5
+  - job_name: node5_v111
     metrics_path: "/vchains/2014/metrics.prometheus"
     scheme: http
     static_configs:
