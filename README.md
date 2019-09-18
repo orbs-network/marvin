@@ -16,12 +16,12 @@ Config for now: https://boyar-testnet-bootstrap.s3-us-west-2.amazonaws.com/boyar
 
 
 ## Prometheus
-* Browse to http://localhost:9099/graph
-> From inside docker, Prometheus is served on port 9090
+* AWS: [Console](http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/graph)
+* Local: [Console](http://localhost:9099/graph)
 
 ## Grafana
-* Browse to http://localhost:3000/
-* Directly to dashboard: http://localhost:3000/d/yiCOQa5Wz/prometheus-2-0-stats?refresh=1m&orgId=1
+* AWS: [Detailed](http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:3000/d/Eqvddt3iz/detailed?refresh=10s&orgId=1&from=now-3h&to=now)
+* [Local](http://localhost:3000/d/yiCOQa5Wz/prometheus-2-0-stats?refresh=1m&orgId=1)
 
 ## Client
 
@@ -31,6 +31,15 @@ See the [client guide](client/CLIENT.md)
 ## ELK
 
 # Developer Notes
+
+## Updating deployed Client
+* Login to marvin machine: 
+* cd `marvin`
+* Run `./client-build.sh`
+This is  
+
+## Updating deployed testnet
+TBD
 
 ## Running Prometheus locally
 See https://prometheus.io/docs/prometheus/latest/installation/
