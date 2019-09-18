@@ -8,4 +8,4 @@ if (props.runName.length === 0) {
     process.exit(999)
 }
 
-enduranceLoop({})
+enduranceLoop({ config: props })
