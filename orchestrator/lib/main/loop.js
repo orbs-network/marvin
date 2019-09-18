@@ -70,7 +70,7 @@ async function enduranceLoop({ steps = defaultLoadSteps, config = {} }) {
 
 async function executeStep(currentStep, config) {
     info('Running endurance step: ', currentStep.displayName)
-    let results = await runClientContainers({ instances: currentStep.endurance })
+    let results = await runClientContainers({ instances: currentStep.endurance, config })
     info('Finished endurance step, preparing to save results to MySQL')
 
     await Promise.all(results.map(result => {
