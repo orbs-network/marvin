@@ -49,6 +49,22 @@ This is the visualization app. It reads data from Prometheus and serves it in a 
 
 ## SQL
 This database holds all transaction results. The Client inserts this data into SQL.
+* Use an app such as `Sequel Pro` to access the DB.
+* Connection details in Sequel Pro: Enter the *SSH* tab and enter the connection details: 
+    
+    * MySQL Host: 127.0.0.1
+    * User/pass: the DB's user/pass
+    * Database: marvin
+    * Port: 3306
+    * SSH Host: ec2-34-222-245-15.us-west-2.compute.amazonaws.com (or your machine)
+    * SSH User: ubuntu (or whatever applies to you)
+    * SSH Password: empty
+    * SSH Port: empty
+    * Connect using SSL: unchecked
+    
+All transactions are in table `transactions`.    
+    
+
 
 ## Client
 Suggested alias to add to shell startup:
