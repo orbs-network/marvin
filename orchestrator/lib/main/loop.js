@@ -23,23 +23,23 @@ const { insertTransaction } = require('./mysql')
 const defaultLoadSteps = [
     {
         displayName: '10 tps',
-        endurance: 5 // amount of containers to startup for this step
+        endurance: 2 // amount of containers to startup for this step
     },
     {
         displayName: '20 tps',
-        endurance: 10
+        endurance: 3
     },
     {
         displayName: '30 tps',
-        endurance: 20
+        endurance: 4
     },
     {
         displayName: '40 tps',
-        endurance: 30
+        endurance: 5
     },
     {
         displayName: '50 tps',
-        endurance: 40
+        endurance: 10
     }
 ];
 
