@@ -17,7 +17,7 @@ func TestReporterToJson(t *testing.T) {
 		ErrorTransactions: 1,
 		VChain:            1234,
 		CommitHash:        "0a1b2c3d4e5f",
-		Version:           "v10.20.30",
+		SemanticVersion:   "v10.20.30",
 		Transactions: []*Transaction{
 			&Transaction{
 				TxId:        []byte{1, 2, 3, 4},
