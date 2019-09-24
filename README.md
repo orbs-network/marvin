@@ -48,7 +48,7 @@ This is the visualization app. It reads data from Prometheus and serves it in a 
 * [Local](http://localhost:3000/d/yiCOQa5Wz/prometheus-2-0-stats?refresh=1m&orgId=1)
 
 ## SQL
-This database holds all transaction results. The Client inserts this data into SQL.
+This database holds all transaction results.
 * Use an app such as `Sequel Pro` to access the DB.
 * Connection details in Sequel Pro: Enter the *SSH* tab and enter the connection details: 
     
@@ -67,14 +67,18 @@ All transactions are in table `transactions`.
 
 
 ## Client
-Suggested alias to add to shell startup:
+* Runs transactions against the testnet, using [orbs-client-sdk-go](https://github.com/orbs-network/orbs-client-sdk-go)
+* Suggested alias to add to shell startup:
 > alias marvin="ssh ubuntu@ec2-34-222-245-15.us-west-2.compute.amazonaws.com" 
 See the [client guide](client/CLIENT.md)
 
 ## Orchestrator
-Runs one or more instances of the Client, depending on the required load on the testnet.
+* Runs one or more instances of the Client, depending on the required load on the testnet.
+* Reads output of the Client, inserts to SQL
 
 ## ELK
+Based on https://github.com/deviantony/docker-elk
+
 
 # Developer Notes
 
