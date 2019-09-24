@@ -8,6 +8,7 @@ import (
 	"github.com/orbs-network/marvin/client/util"
 	"github.com/orbs-network/orbs-client-sdk-go/codec"
 	orbsClient "github.com/orbs-network/orbs-client-sdk-go/orbs"
+	"github.com/pkg/errors"
 	"math/rand"
 	"time"
 )
@@ -32,6 +33,11 @@ func (runner *Runner) Execute() (*reporter.Report, error) {
 	url := fmt.Sprintf("http://%s/vchains/%d", firstIP, vchain)
 	client := orbsClient.NewClient(url, uint32(vchain), codec.NETWORK_TYPE_TEST_NET)
 
+	status, err := util.ReadStatus(url)
+	if err != nil {
+		return nil, errors.Errorf("Cannot read status from URL: %s", url)
+	}
+
 	report := &reporter.Report{
 		Name:              runConf.name,
 		Error:             "",
@@ -39,6 +45,9 @@ func (runner *Runner) Execute() (*reporter.Report, error) {
 		EndTime:           "",
 		TotalTransactions: 0,
 		ErrorTransactions: 0,
+		VChain:            uint32(vchain),
+		CommitHash:        status.Version.Commit,
+		SemanticVersion:   status.Version.Semantic,
 		Transactions:      nil,
 	}
 
