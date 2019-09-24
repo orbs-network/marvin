@@ -78,7 +78,8 @@ See the [client guide](client/CLIENT.md)
 
 ## ELK
 Based on https://github.com/deviantony/docker-elk
-
+* To configure Orbs to send logs to ELK, add the following property to Boyar config:
+> "logger-http-endpoint": "https://listener.logz.io:8071/?token=<some_token>&type=prod"
 
 # Developer Notes
 

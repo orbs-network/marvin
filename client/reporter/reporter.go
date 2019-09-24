@@ -20,6 +20,9 @@ type Report struct {
 	EndTime           string `json:"endTime"`
 	TotalTransactions uint64 `json:"totalTransactions"`
 	ErrorTransactions uint64 `json:"errorTransactions"`
+	VChain            uint64 `json:"vchain"`
+	CommitHash        string `json:"commitHash"`
+	Version           string `json:"version"`
 
 	Transactions []*Transaction `json:"transactions"`
 }

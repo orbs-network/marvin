@@ -5,6 +5,9 @@
     "endTime": "2019-09-16T15:50:16.472Z",
     "totalTransactions": 6,
     "errorTransactions": 0,
+    "vchain": 1234,
+    "commitHash": "0123456789abcdef",
+    "version": "v10.20.30",
     "transactions": [
       {
         "txId": "INRTN7bXYN1FY1KUuWIAdb+ndcwf+FVauQqDuGFuJS8=",
