@@ -22,6 +22,14 @@ function parseCommandLineArgs(argv) {
     return props;
 }
 
+function printUsage() {
+    console.log('Usage:');
+    console.log('-run=<run_name> -out=<output_table> -clientConfig=<config_file>');
+    console.log();
+    console.log('Defaults: output_table=transactions, config_file=config/testnet-aws.json');
+}
+
 module.exports = {
     parseCommandLineArgs,
+    printUsage,
 };
