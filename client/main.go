@@ -10,8 +10,8 @@ import (
 func main() {
 
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: <net_config_path> <test_name> <runtime_sec>")
-		fmt.Println("Example: config/testnet-aws.json HELLO|5")
+		fmt.Println("Usage: <net_config_path> <test_name>,<runtime_sec>")
+		fmt.Println("Example: config/testnet-aws.json HELLO,5")
 		os.Exit(1)
 	}
 

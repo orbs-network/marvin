@@ -13,6 +13,16 @@ type Transaction struct {
 	PApiUrl     string `json:"papiUrl"`
 }
 
+type version struct {
+	Semantic string `json:"Semantic"`
+	Commit   string `json:"Commit"`
+}
+
+type Status struct {
+	Status  string  `json:"Status"`
+	Version version `json:"Version"`
+}
+
 type Report struct {
 	Name              string `json:"name"`
 	Error             string `json:"error"`
@@ -20,6 +30,9 @@ type Report struct {
 	EndTime           string `json:"endTime"`
 	TotalTransactions uint64 `json:"totalTransactions"`
 	ErrorTransactions uint64 `json:"errorTransactions"`
+	VChain            uint32 `json:"vchain"`
+	CommitHash        string `json:"commitHash"`
+	SemanticVersion   string `json:"semanticVersion"`
 
 	Transactions []*Transaction `json:"transactions"`
 }
