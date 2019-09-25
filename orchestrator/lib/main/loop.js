@@ -88,7 +88,7 @@ async function storeBatchOutputs(dataAsString, config) {
     const tableName = config.outputTable || 'transactions'
 
     await Promise.all(data.transactions.map(tx => {
-        return insertTransaction(tx, connection, tableName)
+        return insertTransaction(tx, data, connection, tableName)
     }))
 }
 
