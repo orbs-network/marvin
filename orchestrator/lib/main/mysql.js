@@ -1,7 +1,7 @@
 const { promisify } = require('util')
 
 function insertTransaction(record = {}, data, connection, tableName, callback) {
-    const hash = (data.commitHash||'').slice(0,6);
+    const hash = (data.commitHash||'').slice(0,10);
     const version = data.semanticVersion||'';
 
     const queryStr = `INSERT INTO ${tableName} (durationMillis, txResult, rr_createdate, rr_createdate_unix, blockHeight, txId, papiUrl, vchain, commitHash, version)
