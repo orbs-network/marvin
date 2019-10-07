@@ -1,11 +1,12 @@
-const mysql = require('mysql');
-const { exec } = require('child-process-promise')
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: 'marvin'
-});
+const mysql = require('mysql2');
+const { exec } = require('child-process-promise');
+const { connection } = require('./db');
+// const connection = mysql.createConnection({
+//     host: '127.0.0.1',
+//     user: process.env.MYSQL_USER,
+//     password: process.env.MYSQL_PASSWORD,
+//     database: 'marvin'
+// });
 const verbosity = process.env.VERBOSE === 'true'
 
 function info() {
@@ -14,9 +15,6 @@ function info() {
     }
 }
 
-info('Connecting to MySQL')
-connection.connect();
-info('Connected to MySQL!')
 
 const { insertTransaction } = require('./mysql')
 
@@ -53,25 +51,30 @@ async function enduranceLoop({ steps = defaultLoadSteps, config = {} }) {
 
     do {
         for (let k in steps) {
-            await executeStep(steps[k], config)
+            await executeStep(steps[k], config);
         }
 
         for (let k in reverseSteps) {
-            await executeStep(reverseSteps[k], config)
+            await executeStep(reverseSteps[k], config);
         }
 
-        info('finished an endurance loop!')
-        info('')
+        info('finished an endurance loop!');
+        info('');
 
-        await cleanUpPrevClientRuns()
-        await new Promise((resolve) => { setTimeout(resolve, 10 * 1000) })
+        await cleanUpPrevClientRuns();
+        await new Promise((resolve) => {
+            setTimeout(resolve, 10 * 1000)
+        })
     } while (true);
 }
 
 async function executeStep(currentStep, config) {
-    info('Running endurance step: ', currentStep.displayName)
-    let results = await runClientContainers({ instances: currentStep.endurance, config })
-    info('Finished endurance step, preparing to save results to MySQL')
+    info('Running endurance step: ', currentStep.displayName);
+    let results = await runClientContainers({
+        instances: currentStep.endurance,
+        config
+    });
+    info('Finished endurance step, preparing to save results to MySQL');
 
     await Promise.all(results.map(result => {
         if (result.exitCode === 0) {
@@ -79,31 +82,36 @@ async function executeStep(currentStep, config) {
         } else {
             info('WARN: Could not store batch results because of an error', result.stderr)
         }
-    }))
-    await new Promise((resolve) => { setTimeout(resolve, 5 * 1000) })
+    }));
+    await new Promise((resolve) => {
+        setTimeout(resolve, 5 * 1000)
+    })
 }
 
 async function storeBatchOutputs(dataAsString, config) {
-    const data = JSON.parse(dataAsString)
-    const tableName = config.outputTable || 'transactions'
+    const data = JSON.parse(dataAsString);
+    const tableName = config.outputTable || 'transactions';
 
     await Promise.all(data.transactions.map(tx => {
         return insertTransaction(tx, data, connection, tableName)
     }))
 }
 
-async function runClientContainers({ instances = 1, config }) {
-    const clients = []
+async function runClientContainers({
+    instances = 1,
+    config
+}) {
+    const clients = [];
     for (let i = 0; i < instances; i++) {
         clients.push({
             id: i,
         })
     }
 
-    const clientConfigPath = config.clientConfig || 'config/testnet-aws.json'
+    const clientConfigPath = config.clientConfig || 'config/testnet-aws.json';
 
     const clientsResults = await Promise.all(clients.map(async (o) => {
-        const result = await exec(`docker run endurance:client ./client ${clientConfigPath} IDO,5`)
+        const result = await exec(`docker run endurance:client ./client ${clientConfigPath} IDO,5`);
 
         return {
             id: o.id,
@@ -111,7 +119,7 @@ async function runClientContainers({ instances = 1, config }) {
             stderr: result.stderr,
             stdout: result.stdout,
         }
-    }))
+    }));
 
     return clientsResults
 }
@@ -123,9 +131,8 @@ function cleanUpPrevClientRuns() {
 process.on('exit', () => {
     info('Closing the connection to MySQL');
     connection.end();
-})
+});
 
 module.exports = {
     enduranceLoop,
-}
-
+};

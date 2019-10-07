@@ -10,6 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "child-process-promise": "^2.2.1",
-    "mysql": "^2.17.1"
+    "express": "^4.17.1",
+    "mysql2": "^1.7.0",
+    "ssh2": "^0.8.5"
   }
 }

@@ -4,6 +4,11 @@
 # as shown in this stack overflow URL:
 # https://stackoverflow.com/questions/7578594/how-to-increase-limits-on-sockets-on-osx-for-load-testing
 
+if [[ -z "${MYSQL_PASSWORD}" ]] ; then
+  echo "Must set environment variable MYSQL_PASSWORD"
+  exit 2
+fi
+
 echo "Cleaning up all containers, if any are running"
 docker ps -a
 echo "Cleaned the following containers:"
@@ -37,5 +42,9 @@ echo ""
 echo "Node 4:"
 echo "http://localhost:7053/api/v1/"
 echo "http://localhost:7053/metrics"
+
+echo "Grafana: http://localhost:3000"
+echo "Prometheus: http://localhost:9090"
+echo "MySQL: host:localhost / port:3306 / db:marvin"
 
 exit 0

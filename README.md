@@ -11,10 +11,9 @@ Named after [Marvin the Paranoid Android](https://en.wikipedia.org/wiki/Marvin_t
 # Architecture
 
 ## Testnet
-TBD
 Config for now: https://boyar-testnet-bootstrap.s3-us-west-2.amazonaws.com/boyar/config.json
 Metrics are crawled by Prometheus from `/metric` endpoint.
-> For example: http://35.167.243.123/vchains/2013/metrics 
+> For example: http://52.204.239.242/vchains/2013/metrics 
 
 ## Accessing logs
 Until an ELK is in place, the only way to view logs is to access the node's machine, into the docker container, then view the log file.
@@ -27,15 +26,17 @@ Until an ELK is in place, the only way to view logs is to access the node's mach
 ### Debugging
 See a [very comprehensive article](https://www.freecodecamp.org/news/how-i-investigated-memory-leaks-in-go-using-pprof-on-a-large-codebase-4bec4325e192/)
 
-* AWS: Dump goroutines: `http://35.167.243.123/vchains/2013/debug/pprof/goroutine?debug=1`
+* AWS: Dump goroutines: `http://52.204.239.242/vchains/2013/debug/pprof/goroutine?debug=1`
 * Show allocation tree:
-  * Browse to `http://35.167.243.123/vchains/2013/debug/pprof/heap` - this will download a binary heap dump
+  * Browse to `http://52.204.239.242/vchains/2013/debug/pprof/heap` - this will download a binary heap dump
 
 * Dump heap file (local):
  * curl -sK -v http://localhost:7050/debug/pprof/heap > heap_local_01.out
  * pprof -http=:8080 heap_file - where `heap_file` is the binary heap dump
 
 ## Prometheus
+`Part of docker compose`
+
 This is the TSDB (Time-Series Database) that holds all metrics data. 
 It is configured to crawl the `/metrics` endpoint of every node, every few seconds, and store the metrics data.
 Therefore, there is no need for a separate process to push metrics into it.
@@ -43,11 +44,15 @@ Therefore, there is no need for a separate process to push metrics into it.
 * Local: [Console](http://localhost:9099/graph)
 
 ## Grafana
+`Part of docker compose`
+
 This is the visualization app. It reads data from Prometheus and serves it in a visually pleasing form.
 * AWS: [Detailed](http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:3000/d/Eqvddt3iz/detailed?refresh=10s&orgId=1&from=now-3h&to=now)
 * [Local](http://localhost:3000/d/yiCOQa5Wz/prometheus-2-0-stats?refresh=1m&orgId=1)
 
 ## SQL
+`Part of docker compose`
+
 This database holds all transaction results.
 * Use an app such as `Sequel Pro` to access the DB.
 * Connection details in Sequel Pro: Enter the *SSH* tab and enter the connection details: 
@@ -64,9 +69,13 @@ This database holds all transaction results.
     
 All transactions are in table `transactions`.    
     
+ > Changing any DB property (such as user / password / DB name) in docker-compose requires restarting docker with `./start-network.sh`
+ 
+ > It takes time (30s on a Mac) to initialize the DB, after running `./start-network.sh`
 
 
 ## Client
+
 * Runs transactions against the testnet, using [orbs-client-sdk-go](https://github.com/orbs-network/orbs-client-sdk-go)
 * Suggested alias to add to shell startup:
 > alias marvin="ssh ubuntu@ec2-34-222-245-15.us-west-2.compute.amazonaws.com" 
@@ -84,10 +93,16 @@ Based on https://github.com/deviantony/docker-elk
 # Developer Notes
 
 ## Running testnet locally
-To start the network, or restart an already running network, run:
+
+* To rebuild Orbs, clone the [repo](https://github.com/orbs-network/orbs-network-go/), then from its root directory, run:
+> docker/build/build.sh
+
+This will rebuild the Docker images from local code.
+
+* To start the network, or restart an already running network, run:
 > cd docker ; ./start-network
 
-To stop the network, run:
+* To stop the network, run:
 > cd docker ; ./stop-network
 
 ## Updating deployed Client
@@ -96,6 +111,10 @@ To stop the network, run:
 
 ## Updating deployed testnet
 TBD
+
+## Restarting deployed testnet
+* Login to marvin machine and run:
+
 
 ## Running Prometheus locally
 See https://prometheus.io/docs/prometheus/latest/installation/
