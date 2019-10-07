@@ -17,6 +17,15 @@ services:
     networks:
       orbs:
         ipv4_address: 192.168.199.100
+  mysql:
+    image: percona:5.7
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql/mysql-volume:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: marvin
+      MYSQL_ROOT_PASSWORD: $MYSQL_PASSWORD
   ganache:
     image: trufflesuite/ganache-cli
     command: ganache-cli --gasLimit 90000000000 --gasPrice 1 -a 10 -m "vanish junk genuine web seminar cook absurd royal ability series taste method identify elevator liquid"
