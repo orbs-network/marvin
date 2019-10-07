@@ -5,7 +5,7 @@ function parseCommandLineArgs(argv) {
         clientConfig: '',
     };
 
-    for (k in argv) {
+    for (const k in argv) {
         if (argv[k].indexOf('-run=') !== -1) {
             props.runName = argv[k].replace('-run=', '');
         }
