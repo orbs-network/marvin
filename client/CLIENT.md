@@ -17,13 +17,15 @@ Run the commands:
 
 ## Running
 
-### Local run
+### Local client running against local testnet 
+
 ```sh
 cd client
-./client config/testnet-aws.json HELLO,5
+./client config/testnet-local.json HELLO,5
 ```
 
-This will run the client with network config from `config/testnet-aws.json` and runtime config of test name HELLO and total runtime of 5 seconds 
+This will run the client with network config from `config/testnet-local.json` and runtime config of test name HELLO and total runtime of 5 seconds 
+This will be a short run - to run continuously, run the Orchestrator instead.
 
 
 ## Design
