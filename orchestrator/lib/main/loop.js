@@ -1,13 +1,14 @@
 const mysql = require('mysql2');
 const { exec } = require('child-process-promise');
 const { connection } = require('./db');
+const { getConnection } = require('./db');
 // const connection = mysql.createConnection({
 //     host: '127.0.0.1',
 //     user: process.env.MYSQL_USER,
 //     password: process.env.MYSQL_PASSWORD,
 //     database: 'marvin'
 // });
-const verbosity = process.env.VERBOSE === 'true'
+const verbosity = process.env.VERBOSE === 'true';
 
 function info() {
     if (verbosity) {
@@ -16,7 +17,7 @@ function info() {
 }
 
 
-const { insertTransaction } = require('./mysql')
+const { insertTransaction } = require('./mysql');
 
 const defaultLoadSteps = [
     {
@@ -46,8 +47,9 @@ const defaultLoadSteps = [
  * This is the main loop which runs endlessly performing the setup load step
  */
 async function enduranceLoop({ steps = defaultLoadSteps, config = {} }) {
-    let reverseSteps = Array.from(steps)
-    reverseSteps.reverse()
+    let reverseSteps = Array.from(steps);
+    reverseSteps.reverse();
+    info('Started');
 
     do {
         for (let k in steps) {
@@ -93,7 +95,7 @@ async function storeBatchOutputs(dataAsString, config) {
     const tableName = config.outputTable || 'transactions';
 
     await Promise.all(data.transactions.map(tx => {
-        return insertTransaction(tx, data, connection, tableName)
+        return insertTransaction(tx, data, getConnection(), tableName)
     }))
 }
 
@@ -130,7 +132,7 @@ function cleanUpPrevClientRuns() {
 
 process.on('exit', () => {
     info('Closing the connection to MySQL');
-    connection.end();
+    getConnection().end();
 });
 
 module.exports = {
