@@ -2,19 +2,13 @@ const mysql = require('mysql2');
 const { exec } = require('child-process-promise');
 const { connection } = require('./db');
 const { getConnection } = require('./db');
+const { info } = require('./util');
 // const connection = mysql.createConnection({
 //     host: '127.0.0.1',
 //     user: process.env.MYSQL_USER,
 //     password: process.env.MYSQL_PASSWORD,
 //     database: 'marvin'
 // });
-const verbosity = process.env.VERBOSE === 'true';
-
-function info() {
-    if (verbosity) {
-        console.log.apply(this, arguments)
-    }
-}
 
 
 const { insertTransaction } = require('./mysql');
@@ -110,11 +104,12 @@ async function runClientContainers({
         })
     }
 
-    const clientConfigPath = config.clientConfig || 'config/testnet-aws.json';
+    const clientConfigPath = config.clientConfig || 'config/testnet-master-aws.json';
 
     const clientsResults = await Promise.all(clients.map(async (o) => {
+        info('Running client container');
         const result = await exec(`docker run endurance:client ./client ${clientConfigPath} IDO,5`);
-
+        info('Returned from client container with exit code ' + result.childProcess.exitCode);
         return {
             id: o.id,
             exitCode: result.childProcess.exitCode,

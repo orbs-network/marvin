@@ -1,3 +1,5 @@
+const {info} = require('./util');
+
 function parseCommandLineArgs(argv) {
     const props = {
         runName: '',
@@ -18,6 +20,7 @@ function parseCommandLineArgs(argv) {
             props.clientConfig = argv[k].replace('-clientConfig=', '');
         }
     }
+    info('config=' + props.clientConfig);
 
     return props;
 }
@@ -26,7 +29,7 @@ function printUsage() {
     console.log('Usage:');
     console.log('-run=<run_name> -out=<output_table> -clientConfig=<config_file>');
     console.log();
-    console.log('Defaults: output_table=transactions, config_file=config/testnet-aws.json');
+    console.log('Defaults: output_table=transactions, config_file=config/testnet-master-aws.json');
 }
 
 module.exports = {

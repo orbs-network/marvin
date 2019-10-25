@@ -10,6 +10,7 @@ var bodyParser = require('body-parser');
 const jobsRouter = require('./routes/jobs');
 const jobRouter = require('./routes/job');
 const props = parseCommandLineArgs(process.argv);
+const { info} = require('./lib/main/util');
 
 // if (props.runName.length === 0) {
 //     console.log('Cannot start endurance test without a run name');
@@ -30,11 +31,8 @@ app.use('/job', jobRouter);
 app.use('/jobs', jobsRouter);
 app.use('/', (req, res) => res.status(404).send('Not found'));
 
-app.listen(port, () => console.log(`Orchestrator listening on port ${port}!`));
+//app.listen(port, () => console.log(`Orchestrator listening on port ${port}!`));
 
+info('Going to start loop');
 
-function dbInit() {
-
-}
-
-//enduranceLoop({ config: props });
+enduranceLoop({ config: props });

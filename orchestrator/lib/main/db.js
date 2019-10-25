@@ -4,7 +4,9 @@ var connection;
 
 async function getConnection() {
 
+    info('Trying to get DB connection');
     if (connection) {
+        info('Returning existing DB connection');
         return connection;
     }
 
