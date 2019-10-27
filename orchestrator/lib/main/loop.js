@@ -1,17 +1,6 @@
-const mysql = require('mysql2');
-const { exec } = require('child-process-promise');
-const { connection } = require('./db');
-const { getConnection } = require('./db');
-const { info } = require('./util');
-// const connection = mysql.createConnection({
-//     host: '127.0.0.1',
-//     user: process.env.MYSQL_USER,
-//     password: process.env.MYSQL_PASSWORD,
-//     database: 'marvin'
-// });
-
-
-const { insertTransaction } = require('./mysql');
+const {exec} = require('child-process-promise');
+const {info} = require('./util');
+const {insertTransaction} = require('./mysql');
 
 const defaultLoadSteps = [
     {
@@ -37,10 +26,10 @@ const defaultLoadSteps = [
 ];
 
 /**
- * 
+ *
  * This is the main loop which runs endlessly performing the setup load step
  */
-async function enduranceLoop({ steps = defaultLoadSteps, config = {} }) {
+async function enduranceLoop({steps = defaultLoadSteps, config = {}}) {
     let reverseSteps = Array.from(steps);
     reverseSteps.reverse();
     info('Started');
@@ -89,14 +78,14 @@ async function storeBatchOutputs(dataAsString, config) {
     const tableName = config.outputTable || 'transactions';
 
     await Promise.all(data.transactions.map(tx => {
-        return insertTransaction(tx, data, getConnection(), tableName)
+        return insertTransaction(tx, data, tableName)
     }))
 }
 
 async function runClientContainers({
-    instances = 1,
-    config
-}) {
+                                       instances = 1,
+                                       config
+                                   }) {
     const clients = [];
     for (let i = 0; i < instances; i++) {
         clients.push({
@@ -108,13 +97,19 @@ async function runClientContainers({
 
     const clientsResults = await Promise.all(clients.map(async (o) => {
         info('Running client container');
-        const result = await exec(`docker run endurance:client ./client ${clientConfigPath} IDO,5`);
-        info('Returned from client container with exit code ' + result.childProcess.exitCode);
-        return {
-            id: o.id,
-            exitCode: result.childProcess.exitCode,
-            stderr: result.stderr,
-            stdout: result.stdout,
+        try {
+            const result = await exec(`docker run endurance:client ./client ${clientConfigPath} IDO,5`);
+            // const result = await exec(`../client/client ${clientConfigPath} IDO,5`);
+            info('Returned from client container with exit code ' + result.childProcess.exitCode);
+            return {
+                id: o.id,
+                exitCode: result.childProcess.exitCode,
+                stderr: result.stderr,
+                stdout: result.stdout,
+            }
+        } catch (ex) {
+            console.log('Failed to run client: ' + ex);
+            throw ex
         }
     }));
 

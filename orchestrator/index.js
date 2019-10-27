@@ -1,3 +1,4 @@
+const { knex } = require('./lib/main/mysql');
 const {
     parseCommandLineArgs,
     printUsage
@@ -10,7 +11,9 @@ var bodyParser = require('body-parser');
 const jobsRouter = require('./routes/jobs');
 const jobRouter = require('./routes/job');
 const props = parseCommandLineArgs(process.argv);
-const { info} = require('./lib/main/util');
+const {
+    info
+} = require('./lib/main/util');
 
 // if (props.runName.length === 0) {
 //     console.log('Cannot start endurance test without a run name');
@@ -35,4 +38,6 @@ app.use('/', (req, res) => res.status(404).send('Not found'));
 
 info('Going to start loop');
 
-enduranceLoop({ config: props });
+enduranceLoop({
+    config: props
+});

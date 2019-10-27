@@ -84,7 +84,7 @@ See the [client guide](client/CLIENT.md)
 ## Orchestrator
 * Runs one or more instances of the Client, depending on the required load on the testnet.
 * Reads output of the Client, inserts to SQL
-
+* VERBOSE=true MYSQL_USER=<...> MYSQL_PASSWORD=<...> node index.js
 ## ELK
 Based on https://github.com/deviantony/docker-elk
 * To configure Orbs to send logs to ELK, add the following property to Boyar config:
