@@ -4,14 +4,17 @@
   "description": "Orchestrates the endurance test by creating containers which produce load against the system",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
     "child-process-promise": "^2.2.1",
     "express": "^4.17.1",
     "knex": "^0.20.0",
+    "mocha": "^6.2.2",
     "mysql2": "^1.7.0",
     "ssh2": "^0.8.5"
   }

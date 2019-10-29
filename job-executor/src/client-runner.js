@@ -1,6 +1,7 @@
 const {exec} = require('child-process-promise');
 const {info} = require('./util');
-const {insertTransaction} = require('./mysql');
+const {state} = require('./state');
+const {sendJobStopped} = ('./comm');
 
 const defaultLoadSteps = [
     {
@@ -29,18 +30,18 @@ const defaultLoadSteps = [
  *
  * This is the main loop which runs endlessly performing the setup load step
  */
-async function enduranceLoop({steps = defaultLoadSteps, config = {}}) {
+async function runUntilStopped({steps = defaultLoadSteps, config = {}}) {
     let reverseSteps = Array.from(steps);
     reverseSteps.reverse();
     info('Started');
 
     do {
         for (let k in steps) {
-            await executeStep(steps[k], config);
+            await executeJob(steps[k], config);
         }
 
         for (let k in reverseSteps) {
-            await executeStep(reverseSteps[k], config);
+            await executeJob(reverseSteps[k], config);
         }
 
         info('finished an endurance loop!');
@@ -50,10 +51,12 @@ async function enduranceLoop({steps = defaultLoadSteps, config = {}}) {
         await new Promise((resolve) => {
             setTimeout(resolve, 10 * 1000)
         })
-    } while (true);
+    } while (!state.should_stop);
+    info('Stopped');
+    sendJobStopped()
 }
 
-async function executeStep(currentStep, config) {
+async function executeJob(currentStep, config) {
     info('Running endurance step: ', currentStep.displayName);
     let results = await runClientContainers({
         instances: currentStep.endurance,
@@ -63,7 +66,7 @@ async function executeStep(currentStep, config) {
 
     await Promise.all(results.map(result => {
         if (result.exitCode === 0) {
-            return storeBatchOutputs(result.stdout, config)
+            return callJobStopWithResult(result.stdout, config)
         } else {
             info('WARN: Could not store batch results because of an error', result.stderr)
         }
@@ -73,14 +76,10 @@ async function executeStep(currentStep, config) {
     })
 }
 
-async function storeBatchOutputs(dataAsString, config) {
-    const data = JSON.parse(dataAsString);
-    const tableName = config.outputTable || 'transactions';
-
-    await Promise.all(data.transactions.map(tx => {
-        return insertTransaction(tx, data, tableName)
-    }))
+async function callJobStopWithResult(result) {
+    // HTTP POST to orchestrator with URL /jobs/:id/stop and BODY=result
 }
+
 
 async function runClientContainers({
                                        instances = 1,
@@ -120,11 +119,6 @@ function cleanUpPrevClientRuns() {
     return exec("(docker ps -a | grep endurance:client | awk '{print $1}' || echo :) | xargs docker rm -fv")
 }
 
-process.on('exit', () => {
-    info('Closing the connection to MySQL');
-    getConnection().end();
-});
-
 module.exports = {
-    enduranceLoop,
+    runUntilStopped,
 };

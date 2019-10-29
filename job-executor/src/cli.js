@@ -1,4 +1,4 @@
-const {info} = require('./util');
+const {info} = require('../../orchestrator/src/util');
 
 function parseCommandLineArgs(argv) {
     const props = {

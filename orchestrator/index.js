@@ -1,19 +1,18 @@
-const { knex } = require('./lib/main/mysql');
+const { knex } = require('./src/mysql');
 const {
     parseCommandLineArgs,
     printUsage
-} = require('./lib/main/cli');
+} = require('../job-executor/src/cli');
 const {
-    enduranceLoop
-} = require('./lib/main/loop');
+    runJobExecutor
+} = require('./src/job-runner');
 const express = require('express');
-var bodyParser = require('body-parser');
-const jobsRouter = require('./routes/jobs');
-const jobRouter = require('./routes/job');
+const bodyParser = require('body-parser');
+const jobsRouter = require('./src/routes/jobs');
 const props = parseCommandLineArgs(process.argv);
 const {
     info
-} = require('./lib/main/util');
+} = require('./src/util');
 
 // if (props.runName.length === 0) {
 //     console.log('Cannot start endurance test without a run name');
@@ -30,7 +29,6 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-app.use('/job', jobRouter);
 app.use('/jobs', jobsRouter);
 app.use('/', (req, res) => res.status(404).send('Not found'));
 
@@ -38,6 +36,6 @@ app.use('/', (req, res) => res.status(404).send('Not found'));
 
 info('Going to start loop');
 
-enduranceLoop({
+runJobExecutor({
     config: props
 });

@@ -1,5 +1,15 @@
 const express = require('express');
 const router = express.Router();
+const {listJobs} = require('../mysql');
+
+/* GET users listing. */
+router.get('/', (req, res) => {
+    res.json(listJobs());
+});
+
+router.get('/start', (req, res, next) => {
+
+});
 
 /* GET users listing. */
 router.get('/:id/status', (req, res, next) => {
@@ -18,6 +28,5 @@ router.get('/:id/stop', (req, res, next) => {
         status: 'STOPPED'
     });
 });
-
 
 module.exports = router;

@@ -1,5 +1,4 @@
-const {promisify} = require('util');
-const { info } = require('./util');
+const {info} = require('./util');
 const knex = require('knex')({
     client: 'mysql2',
     version: '5.7',
@@ -28,26 +27,11 @@ function insertTransaction(record = {}, data, tableName) {
             commitHash: hash,
             version: version
         });
-    // const queryStr = `INSERT INTO ${tableName} (durationMillis, txResult, rr_createdate, rr_createdate_unix, blockHeight, txId, papiUrl, vchain, commitHash, version)
-    //                   VALUES (${record.durationMillis}, '${record.txResult}', NOW(),
-    //                   ${Math.floor(Date.now() / 1000)},
-    //                   ${record.blockHeight}, '${record.txId}', '${record.papiUrl}', '${data.vchain}', '${hash}', '${version}');`;
-
-    // connection.query(queryStr, (error, results, fields) => {
-    //
-    //     if (error != null) {
-    //         throw new Error(error)
-    //     }
-    //
-    //     callback(null, results)
-    // });
 }
 
 async function listJobs() {
 
     const rows = knex.select().table('jobs');
-    // const conn = await getConnection();
-    // const rows = await conn.query('SELECT * FROM `jobs`', []);
     console.log(rows);
 }
 
