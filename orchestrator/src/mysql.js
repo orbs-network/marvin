@@ -7,7 +7,8 @@ const knex = require('knex')({
         user: process.env.MYSQL_USER,
         password: process.env.MYSQL_PASSWORD,
         database: 'marvin'
-    }
+    },
+    pool: { min: 0 }, // See https://github.com/Vincit/objection.js/issues/534#issuecomment-343683129
 });
 
 function insertTransaction(record = {}, data, tableName) {

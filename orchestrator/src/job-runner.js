@@ -1,4 +1,4 @@
-const {exec} = require('child-process-promise');
+const {fork} = require('child_process');
 const {info} = require('./util');
 const {insertTransaction} = require('./mysql');
 
@@ -13,31 +13,21 @@ async function storeBatchOutputs(dataAsString) {
     }))
 }
 
-async function runJobExecutor() {
-    try {
-        const result = await exec(`node ../../../job-executor/app.js ${clientConfigPath} IDO,5`);
-        // const result = await exec(`node ../../../job-executor/app.js ${clientConfigPath} IDO,5`);
-        // const result = await exec(`../client/client ${clientConfigPath} IDO,5`);
-        info('Returned from job executor with exit code ' + result.childProcess.exitCode);
-        return {
-            id: o.id,
-            exitCode: result.childProcess.exitCode,
-            stderr: result.stderr,
-            stdout: result.stdout,
-        }
-    } catch (ex) {
-        console.log('Failed to run job executor: ' + ex);
-        throw ex
-    }
+async function runJob(jobProps) {
+    const jobExecutor = fork(`../../../job-executor/app.js ${clientConfigPath} IDO,5`);
+    jobExecutor.on('exit', (code, signal) => {
+        info('Job Executor process exited with ' +
+            `code ${code} and signal ${signal}`);
+    });
 
+    info(`JobExecutor with ${jobExecutor.pid} started.`);
 }
 
 
 process.on('exit', () => {
-    info('Closing the connection to MySQL');
-    getConnection().end();
+    info('Shutdown');
 });
 
 module.exports = {
-    runJobExecutor,
+    runJobExecutor: runJob,
 };

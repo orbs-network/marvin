@@ -1,7 +1,9 @@
-const {exec} = require('child-process-promise');
+const {exec, execSync} = require('child_process');
 const {info} = require('./util');
-const {state} = require('./state');
+const {state, config} = require('./state');
 const {sendJobStopped} = ('./comm');
+
+const rp = require('request-promise-native');
 
 const defaultLoadSteps = [
     {
@@ -30,95 +32,143 @@ const defaultLoadSteps = [
  *
  * This is the main loop which runs endlessly performing the setup load step
  */
-async function runUntilStopped({steps = defaultLoadSteps, config = {}}) {
+async function runJob({steps = defaultLoadSteps, jobConfig = {}}) {
+    jobConfig.job_timeout_sec = 5;
     let reverseSteps = Array.from(steps);
     reverseSteps.reverse();
-    info('Started');
+    info(`runJob() Started: setting job timeout to ${jobConfig.job_timeout_sec * 1000} ms. State=${JSON.stringify(state)}`);
+    let allResults = [];
 
+    // TODO Change the hard-coded job timeout
+    setTimeout(() => {
+        state.should_stop = true;
+        info('--- TIMED OUT ---');
+    }, jobConfig.job_timeout_sec * 1000);
+
+    const startTime = new Date();
+    state.job_status = 'RUNNING';
     do {
+        info(`Iteration starts. Should_stop=${state.should_stop} Steps=${JSON.stringify(steps)}`);
         for (let k in steps) {
-            await executeJob(steps[k], config);
+            info(`Running runClientContainers`);
+            const clientResults = await runClientContainers({
+                instances: steps[k].endurance, config: jobConfig
+            });
+            allResults.concat(clientResults);
         }
 
         for (let k in reverseSteps) {
-            await executeJob(reverseSteps[k], config);
+            const clientResults = await runClientContainers({
+                instances: reverseSteps[k].endurance, config: jobConfig
+            });
+            allResults.concat(clientResults);
         }
 
-        info('finished an endurance loop!');
-        info('');
-
+        info('Starting docker container cleanup..');
         await cleanUpPrevClientRuns();
-        await new Promise((resolve) => {
-            setTimeout(resolve, 10 * 1000)
-        })
+        info(`Finished iteration of ${JSON.stringify(steps)} steps, waiting for cleanup`);
+        // await new Promise((resolve) => {
+        //     setTimeout(resolve, 10 * 1000)
+        // })
     } while (!state.should_stop);
-    info('Stopped');
-    sendJobStopped()
+    const endTime = new Date();
+    state.job_status = 'COMPLETED';
+    info('Job finished, informing Orchestrator');
+
+    aggregatedResults = agg(allResults);
+
+    const jobResult = {
+        job_id: jobConfig.id,
+        job_status: state.job_status,
+        results: aggregatedResults,
+        runtimeMillis: endTime - startTime,
+    };
+
+    await updateParentWithJob(jobResult);
 }
 
-async function executeJob(currentStep, config) {
-    info('Running endurance step: ', currentStep.displayName);
-    let results = await runClientContainers({
-        instances: currentStep.endurance,
-        config
-    });
-    info('Finished endurance step, preparing to save results to MySQL');
-
-    await Promise.all(results.map(result => {
-        if (result.exitCode === 0) {
-            return callJobStopWithResult(result.stdout, config)
-        } else {
-            info('WARN: Could not store batch results because of an error', result.stderr)
-        }
-    }));
-    await new Promise((resolve) => {
-        setTimeout(resolve, 5 * 1000)
-    })
+function agg(resultsArr) {
+    // TODO aggregate results and return a single object
+    return resultsArr;
 }
 
-async function callJobStopWithResult(result) {
+async function updateParentWithJob(results) {
     // HTTP POST to orchestrator with URL /jobs/:id/stop and BODY=result
+    const uri = `${config.parent_base_url}/jobs/${state.job_id}/update`;
+    const options = {
+        method: 'POST',
+        uri: uri,
+        body: results,
+        json: true,
+    };
+    info(`HTTP POST to ${uri} with body: ${JSON.stringify(results)}`);
+    return rp(options);
 }
 
 
-async function runClientContainers({
-                                       instances = 1,
-                                       config
-                                   }) {
+async function runClientContainers({instances = 1, config}) {
+    info(`runClientContainers(): running ${instances} instances`);
     const clients = [];
     for (let i = 0; i < instances; i++) {
         clients.push({
-            id: i,
+            id: `${config.job_id}_${state.instance_counter++}`,
         })
     }
 
-    const clientConfigPath = config.clientConfig || 'config/testnet-master-aws.json';
+    const clientConfigPath = config.client_config || 'config/testnet-master-aws.json';
 
-    const clientsResults = await Promise.all(clients.map(async (o) => {
-        info('Running client container');
+    const clientResults = [];
+    await Promise.all(clients.map(async (client) => {
         try {
-            const result = await exec(`docker run endurance:client ./client ${clientConfigPath} IDO,5`);
+            const cmd = `docker run -d -rm endurance:client ./client ${clientConfigPath} ${client.id},${config.client_timeout_sec}`;
+
+            const clientProc = await exec(cmd, {stdio: ['ignore', 'pipe', process.stderr]});
+            info(`Started client container pid=${clientProc.pid}: ${cmd}`);
+            clientProc.stdout.on('data', (data) => {
+                info(`STDOUT ${client.id}: ${data}`);
+                clientResults.push(JSON.parse(data));
+            });
+
+            clientProc.on('close', (code) => {
+                info(`child proc ${clientProc.pid} exited with code ${code}`);
+            });
+
             // const result = await exec(`../client/client ${clientConfigPath} IDO,5`);
-            info('Returned from client container with exit code ' + result.childProcess.exitCode);
-            return {
-                id: o.id,
-                exitCode: result.childProcess.exitCode,
-                stderr: result.stderr,
-                stdout: result.stdout,
-            }
+            // info(`Returned from client container with result: ${JSON.stringify(result)}`);
+            // return {
+            //     id: o.id,
+            //     exitCode: result.childProcess.exitCode,
+            //     stderr: result.stderr,
+            //     stdout: result.stdout,
+            // }
         } catch (ex) {
             console.log('Failed to run client: ' + ex);
             throw ex
         }
     }));
 
-    return clientsResults
+    // if (result.childProcess.exitCode != 0) {
+    //     return {
+    //         status: 'ERROR',
+    //         message: result.childProcess.stderr,
+    //     }
+    // }
+
+    return clientResults;
+}
+
+function agg(results) {
+    return results;
 }
 
 function cleanUpPrevClientRuns() {
-    return exec("(docker ps -a | grep endurance:client | awk '{print $1}' || echo :) | xargs docker rm -fv")
+    try {
+        execSync("(docker ps -a | grep endurance:client | grep Exited | awk '{print $1}' || echo :) | xargs docker rm -fv");
+    } catch(ex) {
+        info(`Error cleaning client containers: ${ex}`);
+    }
 }
 
 module.exports = {
-    runUntilStopped,
+    runJob: runJob,
 };

@@ -20,6 +20,21 @@ describe('job executor jobs endpoint suite', () => {
             });
     });
 
+    it('should reply with status of starting the job /job/start', async () => {
+        const startJobBody = {
+            job_id: '20191030_094500',
+            tpm: 5,
+            duration_sec: 10,
+        };
+        return chai.request(app)
+            .post('/job/start')
+            .send(startJobBody)
+            .then(res => {
+                expect(res.body.status).to.equal('STARTING');
+                expect(res.body.job_id).to.equal('20191030_094500');
+            });
+    });
+
     it('should reply with status of stopping the job /job/stop', async () => {
         return chai.request(app)
             .get('/job/stop')

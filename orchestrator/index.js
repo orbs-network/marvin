@@ -9,6 +9,7 @@ const {
 const express = require('express');
 const bodyParser = require('body-parser');
 const jobsRouter = require('./src/routes/jobs');
+const statusRouter = require('./src/routes/status');
 const props = parseCommandLineArgs(process.argv);
 const {
     info
@@ -30,12 +31,15 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use('/jobs', jobsRouter);
+app.use('/status', statusRouter);
 app.use('/', (req, res) => res.status(404).send('Not found'));
 
-//app.listen(port, () => console.log(`Orchestrator listening on port ${port}!`));
+app.server = app.listen(port, () => console.log(`Orchestrator listening on port ${port}!`));
 
-info('Going to start loop');
+module.exports = app;
 
-runJobExecutor({
-    config: props
-});
+// info('Going to start loop');
+
+// runJobExecutor({
+//     config: props
+// });
