@@ -39,15 +39,9 @@ async function runJob({steps = defaultLoadSteps, jobConfig = {}}) {
     info(`runJob() Started: setting job timeout to ${jobConfig.job_timeout_sec * 1000} ms. State=${JSON.stringify(state)}`);
     let allResults = [];
 
-    // TODO Change the hard-coded job timeout
-    setTimeout(() => {
-        state.should_stop = true;
-        info('--- TIMED OUT ---');
-    }, jobConfig.job_timeout_sec * 1000);
-
     const startTime = new Date();
     state.job_status = 'RUNNING';
-    do {
+    while (!state.should_stop) {
         info(`Iteration starts. Should_stop=${state.should_stop} Steps=${JSON.stringify(steps)}`);
         for (let k in steps) {
             info(`Running runClientContainers`);
@@ -67,21 +61,27 @@ async function runJob({steps = defaultLoadSteps, jobConfig = {}}) {
         info('Starting docker container cleanup..');
         await cleanUpPrevClientRuns();
         info(`Finished iteration of ${JSON.stringify(steps)} steps, waiting for cleanup`);
+
+        if (new Date() - startTime > jobConfig.job_timeout_sec*1000) {
+            info(`SHOULD STOP`);
+            state.should_stop = true;
+        }
+
         // await new Promise((resolve) => {
         //     setTimeout(resolve, 10 * 1000)
         // })
-    } while (!state.should_stop);
+    }
     const endTime = new Date();
     state.job_status = 'COMPLETED';
     info('Job finished, informing Orchestrator');
 
-    aggregatedResults = agg(allResults);
+    const aggregatedResults = agg(allResults);
 
     const jobResult = {
         job_id: jobConfig.id,
         job_status: state.job_status,
         results: aggregatedResults,
-        runtimeMillis: endTime - startTime,
+        runtime_ms: endTime - startTime,
     };
 
     await updateParentWithJob(jobResult);
@@ -120,13 +120,19 @@ async function runClientContainers({instances = 1, config}) {
     const clientResults = [];
     await Promise.all(clients.map(async (client) => {
         try {
-            const cmd = `docker run -d -rm endurance:client ./client ${clientConfigPath} ${client.id},${config.client_timeout_sec}`;
+            const cmd = `docker run -t --rm endurance:client ./client ${clientConfigPath} ${client.id},${config.client_timeout_sec}`;
 
             const clientProc = await exec(cmd, {stdio: ['ignore', 'pipe', process.stderr]});
             info(`Started client container pid=${clientProc.pid}: ${cmd}`);
             clientProc.stdout.on('data', (data) => {
                 info(`STDOUT ${client.id}: ${data}`);
-                clientResults.push(JSON.parse(data));
+                try{
+                    const jsonData = JSON.parse(data);
+                    clientResults.push(jsonData);
+                } catch(ex) {
+                    info(`Error parsing data, skipping. Data=${data}`);
+                }
+
             });
 
             clientProc.on('close', (code) => {

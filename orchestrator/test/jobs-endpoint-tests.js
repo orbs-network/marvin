@@ -60,14 +60,17 @@ describe('job executor jobs endpoint suite', () => {
 
     // TODO add test for non-existent job
 
-    xit('should reply back with a job id updated successfully/jobs/1/update', async () => {
+    it('should reply back with a job id updated successfully/jobs/1/update', async () => {
+        const jobUpdate = {
+            "job_status": "COMPLETED", "results": [], "runtime_ms": 6946
+        };
         return chai.request(app)
-            .post('/jobs/1/status') // TODO add body
-            // .send({...})
+            .post('/jobs/1/update') // TODO add body
+            .send(jobUpdate)
             .then(res => {
 
                 console.log(res.body);
-                expect(res.body.pct_done).to.equal(86);
+                expect(res.body.runtime_ms).to.equal(jobUpdate.runtime_ms);
             })
             .done();
     });

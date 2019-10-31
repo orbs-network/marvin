@@ -91,7 +91,7 @@ func (runner *Runner) Execute() (*reporter.Report, error) {
 	report.EndTime = util.TimeToISO(time.Now())
 	report.TotalTransactions = uint64(len(txs))
 	report.ErrorTransactions = errorTxs
-	report.Transactions = txs
+	//report.Transactions = txs
 
 	// Send single transaction
 	return report, nil

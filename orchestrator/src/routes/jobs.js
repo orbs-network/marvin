@@ -25,7 +25,16 @@ router.get('/:id/status', (req, res, next) => {
     });
 });
 
-router.get('/:id/stop', (req, res, next) => {
+router.post('/:id/update', (req, res, next) => {
+    const jobUpdate = req.body;
+    res.json({
+        job_id: req.params.id,
+        status: jobUpdate.job_status,
+        runtime_ms: jobUpdate.runtime_ms
+    });
+});
+
+router.post('/:id/stop', (req, res, next) => {
 
     // Stop the job
 
