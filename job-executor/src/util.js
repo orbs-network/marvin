@@ -6,6 +6,10 @@ function info() {
     }
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 module.exports = {
-    info
+    info, sleep
 };

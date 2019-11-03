@@ -1,4 +1,4 @@
-const {info} = require('../../orchestrator/src/util');
+const {info} = require('./util');
 
 function parseCommandLineArgs(argv) {
     const props = {
@@ -16,7 +16,7 @@ function parseCommandLineArgs(argv) {
             props.client_config = argv[k].replace('-clientConfig=', '');
         }
     }
-    info(`parseCommandLineArgs(): config=${JSON.stringify(props.client_config)}`);
+    info(`parseCommandLineArgs(): config=${JSON.stringify(props)}`);
 
     return props;
 }

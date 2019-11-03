@@ -54,6 +54,7 @@ func (runner *Runner) Execute() (*reporter.Report, error) {
 	var txs []*reporter.Transaction
 	var tx *reporter.Transaction
 	var errorTxs uint64
+	var slowestTransactionMs uint64
 
 	for i := 0; i < 10; i++ {
 		if runtimeCtx.Err() != nil {
@@ -87,11 +88,15 @@ func (runner *Runner) Execute() (*reporter.Report, error) {
 
 		}
 		txs = append(txs, tx)
+		if slowestTransactionMs < tx.Duration {
+			slowestTransactionMs = tx.Duration
+		}
 	}
 	report.EndTime = util.TimeToISO(time.Now())
 	report.TotalTransactions = uint64(len(txs))
 	report.ErrorTransactions = errorTxs
-	//report.Transactions = txs
+	report.Transactions = nil
+	report.SlowestTransactionMs = slowestTransactionMs
 
 	// Send single transaction
 	return report, nil

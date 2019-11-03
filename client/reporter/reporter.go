@@ -24,15 +24,16 @@ type Status struct {
 }
 
 type Report struct {
-	Name              string `json:"name"`
-	Error             string `json:"error"`
-	StartTime         string `json:"startTime"`
-	EndTime           string `json:"endTime"`
-	TotalTransactions uint64 `json:"totalTransactions"`
-	ErrorTransactions uint64 `json:"errorTransactions"`
-	VChain            uint32 `json:"vchain"`
-	CommitHash        string `json:"commitHash"`
-	SemanticVersion   string `json:"semanticVersion"`
+	Name                 string `json:"name"`
+	Error                string `json:"error"`
+	StartTime            string `json:"startTime"`
+	EndTime              string `json:"endTime"`
+	TotalTransactions    uint64 `json:"totalTransactions"`
+	ErrorTransactions    uint64 `json:"errorTransactions"`
+	VChain               uint32 `json:"vchain"`
+	CommitHash           string `json:"commitHash"`
+	SemanticVersion      string `json:"semanticVersion"`
+	SlowestTransactionMs uint64 `json:"slowestTransactionMs"`
 
 	Transactions []*Transaction `json:"transactions"`
 }
