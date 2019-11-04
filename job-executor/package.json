@@ -1,0 +1,24 @@
+{
+  "name": "job-executor",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "SET NODE_ENV=dev && node src/executor.js",
+    "test": "mocha"
+  },
+  "dependencies": {
+    "child-process-promise": "^2.2.1",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "morgan": "~1.9.1",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "mocha": "^6.2.2",
+    "nock": "^11.7.0"
+  }
+}
