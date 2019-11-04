@@ -1,8 +1,18 @@
+const {config} = require('./orchestrator-config')
 const verbosity = process.env.VERBOSE === 'true';
+
+function init() {
+    if (!process.env.SLACK_MARVIN_NOTIFICATIONS_KEY || process.env.SLACK_MARVIN_NOTIFICATIONS_KEY.length === 0) {
+        info(`Environment variable SLACK_MARVIN_NOTIFICATIONS_KEY must be set!`);
+        process.exit(1);
+    }
+    config.slack_url = `https://hooks.slack.com/services/${process.env.SLACK_MARVIN_NOTIFICATIONS_KEY}`;
+    info(`Set Slack URL to ${config.slack_url}`);
+}
 
 function info() {
     if (verbosity) {
-        console.log.apply(this, arguments)
+        console.log.apply(this, arguments);
     }
 }
 
@@ -17,6 +27,7 @@ function zeroPad(num, places) {
 }
 
 module.exports = {
+    init: init,
     info: info,
     generateJobId: generateJobId,
 };

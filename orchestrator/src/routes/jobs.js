@@ -4,7 +4,7 @@ const {listJobs} = require('../mysql');
 const {info} = require('../util');
 const {runJob} = require('../job-runner');
 const {insertJobToDb} = require('../controller/jobs-ctrl');
-
+const {notifySlack} = require('../slack');
 
 /* GET users listing. */
 router.get('/', (req, res) => {
@@ -32,10 +32,12 @@ router.get('/:id/status', (req, res, next) => {
 router.post('/:id/update', (req, res, next) => {
     const jobUpdate = req.body;
     info(`RECEIVED /jobs/${req.params.id}/update: ${JSON.stringify(jobUpdate)}`);
+    // notifySlack(`Job: ${JSON.stringify(jobUpdate)}`);
+    notifySlack(`Job ${jobUpdate.job_id} *${jobUpdate.status}*. Runtime: ${jobUpdate.runtime/1000} s. Results: ${JSON.stringify(jobUpdate.results||{})})`);
     res.json({
         job_id: req.params.id,
         status: jobUpdate.job_status,
-        runtime_ms: jobUpdate.runtime_ms
+        runtime: jobUpdate.runtime
     });
 
     // TODO Update this in MySQL

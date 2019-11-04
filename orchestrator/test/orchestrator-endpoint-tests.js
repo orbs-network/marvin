@@ -77,14 +77,14 @@ describe('job executor jobs endpoint suite', () => {
 
     it('should reply back with a job id updated successfully /jobs/:id/update', async () => {
         const jobUpdate = {
-            "job_status": "COMPLETED", "results": [], "runtime_ms": 6946
+            "job_status": "COMPLETED", "results": [], "runtime": 6946
         };
         return chai.request(app)
             .post('/jobs/1/update')
             .send(jobUpdate)
             .then(res => {
                 console.log(res.body);
-                expect(res.body.runtime_ms).to.equal(jobUpdate.runtime_ms);
+                expect(res.body.runtime).to.equal(jobUpdate.runtime);
                 expect(res.body.status).to.equal('COMPLETED');
             });
 

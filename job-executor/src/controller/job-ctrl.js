@@ -37,6 +37,7 @@ const defaultLoadSteps = [
  */
 async function runJob({steps = defaultLoadSteps, jobConfig = {}}) {
     state.job_status = 'RUNNING';
+    state.job_runtime = 0;
     await updateParentWithJob(state);
     let reverseSteps = Array.from(steps);
     reverseSteps.reverse();
@@ -72,6 +73,7 @@ async function runJob({steps = defaultLoadSteps, jobConfig = {}}) {
         } else {
             info(`SHOULD NOT STOP - passed ${now - startTime} ms but run should end after ${jobConfig.job_timeout_sec * 1000} ms`);
         }
+        state.job_runtime = now - startTime;
         await waitForAllClientsCompletion(500);
     }
 
@@ -79,7 +81,8 @@ async function runJob({steps = defaultLoadSteps, jobConfig = {}}) {
 
     await waitForAllClientsCompletion(500);
     info(`--- All clients finished in ${endTime - startTime} ms`);
-    state.job_status = 'COMPLETED';
+    state.job_status = 'DONE';
+    state.job_runtime = endTime - startTime;
     const aggregatedResults = agg(allResults);
     await updateParentWithJob(state, aggregatedResults);
 }
@@ -120,6 +123,7 @@ async function updateParentWithJob(currentState, aggregatedResults) {
     const body = {
         job_id: currentState.job_id,
         status: currentState.job_status,
+        runtime: currentState.job_runtime,
         results: aggregatedResults,
     };
     const options = {
