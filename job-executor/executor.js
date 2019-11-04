@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const http = require('http');
@@ -13,6 +12,7 @@ const DEFAULT_PORT = 4568;
 
 const indexRouter = require('./src/routes');
 const jobRouter = require('./src/routes/job');
+const statusRouter = require('./src/routes/status');
 
 let isUp = false;
 
@@ -24,15 +24,12 @@ app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 
 app.use('/', indexRouter);
+app.use('/status', statusRouter);
 app.use('/job', jobRouter);
 
 
 const server = http.createServer(app);
 app.server = server; // for shutdown in testing
-
-app.get('/status', (req, res) => {
-    res.json({status: 'OK'}).end();
-});
 
 async function bootstrap(props) {
     info('bootstrap()');

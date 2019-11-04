@@ -17,7 +17,8 @@ async function storeBatchOutputs(dataAsString) {
 async function runJob(jobProps) {
     console.log(__dirname);
     const cwd = path.join(__dirname, '../../job-executor');
-    const jobExecutor = spawn('node', ['executor.js'], {cwd});
+    const jobExecutorPort = jobProps.port || 4568;
+    const jobExecutor = spawn('node', ['executor.js', `-port=${jobExecutorPort}`], {cwd});
 
     jobExecutor.on('exit', (code, signal) => {
         info('Job Executor process exited with ' +
@@ -27,9 +28,9 @@ async function runJob(jobProps) {
     await new Promise((resolve) => {
         setTimeout(resolve, 1000);
     });
-    sendJobStart(jobProps.job_id);
+    sendJobStartToExecutor(jobProps.job_id);
 
-    info(`JobExecutor with ${jobExecutor.pid} started.`);
+    info(`JobExecutor with ${jobExecutor.pid} started on port ${jobExecutorPort}.`);
 
     // TODO Call executor with /job/start
 
@@ -40,7 +41,7 @@ async function runJob(jobProps) {
     }
 }
 
-function sendJobStart(jobId) {
+function sendJobStartToExecutor(jobId) {
     const options = {
         method: 'POST',
         uri: 'http://localhost:4568/job/start',

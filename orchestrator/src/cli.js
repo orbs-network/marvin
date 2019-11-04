@@ -12,6 +12,10 @@ function parseCommandLineArgs(argv) {
             props.job_id = argv[k].replace('-id=', '');
         }
 
+        if (argv[k].indexOf('-port=') !== -1) {
+            props.port = argv[k].replace('-port=', '');
+        }
+
         if (argv[k].indexOf('-clientConfig=') !== -1) {
             props.client_config = argv[k].replace('-clientConfig=', '');
         }

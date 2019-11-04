@@ -2,7 +2,7 @@
   "name": "orchestrator",
   "version": "1.0.0",
   "description": "Orchestrates the endurance test by creating containers which produce load against the system",
-  "main": "app.js",
+  "main": "orchestrator.js",
   "scripts": {
     "test": "mocha"
   },
@@ -14,6 +14,7 @@
     "express": "^4.17.1",
     "knex": "^0.20.0",
     "mysql2": "^1.7.0",
+    "nock": "^11.7.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "ssh2": "^0.8.5"

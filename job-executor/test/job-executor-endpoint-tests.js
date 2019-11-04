@@ -6,6 +6,8 @@ chai.use(require('chai-http'));
 const nock = require('nock');
 const app = require('../executor');
 
+const ORCHESTRATOR_BASE_URL = 'http://127.0.0.1:4567';
+
 describe('job executor jobs endpoint suite', () => {
     before(async () => {
 
@@ -21,12 +23,13 @@ describe('job executor jobs endpoint suite', () => {
             .get('/status')
             .then(res => {
                 expect(res.body.status).to.equal('OK');
+                assert(res.body.timestamp && res.body.timestamp.length > 0, 'timestamp should not be empty');
             });
     });
 
 
     it('should reply with status of starting the job /job/start', async () => {
-        const serverMock = nock('http://127.0.0.1:4567')
+        const orchestratorMock = nock(ORCHESTRATOR_BASE_URL)
             .log(console.log)
             .post('/jobs/20191030_094500/update')
             .reply(200, {id: '123ABC'});
@@ -39,17 +42,18 @@ describe('job executor jobs endpoint suite', () => {
             job_timeout_sec: 0, // should not linger in the job
             use_mock_client: true,
         };
-        console.error('active mocks: %j', serverMock.activeMocks());
+        console.error('active mocks: %j', orchestratorMock.activeMocks());
         res = await chai.request(app)
             .post('/job/start')
             .send(startJobBody);
         expect(res.body.status).to.equal('STARTING');
         expect(res.body.job_id).to.equal('20191030_094500');
+        assert(res.body.timestamp && res.body.timestamp.length > 0, 'timestamp should not be empty');
 
         setTimeout(() => {
             // Will throw an assertion error if meanwhile a "GET http://google.com" was
             // not performed.
-            serverMock.done();
+            orchestratorMock.done();
         }, 1000);
     });
 
@@ -65,8 +69,9 @@ describe('job executor jobs endpoint suite', () => {
         return chai.request(app)
             .get('/job/status')
             .then(res => {
-                assert(res.body.status && res.body.status.length > 0);
-                expect(res.body.pct_done).to.equal(86);
+                assert(res.body.status && res.body.status.length > 0, 'status should not be empty');
+                assert(res.body.pct_done === 0 || res.body.pct_done > 0);
+                assert(res.body.timestamp && res.body.timestamp.length > 0, 'timestamp should not be empty');
             });
     });
 
@@ -75,6 +80,6 @@ describe('job executor jobs endpoint suite', () => {
     });
 
     after(async () => {
-        // app.server.close();
-    })
+        app.server.close();
+    });
 });
