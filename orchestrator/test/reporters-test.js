@@ -3,21 +3,26 @@
 const {describe, it} = require('mocha');
 const chai = require('chai');
 const {expect, assert} = require('chai');
-const {createSlackMessage} = require('../src/controller/jobs-ctrl');
+const {createSlackMessageJobDone} = require('../src/controller/jobs-ctrl');
 
 describe('reporters test suite', () => {
 
     it('should reply back with general status', () => {
 
         const jobUpdate = {
-            totalTransactions: 123,
-            errorTransactions: 7,
-            slowestTransactionMs: 431,
-            runtime: 2334,
+            results: {
+                total_tx: 124,
+                err_tx: 7,
+                max_service_time_ms: 431,
 
+            },
+            version: '0.0.1-abcdefg',
+            job_id: 'TEST_JOB',
+            runtime: 2334,
+            status: 'DONE',
         };
 
-        const actual = createSlackMessage(jobUpdate);
+        const actual = createSlackMessageJobDone(jobUpdate);
         console.log(actual);
 
     });

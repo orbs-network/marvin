@@ -1,15 +1,15 @@
 {
   "network": [
     {
-      "address": "a328846cd5b4979d68a8c58a9bdfeee657b34de7",
-      "ip": "35.161.123.97",
+      "address": "d27e2e7398e2582f63d0800330010b3e58952ff6",
+      "ip": "35.167.243.123",
       "node_name": "Node1",
       "region": "testnet-master",
       "active": "true"
     },
     {
-      "address": "d27e2e7398e2582f63d0800330010b3e58952ff6",
-      "ip": "35.167.243.123",
+      "address": "a328846cd5b4979d68a8c58a9bdfeee657b34de7",
+      "ip": "35.161.123.97",
       "node_name": "Node2",
       "region": "testnet-master",
       "active": "true"

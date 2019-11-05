@@ -27,7 +27,10 @@ async function runClientContainers(allResults, {instances = 1, config}) {
 
             const clientProc = await exec(cmd, {cwd: '.', stdio: ['ignore', 'pipe', process.stderr]});
             if (!clientProc || !clientProc.stdout) {
-                throw `Error running client with cmd: ${cmd}`;
+                return {
+                    name: client.id,
+                    error: `Error running client with cmd: ${cmd}`
+                };
             }
             ++state.live_clients;
             info(`Started client #${state.live_clients}, pid=${clientProc.pid}: ${cmd}`);

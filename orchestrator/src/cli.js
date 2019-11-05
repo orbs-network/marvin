@@ -4,9 +4,9 @@ const {info} = require('./util');
 
 function parseCommandLineArgs(argv) {
     const props = {
-        runName: '',
-        outputTable: '',
-        clientConfig: '',
+        job_id: '',
+        port: '',
+
     };
 
     for (let prop of argv) {
@@ -22,7 +22,7 @@ function parseCommandLineArgs(argv) {
             props.client_config = prop.replace('-clientConfig=', '');
         }
     }
-    info(`parseCommandLineArgs(): config=${JSON.stringify(props)}`);
+    // info(`parseCommandLineArgs(): config=${JSON.stringify(props)}`);
 
     return props;
 }

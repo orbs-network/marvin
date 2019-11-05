@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -11,7 +12,12 @@ func Info(format string, a ...interface{}) {
 }
 
 func Debug(format string, a ...interface{}) {
-
+	isDebug := os.Getenv("VERBOSE") == "true"
+	if !isDebug {
+		return
+	}
+	s := fmt.Sprintf(format, a...)
+	fmt.Printf(fmt.Sprintf("%s %s\n", nowISO(), s))
 }
 
 func nowISO() string {

@@ -87,7 +87,7 @@ async function runJobAndWaitForCompletion({steps = defaultLoadSteps, jobConfig =
     state.job_status = 'DONE';
     state.job_runtime = endTime - startTime;
     const aggregatedResults = agg(allResults);
-    await updateParentWithJob(state, allResults);
+    await updateParentWithJob(state, aggregatedResults);
     info(`Sent update to orchestrator`);
     // await updateParentWithJob(state, aggregatedResults);
 }
@@ -103,6 +103,7 @@ function agg(resultsArr) {
     // TODO aggregate results and return a single object
 
     let totalTx = 0, errTx = 0, slowestTx = 0;
+    let version = '';
     // transactions[i].durationMillis
     for (let result of resultsArr) {
         info(`agg(): ${JSON.stringify(result)}`);
@@ -111,15 +112,15 @@ function agg(resultsArr) {
         if (slowestTx < result.slowestTransactionMs) {
             slowestTx = result.slowestTransactionMs;
         }
+        version = result.semanticVersion;
     }
 
-    const aggregated = {
+    return {
+        version: version,
         total_tx: totalTx,
         err_tx: errTx,
         max_service_time_ms: slowestTx,
     };
-
-    return aggregated;
 }
 
 async function updateParentWithJob(currentState, aggregatedResults) {

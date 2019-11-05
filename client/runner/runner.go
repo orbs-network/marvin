@@ -61,7 +61,7 @@ func (runner *Runner) Execute() (*reporter.Report, error) {
 			break
 		}
 		target := addresses[ctrlRand.Intn(len(addresses))]
-		util.Debug("Sending to URL: %s to account %s", url, hex.EncodeToString(target))
+		util.Debug("Sending to URL: %s to account %s", client.Endpoint, hex.EncodeToString(target))
 		startTxTime := time.Now()
 		res, err := TrySend(client, target)
 		endTxTime := time.Now()
