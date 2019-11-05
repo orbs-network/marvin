@@ -1,3 +1,5 @@
+'use strict';
+
 const {info} = require('./util');
 const knex = require('knex')({
     client: 'mysql2',

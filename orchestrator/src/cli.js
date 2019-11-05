@@ -1,3 +1,5 @@
+'use strict';
+
 const {info} = require('./util');
 
 function parseCommandLineArgs(argv) {
@@ -7,17 +9,17 @@ function parseCommandLineArgs(argv) {
         clientConfig: '',
     };
 
-    for (const k in argv) {
-        if (argv[k].indexOf('-id=') !== -1) {
-            props.job_id = argv[k].replace('-id=', '');
+    for (let prop of argv) {
+        if (prop.indexOf('-id=') !== -1) {
+            props.job_id = prop.replace('-id=', '');
         }
 
-        if (argv[k].indexOf('-port=') !== -1) {
-            props.port = argv[k].replace('-port=', '');
+        if (prop.indexOf('-port=') !== -1) {
+            props.port = prop.replace('-port=', '');
         }
 
-        if (argv[k].indexOf('-clientConfig=') !== -1) {
-            props.client_config = argv[k].replace('-clientConfig=', '');
+        if (prop.indexOf('-clientConfig=') !== -1) {
+            props.client_config = prop.replace('-clientConfig=', '');
         }
     }
     info(`parseCommandLineArgs(): config=${JSON.stringify(props)}`);
@@ -33,6 +35,6 @@ function printUsage() {
 }
 
 module.exports = {
-    parseCommandLineArgs,
-    printUsage,
+    parseCommandLineArgs: parseCommandLineArgs,
+    printUsage: printUsage,
 };

@@ -105,9 +105,10 @@ This will rebuild the Docker images from local code.
 * To stop the network, run:
 > cd docker ; ./stop-network
 
-## Updating deployed Client
-* Login to marvin machine and run:
+## Updating deployed Marvin
+* Login to `marvin` machine and run:
 > cd marvin ; ./client-build.sh
+> 
 
 ## Updating deployed testnet
 TBD
