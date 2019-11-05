@@ -1,3 +1,5 @@
+'use strict';
+
 const execSync = require('child_process').execSync;
 const {config} = require('./orchestrator-config');
 const {info} = require('./util');
