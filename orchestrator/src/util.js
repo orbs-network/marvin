@@ -1,4 +1,6 @@
-const {config} = require('./orchestrator-config')
+'use strict';
+
+const {config} = require('./orchestrator-config');
 const verbosity = process.env.VERBOSE === 'true';
 
 function init() {
@@ -7,6 +9,8 @@ function init() {
         process.exit(1);
     }
     config.slack_url = `https://hooks.slack.com/services/${process.env.SLACK_MARVIN_NOTIFICATIONS_KEY}`;
+    config.executor_host = `127.0.0.1`;
+    config.executor_port = 4568;
     info(`Set Slack URL to ${config.slack_url}`);
 }
 
@@ -23,7 +27,7 @@ function generateJobId() {
 }
 
 function zeroPad(num, places) {
-    return String(num).padStart(places, '0')
+    return String(num).padStart(places, '0');
 }
 
 module.exports = {

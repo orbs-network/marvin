@@ -1,3 +1,5 @@
+'use strict';
+
 const {generateJobId} = require('../util');
 
 function insertJobToDb(jobProps) {

@@ -1,8 +1,10 @@
+'use strict';
+
 const express = require('express');
 const router = express.Router();
 const {listJobs} = require('../mysql');
 const {info} = require('../util');
-const {runJob} = require('../job-runner');
+const {sendJob, shutdownExecutor} = require('../job-runner');
 const {insertJobToDb} = require('../controller/jobs-ctrl');
 const {notifySlack} = require('../slack');
 
@@ -15,8 +17,8 @@ router.post('/start', async (req, res, next) => {
     const jobProps = req.body;
     // TODO Create job entry entry in MySQL and get an ID from an incrementing sequence
     jobProps.job_id = insertJobToDb(jobProps);
-    info(`STARTING JOB [${jobProps.job_id}]: ${JSON.stringify(jobProps)}`);
-    const jobStatus = await runJob(jobProps);
+    info(`SENDING JOB TO EXECUTOR [ID=${jobProps.job_id}]: ${JSON.stringify(jobProps)}`);
+    const jobStatus = await sendJob(jobProps);
     res.send(jobStatus);
 });
 
@@ -31,7 +33,14 @@ router.get('/:id/status', (req, res, next) => {
 
 router.post('/:id/update', (req, res, next) => {
     const jobUpdate = req.body;
-    info(`RECEIVED /jobs/${req.params.id}/update: ${JSON.stringify(jobUpdate)}`);
+    info(`RECEIVED /jobs/${req.params.id}/update: status: ${jobUpdate.job_status} ${JSON.stringify(jobUpdate.results)}`);
+
+    switch(jobUpdate.job_status) {
+        case 'DONE':
+            info(`Shutting down executor`);
+            shutdownExecutor(); break;
+    }
+
     // notifySlack(`Job: ${JSON.stringify(jobUpdate)}`);
     notifySlack(`Job ${jobUpdate.job_id} *${jobUpdate.status}*. Runtime: ${jobUpdate.runtime/1000} s. Results: ${JSON.stringify(jobUpdate.results||{})})`);
     res.json({
@@ -39,6 +48,8 @@ router.post('/:id/update', (req, res, next) => {
         status: jobUpdate.job_status,
         runtime: jobUpdate.runtime
     });
+
+
 
     // TODO Update this in MySQL
 });

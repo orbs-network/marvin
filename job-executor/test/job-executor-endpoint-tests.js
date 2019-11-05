@@ -1,10 +1,12 @@
-const {before, describe, after, it} = require('mocha');
+'use strict';
+
+const {before, describe, after, afterEach, it} = require('mocha');
 const chai = require('chai');
 const {expect, assert} = require('chai');
 chai.use(require('chai-http'));
 // const {bootstrap, shutdown} = require('../src/app');
 const nock = require('nock');
-const app = require('../executor');
+const {app} = require('../src/init');
 
 const ORCHESTRATOR_BASE_URL = 'http://127.0.0.1:4567';
 
@@ -23,6 +25,7 @@ describe('job executor jobs endpoint suite', () => {
             .get('/status')
             .then(res => {
                 expect(res.body.status).to.equal('OK');
+                expect(res.body.status).to.not.equal('');
                 assert(res.body.timestamp && res.body.timestamp.length > 0, 'timestamp should not be empty');
             });
     });
@@ -43,7 +46,7 @@ describe('job executor jobs endpoint suite', () => {
             use_mock_client: true,
         };
         console.error('active mocks: %j', orchestratorMock.activeMocks());
-        res = await chai.request(app)
+        const res = await chai.request(app)
             .post('/job/start')
             .send(startJobBody);
         expect(res.body.status).to.equal('STARTING');

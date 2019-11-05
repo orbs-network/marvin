@@ -1,10 +1,12 @@
+'use strict';
+
 const rp = require('request-promise-native');
 const {runClientContainers} = require('../client-runner');
 const {info, sleep} = require('../util');
 const {config, state} = require('../state');
 
 async function startJob(jobProps) {
-    await runJob({jobConfig: jobProps});
+    return runJobAndWaitForCompletion({jobConfig: jobProps});
 }
 
 const defaultLoadSteps = [
@@ -35,7 +37,7 @@ const defaultLoadSteps = [
  *
  * This is the main loop which runs endlessly performing the setup load step
  */
-async function runJob({steps = defaultLoadSteps, jobConfig = {}}) {
+async function runJobAndWaitForCompletion({steps = defaultLoadSteps, jobConfig = {}}) {
     state.job_status = 'RUNNING';
     state.job_runtime = 0;
     await updateParentWithJob(state);
@@ -49,18 +51,19 @@ async function runJob({steps = defaultLoadSteps, jobConfig = {}}) {
     let totalClients = 0;
     while (!state.should_stop) {
         info(`Iteration starts. Should_stop=${state.should_stop} Steps=${JSON.stringify(steps)}`);
-        for (let k in steps) {
+        for (let step of steps) {
             info(`Running runClientContainers`);
-            totalClients += steps[k].endurance;
+            totalClients += step.endurance;
             await runClientContainers(allResults, {
-                instances: steps[k].endurance, config: jobConfig
+                instances: step.endurance, config: jobConfig
             });
         }
 
-        for (let k in reverseSteps) {
-            totalClients += reverseSteps[k].endurance;
+        for (let step of reverseSteps) {
+            totalClients += step.endurance;
             await runClientContainers(allResults, {
-                instances: reverseSteps[k].endurance, config: jobConfig
+                instances: step.endurance,
+                config: jobConfig,
             });
         }
 
@@ -68,10 +71,10 @@ async function runJob({steps = defaultLoadSteps, jobConfig = {}}) {
 
         const now = new Date();
         if (now - startTime > jobConfig.job_timeout_sec * 1000) {
-            info(`SHOULD STOP`);
+            info(`LAST ITERATION`);
             state.should_stop = true;
         } else {
-            info(`SHOULD NOT STOP - passed ${now - startTime} ms but run should end after ${jobConfig.job_timeout_sec * 1000} ms`);
+            info(`Passed ${now - startTime} ms, should only end after ${jobConfig.job_timeout_sec * 1000} ms`);
         }
         state.job_runtime = now - startTime;
         await waitForAllClientsCompletion(500);
@@ -84,7 +87,9 @@ async function runJob({steps = defaultLoadSteps, jobConfig = {}}) {
     state.job_status = 'DONE';
     state.job_runtime = endTime - startTime;
     const aggregatedResults = agg(allResults);
-    await updateParentWithJob(state, aggregatedResults);
+    await updateParentWithJob(state, allResults);
+    info(`Sent update to orchestrator`);
+    // await updateParentWithJob(state, aggregatedResults);
 }
 
 async function waitForAllClientsCompletion(pollingIntervalMs) {
@@ -99,12 +104,12 @@ function agg(resultsArr) {
 
     let totalTx = 0, errTx = 0, slowestTx = 0;
     // transactions[i].durationMillis
-    for (let key in resultsArr) {
-        info(`agg(): ${JSON.stringify(resultsArr[key])}`);
-        totalTx += resultsArr[key]['totalTransactions'];
-        errTx += resultsArr[key]['errorTransactions'];
-        if (slowestTx < resultsArr[key]['slowestTransactionMs']) {
-            slowestTx = resultsArr[key]['slowestTransactionMs']
+    for (let result of resultsArr) {
+        info(`agg(): ${JSON.stringify(result)}`);
+        totalTx += result.totalTransactions;
+        errTx += result.errorTransactions;
+        if (slowestTx < result.slowestTransactionMs) {
+            slowestTx = result.slowestTransactionMs;
         }
     }
 
@@ -122,7 +127,7 @@ async function updateParentWithJob(currentState, aggregatedResults) {
     const uri = `http://${config.parent_base_url}/jobs/${currentState.job_id}/update`;
     const body = {
         job_id: currentState.job_id,
-        status: currentState.job_status,
+        job_status: currentState.job_status,
         runtime: currentState.job_runtime,
         results: aggregatedResults,
     };
@@ -138,7 +143,7 @@ async function updateParentWithJob(currentState, aggregatedResults) {
 
         })
         .catch(err => {
-            info(`Error sending to orch: ${err}`)
+            info(`Error sending to orch: ${err}`);
         });
 
 }

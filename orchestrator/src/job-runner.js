@@ -1,8 +1,13 @@
+'use strict';
+
 const rp = require('request-promise-native');
 const {spawn} = require('child_process');
-const {info, generateJobId} = require('./util');
-const {insertTransaction} = require('./mysql');
 const path = require('path');
+const {config} = require('./orchestrator-config');
+
+const {info} = require('./util');
+const {insertTransaction} = require('./mysql');
+
 
 async function storeBatchOutputs(dataAsString) {
     const data = JSON.parse(dataAsString);
@@ -10,11 +15,11 @@ async function storeBatchOutputs(dataAsString) {
     // const tableName = config.outputTable || 'transactions';
 
     await Promise.all(data.transactions.map(tx => {
-        return insertTransaction(tx, data, tableName)
-    }))
+        return insertTransaction(tx, data, tableName);
+    }));
 }
 
-async function runJob(jobProps) {
+async function sendJob(jobProps) {
     console.log(__dirname);
     const cwd = path.join(__dirname, '../../job-executor');
     const jobExecutorPort = jobProps.port || 4568;
@@ -38,13 +43,16 @@ async function runJob(jobProps) {
         status: 'PENDING',
         job_id: jobProps.job_id,
         props: jobProps,
-    }
+    };
 }
 
 function sendJobStartToExecutor(jobId) {
+
+    const uri = `http://${config.executor_host}:${config.executor_port}/job/start`;
+
     const options = {
         method: 'POST',
-        uri: 'http://localhost:4568/job/start',
+        uri: uri,
         body: {
             job_id: jobId,
             client_timeout_sec: 3,
@@ -62,11 +70,21 @@ function sendJobStartToExecutor(jobId) {
         });
 }
 
+function shutdownExecutor() {
+    const uri = `http://${config.executor_host}:${config.executor_port}/shutdown`;
+    const options = {
+        method: 'GET',
+        uri: uri,
+    };
+    return rp(options);
+}
+
 
 process.on('exit', () => {
     info('Shutdown');
 });
 
 module.exports = {
-    runJob: runJob,
+    sendJob: sendJob,
+    shutdownExecutor: shutdownExecutor,
 };

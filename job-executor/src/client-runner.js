@@ -1,4 +1,6 @@
-const {exec, execSync} = require('child_process');
+'use strict';
+
+const {exec} = require('child_process');
 const {info} = require('./util');
 const {state} = require('./state');
 
@@ -8,7 +10,7 @@ async function runClientContainers(allResults, {instances = 1, config}) {
     for (let i = 0; i < instances; i++) {
         clients.push({
             id: `${config.job_id}_${state.instance_counter++}`,
-        })
+        });
     }
 
     const clientConfigPath = config.client_config || 'config/testnet-master-aws.json';
@@ -16,12 +18,11 @@ async function runClientContainers(allResults, {instances = 1, config}) {
     await Promise.all(clients.map(async (client) => {
         try {
             let cmd;
-            if (config.use_mock_client) { // TODO Could be nicer
-                cmd = `./src/mock-client.sh ${client.id} ${config.client_timeout_sec} 2013 10 2`
+            if (config.use_mock_client) {
+                cmd = `./src/mock-client.sh ${client.id} ${config.client_timeout_sec} 2013 10 2`;
             } else {
                 cmd = `docker run -t --rm endurance:client ./client ${clientConfigPath} ${client.id},${config.client_timeout_sec}`;
             }
-
 
 
             const clientProc = await exec(cmd, {cwd: '.', stdio: ['ignore', 'pipe', process.stderr]});
@@ -31,13 +32,11 @@ async function runClientContainers(allResults, {instances = 1, config}) {
             ++state.live_clients;
             info(`Started client #${state.live_clients}, pid=${clientProc.pid}: ${cmd}`);
             clientProc.stdout.on('data', (data) => {
-                info(`STDOUT from ${client.id}: ${data}`);
-                try{
+                try {
                     const jsonData = JSON.parse(data);
-                    info(`jsonData=${JSON.stringify(jsonData)}`);
                     allResults.push(jsonData);
 
-                } catch(ex) {
+                } catch (ex) {
                     info(`Error parsing data, skipping. Data=${data}`);
                 }
 
@@ -52,7 +51,7 @@ async function runClientContainers(allResults, {instances = 1, config}) {
             return {
                 name: client.id,
                 error: ex,
-            }
+            };
         }
     }));
 }
