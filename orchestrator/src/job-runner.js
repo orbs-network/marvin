@@ -26,14 +26,13 @@ async function sendJob(jobProps) {
     const jobExecutor = spawn('node', ['executor.js', `-port=${jobExecutorPort}`], {cwd});
 
     jobExecutor.on('exit', (code, signal) => {
-        info('Job Executor process exited with ' +
-            `code ${code} and signal ${signal}`);
+        info(`Job Executor process pid=${jobExecutor.pid} exited with code ${code} and signal ${signal}`);
     });
 
     await new Promise((resolve) => {
         setTimeout(resolve, 1000);
     });
-    sendJobStartToExecutor(jobProps.job_id);
+    sendJobStartToExecutor(jobProps);
 
     info(`JobExecutor with ${jobExecutor.pid} started on port ${jobExecutorPort}.`);
 
@@ -46,18 +45,14 @@ async function sendJob(jobProps) {
     };
 }
 
-function sendJobStartToExecutor(jobId) {
+function sendJobStartToExecutor(jobProps) {
 
     const uri = `http://${config.executor_host}:${config.executor_port}/job/start`;
 
     const options = {
         method: 'POST',
         uri: uri,
-        body: {
-            job_id: jobId,
-            client_timeout_sec: 3,
-            job_timeout_sec: 10
-        },
+        body: jobProps,
         json: true,
     };
 
@@ -66,7 +61,7 @@ function sendJobStartToExecutor(jobId) {
             info(`Response from JobExecutor: ${JSON.stringify(res)}`);
         })
         .catch(ex => {
-            info(ex);
+            info(`Error sending to Job Executor: ${ex}`);
         });
 }
 

@@ -2,26 +2,26 @@
 
 const {exec} = require('child_process');
 const {info} = require('./util');
-const {state} = require('./state');
 
-async function runClientContainers(allResults, {instances = 1, config}) {
+async function runClientContainers(instances, state) {
+
     info(`runClientContainers(): running ${instances} instances`);
     const clients = [];
     for (let i = 0; i < instances; i++) {
         clients.push({
-            id: `${config.job_id}_${state.instance_counter++}`,
+            id: `${state.job_id}_${state.instance_counter++}`,
         });
     }
 
-    const clientConfigPath = config.client_config || 'config/testnet-master-aws.json';
+    const clientConfigPath = state.client_config || 'config/testnet-master-aws.json';
 
     await Promise.all(clients.map(async (client) => {
         try {
             let cmd;
-            if (config.use_mock_client) {
-                cmd = `./src/mock-client.sh ${client.id} ${config.client_timeout_sec} 2013 10 2`;
+            if (state.use_mock_client) {
+                cmd = `./src/mock-client.sh ${client.id} ${state.client_timeout_sec} 2013 10 2`;
             } else {
-                cmd = `docker run -t --rm endurance:client ./client ${clientConfigPath} ${client.id},${config.client_timeout_sec}`;
+                cmd = `docker run -t --rm endurance:client ./client ${clientConfigPath} ${client.id},${state.client_timeout_sec}`;
             }
 
 
@@ -36,11 +36,9 @@ async function runClientContainers(allResults, {instances = 1, config}) {
             info(`Started client #${state.live_clients}, pid=${clientProc.pid}: ${cmd}`);
             clientProc.stdout.on('data', (data) => {
                 try {
-                    const jsonData = JSON.parse(data);
-                    allResults.push(jsonData);
-
+                    processClientOutput(JSON.parse(data || {}), state);
                 } catch (ex) {
-                    info(`Error parsing data, skipping. Data=${data}`);
+                    info(`Error parsing data from client, skipping. Ex=${ex}. Data=${data}`);
                 }
 
             });
@@ -57,6 +55,52 @@ async function runClientContainers(allResults, {instances = 1, config}) {
             };
         }
     }));
+}
+
+
+function agg(state) {
+    // TODO aggregate results and return a single object
+
+    let totalTx = 0, errTx = 0, slowestTx = 0;
+    let version = '';
+    info(`agg(): #state.all_results=${state.all_results.length}`);
+    for (let result of state.all_results) {
+        info(`agg(): ${JSON.stringify(result)}`);
+        totalTx += result.totalTransactions;
+        errTx += result.errorTransactions;
+        if (slowestTx < result.slowestTransactionMs) {
+            slowestTx = result.slowestTransactionMs;
+        }
+        version = result.semanticVersion;
+    }
+
+    return {
+        version: version,
+        total_tx: totalTx,
+        err_tx: errTx,
+        max_service_time_ms: slowestTx,
+    };
+}
+
+
+function processClientOutput(clientOutput, state) {
+    clientOutput.transactions = clientOutput.transactions || [];
+    state.all_results.push(clientOutput);
+    state.summary.total_tx_count += clientOutput.totalTransactions;
+    state.summary.err_tx_count += clientOutput.errorTransactions;
+    const totalDurPerClient = clientOutput.transactions.map(tx => (tx.dur || 0)).reduce((acc, val) => acc + val, 0);
+    state.summary.total_dur += totalDurPerClient;
+    state.summary.version = clientOutput.semanticVersion;
+    state.summary.version = '';
+    state.summary.avg_service_time_ms = state.summary.total_tx_count>0 ? Math.ceil(state.summary.total_dur / state.summary.total_tx_count) : 0;
+    state.summary.max_service_time_ms = Math.ceil(state.summary.max_service_time_ms||0);
+    if (state.summary.slowestTransactionMs < clientOutput.slowestTransactionMs) {
+        state.summary.slowestTransactionMs = clientOutput.slowestTransactionMs;
+    }
+
+
+    info(`Total duration of ${clientOutput.transactions.length} transactions: ${totalDurPerClient}`);
+
 }
 
 module.exports = {

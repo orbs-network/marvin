@@ -15,6 +15,6 @@ func TestCanCreateOrbsSdkClient(t *testing.T) {
 func TestSendTransaction(t *testing.T) {
 	client := orbsClient.NewClient("http://localhost:7050", 42, codec.NETWORK_TYPE_TEST_NET)
 	res, err := TrySend(client, []byte{1, 2, 3, 4})
-	require.Equal(t, codec.TRANSACTION_STATUS_COMMITTED, res.TransactionStatus, "not committed - %s", res.TransactionStatus)
 	require.NoError(t, err, "returned error: %s", err)
+	require.Equal(t, codec.TRANSACTION_STATUS_COMMITTED, res.TransactionStatus, "not committed - %s", res.TransactionStatus)
 }

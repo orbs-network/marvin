@@ -51,8 +51,8 @@ func (runner *Runner) Execute() (*reporter.Report, error) {
 		Transactions:      nil,
 	}
 
-	var txs []*reporter.Transaction
-	var tx *reporter.Transaction
+	var txs []*reporter.ShortTransaction
+	var tx *reporter.ShortTransaction
 	var errorTxs uint64
 	var slowestTransactionMs uint64
 
@@ -69,17 +69,16 @@ func (runner *Runner) Execute() (*reporter.Report, error) {
 		if err == nil {
 			util.Debug("Sent successfully: %s", res.TransactionStatus)
 
-			tx = &reporter.Transaction{
-				PApiUrl:     client.Endpoint,
-				TxId:        res.TxHash,
+			tx = &reporter.ShortTransaction{
+				//PApiUrl:     client.Endpoint,
+				//TxId:        res.TxHash,
 				Result:      string(res.TransactionStatus),
 				BlockHeight: res.BlockHeight,
 				Duration:    txDuration,
 			}
 		} else {
 			util.Debug("Error: %s", err)
-			tx = &reporter.Transaction{
-				TxId:        nil,
+			tx = &reporter.ShortTransaction{
 				Result:      err.Error(),
 				BlockHeight: 0,
 				Duration:    txDuration,
@@ -95,7 +94,7 @@ func (runner *Runner) Execute() (*reporter.Report, error) {
 	report.EndTime = util.TimeToISO(time.Now())
 	report.TotalTransactions = uint64(len(txs))
 	report.ErrorTransactions = errorTxs
-	report.Transactions = nil
+	report.Transactions = txs
 	report.SlowestTransactionMs = slowestTransactionMs
 
 	// Send single transaction

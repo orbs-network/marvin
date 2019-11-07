@@ -18,16 +18,16 @@ func TestReporterToJson(t *testing.T) {
 		VChain:            1234,
 		CommitHash:        "0a1b2c3d4e5f",
 		SemanticVersion:   "v10.20.30",
-		Transactions: []*Transaction{
-			&Transaction{
-				TxId:        []byte{1, 2, 3, 4},
+		Transactions: []*ShortTransaction{
+			&ShortTransaction{
 				Result:      "COMMITTED",
 				BlockHeight: 1,
+				Duration:    123,
 			},
-			&Transaction{
-				TxId:        []byte{10, 20, 30, 40},
+			&ShortTransaction{
 				Result:      "REJECTED_VIRTUAL_CHAIN_MISMATCH",
 				BlockHeight: 2,
+				Duration:    234,
 			},
 		},
 	}

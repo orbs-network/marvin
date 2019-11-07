@@ -8,8 +8,8 @@ function info() {
     }
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+async function sleep(ms) {
+    await new Promise(resolve => setTimeout(resolve, 5000));
 }
 
 module.exports = {

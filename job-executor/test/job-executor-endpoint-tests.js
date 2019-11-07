@@ -40,9 +40,8 @@ describe('job executor jobs endpoint suite', () => {
         const startJobBody = {
             job_id: '20191030_094500',
             tpm: 5,
-            duration_sec: 10,
             client_timeout_sec: 0, // should not linger in the mock client
-            job_timeout_sec: 0, // should not linger in the job
+            duration_sec: 0, // should not linger in the job
             use_mock_client: true,
         };
         console.error('active mocks: %j', orchestratorMock.activeMocks());

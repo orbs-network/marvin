@@ -8,7 +8,7 @@ import (
 
 func Info(format string, a ...interface{}) {
 	s := fmt.Sprintf(format, a...)
-	fmt.Printf(fmt.Sprintf("%s %s\n", nowISO(), s))
+	fmt.Printf(fmt.Sprintf("[INFO]  %s %s\n", nowISO(), s))
 }
 
 func Debug(format string, a ...interface{}) {
@@ -17,7 +17,7 @@ func Debug(format string, a ...interface{}) {
 		return
 	}
 	s := fmt.Sprintf(format, a...)
-	fmt.Printf(fmt.Sprintf("%s %s\n", nowISO(), s))
+	fmt.Printf(fmt.Sprintf("[DEBUG] %s %s\n", nowISO(), s))
 }
 
 func nowISO() string {

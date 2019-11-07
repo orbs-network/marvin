@@ -10,19 +10,48 @@ function insertJobToDb(jobProps) {
 }
 
 function createSlackMessageJobRunning(jobUpdate) {
-    return `_[${jobUpdate.job_id}]_ Started Stress test on vchain 2013 on testnet`;
+    return `*_RUNNING Job [${jobUpdate.job_id}]_*
+vchain: 2013. TX/min: ${jobUpdate.tpm}, Expected duration: >${jobUpdate.duration_sec} seconds. 
+All: ${JSON.stringify(jobUpdate)}`;
 }
 
 function createSlackMessageJobDone(jobUpdate) {
-    return `_[${jobUpdate.job_id}]_ Completed Stress test with status *${jobUpdate.job_status}* on vchain 2013 version _${jobUpdate.results.version}_ in *${jobUpdate.runtime}* ms. 
-Total transactions: *${jobUpdate.results.total_tx}* (of which *${jobUpdate.results.err_tx}* returned with error). 
-Max service time: *${jobUpdate.results.max_service_time_ms}* ms`;
-
+    return `*_FINISHED Job [${jobUpdate.job_id}]_*
+Status: *${jobUpdate.job_status}* vchain: 2013 version: _${jobUpdate.results.version}_ runtime: *${jobUpdate.runtime}* ms. 
+Total transactions: *${jobUpdate.results.total_tx_count}* (of which *${jobUpdate.results.err_tx_count}* returned with error). 
+Avg service time: *${jobUpdate.results.avg_service_time_ms}* ms
+Max service time: *${jobUpdate.results.max_service_time_ms}* ms
+All: ${JSON.stringify(jobUpdate)}`;
 }
 
+function createSlackMessageJobError(jobUpdate) {
+    return `_[${jobUpdate.job_id}]_ *ERROR:* ${jobUpdate.error}`;
+}
+
+function validateJobStart(jobUpdate) {
+    if (!jobUpdate) {
+        return {
+            error: 'Missing jobUpdate body'
+        };
+    }
+
+    if (!jobUpdate.tpm) {
+        jobUpdate.error = "Missing or zero tpm property";
+        return jobUpdate;
+    }
+
+    if (!jobUpdate.duration_sec) {
+        jobUpdate.error = "Missing or zero duration_sec property";
+        return jobUpdate;
+    }
+
+    return null;
+}
 
 module.exports = {
     insertJobToDb: insertJobToDb,
     createSlackMessageJobRunning: createSlackMessageJobRunning,
     createSlackMessageJobDone: createSlackMessageJobDone,
+    createSlackMessageJobError: createSlackMessageJobError,
+    validateJobStart: validateJobStart,
 };

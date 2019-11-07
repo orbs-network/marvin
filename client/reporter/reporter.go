@@ -13,6 +13,12 @@ type Transaction struct {
 	PApiUrl     string `json:"papiUrl"`
 }
 
+type ShortTransaction struct {
+	Result      string `json:"res"`
+	BlockHeight uint64 `json:"h"`
+	Duration    uint64 `json:"dur"`
+}
+
 type version struct {
 	Semantic string `json:"Semantic"`
 	Commit   string `json:"Commit"`
@@ -35,7 +41,7 @@ type Report struct {
 	SemanticVersion      string `json:"semanticVersion"`
 	SlowestTransactionMs uint64 `json:"slowestTransactionMs"`
 
-	Transactions []*Transaction `json:"transactions"`
+	Transactions []*ShortTransaction `json:"transactions"`
 }
 
 func (r *Report) ToJson() (string, error) {

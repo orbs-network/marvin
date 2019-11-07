@@ -5,7 +5,7 @@ const router = express.Router();
 const {listJobs} = require('../mysql');
 const {info} = require('../util');
 const {sendJob, shutdownExecutor} = require('../job-runner');
-const {insertJobToDb, createSlackMessageJobRunning, createSlackMessageJobDone} = require('../controller/jobs-ctrl');
+const {insertJobToDb, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError, validateJobStart} = require('../controller/jobs-ctrl');
 const {notifySlack} = require('../slack');
 
 /* GET users listing. */
@@ -16,10 +16,18 @@ router.get('/', (req, res) => {
 router.post('/start', async (req, res, next) => {
     const jobProps = req.body;
     // TODO Create job entry entry in MySQL and get an ID from an incrementing sequence
-    jobProps.job_id = insertJobToDb(jobProps);
-    info(`SENDING JOB TO EXECUTOR [ID=${jobProps.job_id}]: ${JSON.stringify(jobProps)}`);
-    const jobStatus = await sendJob(jobProps);
-    res.send(jobStatus);
+
+    const err = validateJobStart(jobProps);
+    if (err) {
+        notifySlack(createSlackMessageJobError(jobProps));
+        res.send(jobProps).status(400);
+    } else {
+        jobProps.job_id = insertJobToDb(jobProps);
+        info(`SENDING JOB TO EXECUTOR [ID=${jobProps.job_id}]: ${JSON.stringify(jobProps)}`);
+        const jobStatus = await sendJob(jobProps);
+        res.send(jobStatus);
+    }
+
 });
 
 /* GET users listing. */
@@ -33,18 +41,23 @@ router.get('/:id/status', (req, res, next) => {
 
 router.post('/:id/update', (req, res, next) => {
     const jobUpdate = req.body;
-    info(`RECEIVED /jobs/${req.params.id}/update: status: ${jobUpdate.job_status} ${JSON.stringify(jobUpdate.results)}`);
+    info(`RECEIVED /jobs/${req.params.id}/update: status: ${jobUpdate.job_status} ${JSON.stringify(jobUpdate.results || {})}`);
 
-    switch(jobUpdate.job_status) {
+    switch (jobUpdate.job_status) {
         case 'RUNNING':
             notifySlack(createSlackMessageJobRunning(jobUpdate));
             break;
 
         case 'DONE':
-            info(`Shutting down executor`);
+            info(`Received DONE, shutting down executor`);
             shutdownExecutor();
             notifySlack(createSlackMessageJobDone(jobUpdate));
             break;
+
+        case 'ERROR':
+            info(`Received ERROR, shutting down executor`);
+            shutdownExecutor();
+            notifySlack(createSlackMessageJobError(jobUpdate));
     }
 
     // notifySlack(`Job: ${JSON.stringify(jobUpdate)}`);

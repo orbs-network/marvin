@@ -8,7 +8,7 @@ const http = require('http');
 const {info} = require('./util');
 const indexRouter = require('./routes/index');
 const jobRouter = require('./routes/job');
-const statusRouter = require('./routes/status');
+const statusRouter = require('./routes/executor-status');
 
 const DEFAULT_PARENT_HOST = '127.0.0.1';
 const DEFAULT_PARENT_PORT = 4567;
@@ -34,7 +34,7 @@ app.server = server; // for shutdown in testing
 
 
 
-async function bootstrap(props, config) {
+async function bootstrap(props, state) {
     info('bootstrap()');
     if (isUp) {
         return;
@@ -43,9 +43,9 @@ async function bootstrap(props, config) {
     const parentHost = props.parent_host ? props.parent_host : DEFAULT_PARENT_HOST;
     const parentPort = props.parent_port ? props.parent_port : DEFAULT_PARENT_PORT;
     isUp = true;
-    config.port = port;
-    config.parent_base_url = `${parentHost}:${parentPort}`;
-    // config.client_config = props.client_config; // Given in /job/start
+    state.port = port;
+    state.parent_base_url = `${parentHost}:${parentPort}`;
+    // state.client_config = props.client_config; // Given in /job/start
     // state.job_id = props.job_id;
     await app.server.listen(port);
     info(`Listening on port ${port}`);
