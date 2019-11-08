@@ -2,11 +2,11 @@
 
 const express = require('express');
 const router = express.Router();
-const {listJobs} = require('../mysql');
+const {listJobs, insertJobToDb} = require('../mysql');
 const {info} = require('../util');
 const {sendJob, shutdownExecutor} = require('../job-runner');
-const {insertJobToDb, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError, validateJobStart} = require('../controller/jobs-ctrl');
-const {notifySlack} = require('../slack');
+const {validateJobStart} = require('../controller/jobs-ctrl');
+const {notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError} = require('../slack');
 
 /* GET users listing. */
 router.get('/', (req, res) => {

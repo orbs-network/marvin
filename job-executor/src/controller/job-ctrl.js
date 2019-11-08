@@ -18,18 +18,18 @@ const defaultLoadSteps = [
         displayName: '20 tps',
         instances: 2
     },
-    // {
-    //     displayName: '30 tps',
-    //     endurance: 4
-    // },
-    // {
-    //     displayName: '40 tps',
-    //     endurance: 5
-    // },
-    // {
-    //     displayName: '50 tps',
-    //     endurance: 10
-    // }
+    {
+        displayName: '30 tps',
+        instances: 4
+    },
+    {
+        displayName: '40 tps',
+        instances: 5
+    },
+    {
+        displayName: '50 tps',
+        instances: 10
+    }
 ];
 
 
@@ -74,7 +74,7 @@ async function runJobAndWaitForCompletion(state) {
         }
         state.job_runtime = now - startTime;
         await updateParentWithJob(state);
-        info(`Wait for client completion before next iteration. #live=${state.live_clients}`);
+        // info(`Wait for client completion before next iteration. #live=${state.live_clients}`);
         await waitForAllClientsCompletion(state, 2000);
     }
 
@@ -84,7 +84,6 @@ async function runJobAndWaitForCompletion(state) {
     info(`--- All clients finished in ${endTime - startTime} ms`);
     state.job_status = 'DONE';
     state.job_runtime = endTime - startTime;
-    const aggregatedResults = agg(state);
     info(`Summary: ${JSON.stringify(state.summary)}`);
     await updateParentWithJob(state);
     info(`Sent update to orchestrator`);
@@ -99,7 +98,7 @@ async function waitForAllClientsCompletion(state, pollingIntervalMs) {
 }
 
 
-async function updateParentWithJob(currentState, res) {
+async function updateParentWithJob(currentState) {
     // HTTP POST to orchestrator with URL /jobs/:id/stop and BODY=result
     const uri = `http://${currentState.parent_base_url}/jobs/${currentState.job_id}/update`;
     const body = {
@@ -109,7 +108,7 @@ async function updateParentWithJob(currentState, res) {
         runtime: currentState.job_runtime,
         duration_sec: currentState.duration_sec,
         tpm: currentState.tpm,
-        results: res || {},
+        summary: currentState.summary || {},
     };
     const options = {
         method: 'POST',

@@ -2,8 +2,8 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const jobsRouter = require('./src/routes/jobs');
-const statusRouter = require('./src/routes/status');
+const jobsRouter = require('./src/routes/jobs-route');
+const statusRouter = require('./src/routes/status-route');
 const {init} = require('./src/util');
 
 // if (props.runName.length === 0) {

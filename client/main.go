@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/orbs-network/marvin/client/runner"
 	"github.com/orbs-network/marvin/client/util"
+	"math/rand"
 	"os"
 )
 
@@ -25,7 +26,9 @@ func main() {
 func run(cfg *runner.Config) {
 
 	r := &runner.Runner{
-		Config: cfg,
+		Config:          cfg,
+		CtrlRand:        rand.New(rand.NewSource(0)),
+		TargetAddresses: cfg.Accounts,
 	}
 	report, err := r.Execute()
 	if err != nil {

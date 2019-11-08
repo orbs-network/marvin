@@ -1,6 +1,7 @@
 'use strict';
 
-const {info} = require('./util');
+const {generateJobId} = require('./util');
+
 const knex = require('knex')({
     client: 'mysql2',
     version: '5.7',
@@ -13,7 +14,17 @@ const knex = require('knex')({
     pool: { min: 0 }, // See https://github.com/Vincit/objection.js/issues/534#issuecomment-343683129
 });
 
-function insertTransaction(record = {}, data, tableName) {
+
+
+function insertJobToDb(jobProps) {
+
+    // TODO DB Stuff
+
+    return generateJobId();
+}
+
+
+function insertTransaction(data, tableName, record = {}) {
     const hash = (data.commitHash || '').slice(0, 10);
     const version = data.semanticVersion || '';
 
@@ -41,6 +52,7 @@ async function listJobs() {
 
 module.exports = {
     knex,
-    insertTransaction,
+    insertTransaction: insertTransaction,
+    insertJobToDb: insertJobToDb,
     listJobs
 };

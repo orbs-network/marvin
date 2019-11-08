@@ -2,6 +2,7 @@
 
 const {exec} = require('child_process');
 const {info} = require('./util');
+const _ = require('lodash');
 
 async function runClientContainers(instances, state) {
 
@@ -33,7 +34,7 @@ async function runClientContainers(instances, state) {
                 };
             }
             ++state.live_clients;
-            info(`Started client #${state.live_clients}, pid=${clientProc.pid}: ${cmd}`);
+            // info(`Started client #${state.live_clients}, pid=${clientProc.pid}: ${cmd}`);
             clientProc.stdout.on('data', (data) => {
                 try {
                     processClientOutput(JSON.parse(data || {}), state);
@@ -45,7 +46,7 @@ async function runClientContainers(instances, state) {
 
             clientProc.on('close', (code) => {
                 --state.live_clients;
-                info(`child proc ${clientProc.pid} exited with code ${code}. #live=${state.live_clients}`);
+                // info(`child proc ${clientProc.pid} exited with code ${code}. #live=${state.live_clients}`);
             });
         } catch (ex) {
             console.log('Failed to run client: ' + ex);
@@ -58,46 +59,48 @@ async function runClientContainers(instances, state) {
 }
 
 
-function agg(state) {
-    // TODO aggregate results and return a single object
-
-    let totalTx = 0, errTx = 0, slowestTx = 0;
-    let version = '';
-    info(`agg(): #state.all_results=${state.all_results.length}`);
-    for (let result of state.all_results) {
-        info(`agg(): ${JSON.stringify(result)}`);
-        totalTx += result.totalTransactions;
-        errTx += result.errorTransactions;
-        if (slowestTx < result.slowestTransactionMs) {
-            slowestTx = result.slowestTransactionMs;
-        }
-        version = result.semanticVersion;
-    }
-
-    return {
-        version: version,
-        total_tx: totalTx,
-        err_tx: errTx,
-        max_service_time_ms: slowestTx,
-    };
-}
+// function agg(state) {
+//     // TODO aggregate results and return a single object
+//
+//     let totalTx = 0, errTx = 0, slowestTx = 0;
+//     let version = '';
+//     info(`agg(): #state.all_results=${state.all_results.length}`);
+//     for (let result of state.all_results) {
+//         info(`agg(): ${JSON.stringify(result)}`);
+//         totalTx += result.totalTransactions;
+//         errTx += result.errorTransactions;
+//         if (slowestTx < result.slowestTransactionMs) {
+//             slowestTx = result.slowestTransactionMs;
+//         }
+//         version = result.semanticVersion;
+//     }
+//
+//     return {
+//         version: version,
+//         total_tx: totalTx,
+//         err_tx: errTx,
+//         max_service_time_ms: slowestTx,
+//     };
+// }
 
 
 function processClientOutput(clientOutput, state) {
+    // info(`STDOUT ${JSON.stringify(clientOutput)}`);
     clientOutput.transactions = clientOutput.transactions || [];
-    state.all_results.push(clientOutput);
+    const clientTxDurations = _.map(clientOutput.transactions, tx => (tx.dur || 0));
+    state.tx_durations = _.concat(state.tx_durations, clientTxDurations||[]);
+    info(`TX_DURATIONS (${state.tx_durations.length}): ${JSON.stringify(state.tx_durations)}`);
     state.summary.total_tx_count += clientOutput.totalTransactions;
     state.summary.err_tx_count += clientOutput.errorTransactions;
-    const totalDurPerClient = clientOutput.transactions.map(tx => (tx.dur || 0)).reduce((acc, val) => acc + val, 0);
+    const totalDurPerClient = _.reduce(clientTxDurations, (acc, val) => acc + val, 0);
+    const slowestTxPerClient = _.max(clientTxDurations);
     state.summary.total_dur += totalDurPerClient;
     state.summary.version = clientOutput.semanticVersion;
     state.summary.version = '';
     state.summary.avg_service_time_ms = state.summary.total_tx_count>0 ? Math.ceil(state.summary.total_dur / state.summary.total_tx_count) : 0;
-    state.summary.max_service_time_ms = Math.ceil(state.summary.max_service_time_ms||0);
-    if (state.summary.slowestTransactionMs < clientOutput.slowestTransactionMs) {
-        state.summary.slowestTransactionMs = clientOutput.slowestTransactionMs;
+    if (state.summary.max_service_time_ms < slowestTxPerClient) {
+        state.summary.max_service_time_ms = slowestTxPerClient;
     }
-
 
     info(`Total duration of ${clientOutput.transactions.length} transactions: ${totalDurPerClient}`);
 

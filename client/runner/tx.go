@@ -19,7 +19,7 @@ func createPayload(client *orbsClient.OrbsClient, targetAddress []byte) (rawTran
 
 }
 
-func TrySend(client *orbsClient.OrbsClient, target []byte) (response *codec.SendTransactionResponse, err error) {
+func TrySendSync(client *orbsClient.OrbsClient, target []byte) (response *codec.SendTransactionResponse, err error) {
 	payload, err := createPayload(client, target)
 	if err != nil {
 		panic("Error creating transaction")

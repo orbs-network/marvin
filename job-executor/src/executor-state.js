@@ -9,7 +9,7 @@ module.exports = {
         accumulated_error_tx: 0,
         live_clients: 0,
         tpm: 0,
-        all_results: [],
+        tx_durations: [],
         summary: {
             total_dur: 0,
             total_tx_count: 0,

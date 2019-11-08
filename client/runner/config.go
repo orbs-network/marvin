@@ -14,7 +14,7 @@ import (
 type Config struct {
 	netConfig *nodeConfiguration
 	runConfig *runConfiguration
-	accounts  [][]byte
+	Accounts  [][]byte
 }
 
 type nodeConfiguration struct {
@@ -59,7 +59,7 @@ func CreateConfig(cfgPath string, runConfigStr string) *Config {
 	return &Config{
 		netConfig: netConfig,
 		runConfig: runConfig,
-		accounts:  accounts,
+		Accounts:  accounts,
 	}
 }
 

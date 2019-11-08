@@ -6,9 +6,9 @@ const logger = require('morgan');
 const http = require('http');
 
 const {info} = require('./util');
-const indexRouter = require('./routes/index');
-const jobRouter = require('./routes/job');
-const statusRouter = require('./routes/executor-status');
+const indexRouter = require('./routes/index-route');
+const jobRouter = require('./routes/job-route');
+const statusRouter = require('./routes/executor-status-route');
 
 const DEFAULT_PARENT_HOST = '127.0.0.1';
 const DEFAULT_PARENT_PORT = 4567;
