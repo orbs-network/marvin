@@ -73,6 +73,28 @@ All transactions are in table `transactions`.
  
  > It takes time (30s on a Mac) to initialize the DB, after running `./start-network.sh`
 
+We use [knex](http://knexjs.org/) library to communicate with the DB.
+Regular connection:
+```
+const knex = require('knex')({
+    client: 'mysql2',
+    version: '5.7',
+    connection: {
+        host: '127.0.0.1',
+        user: process.env.MYSQL_USER,
+        password: process.env.MYSQL_PASSWORD,
+        database: 'marvin'
+    },
+    pool: {min: 0}
+});
+
+```
+
+Connection with SSH:
+```
+
+```
+
 
 ## Client
 
@@ -91,6 +113,18 @@ Based on https://github.com/deviantony/docker-elk
 > "logger-http-endpoint": "https://listener.logz.io:8071/?token=<some_token>&type=prod"
 
 # Developer Notes
+
+## Running Marvin locally
+Marvin consists of Prometheus, Grafana, MySQL.
+It is all part of a docker-compose, so it can be run locally as follows:
+
+`cd docker && docker-compose up -d`
+
+You can then run the Orchestrator locally, and interact with it using REST API calls 
+(using Postman, for example).
+
+ 
+
 
 ## Running testnet locally
 
@@ -126,8 +160,6 @@ To start with a config file located at `/tmp/prometheus.yml`, use:
 This project uses Orbs' Hosted Grafana solution which is also used by the production network.
 It is configured with a built-in Prometheus instance that accepts data by [remote_write](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_write).
 Project [Kartoha](https://github.com/orbs-network/kartoha) can be used to generate the Prometheus `yml` config file.
-
-## Running Prometheus on local machine
 
 
 ## Sequence diagram

@@ -20,7 +20,7 @@ function info() {
     }
 }
 
-function generateJobId() {
+function generateJobName() {
     const dateStr = new Date().toISOString();
     const randomSuffix = zeroPad(Math.floor(Math.random() * 100), 3);
     return `${dateStr}_${randomSuffix}`;
@@ -33,5 +33,5 @@ function zeroPad(num, places) {
 module.exports = {
     init: init,
     info: info,
-    generateJobId: generateJobId,
+    generateJobName: generateJobName,
 };

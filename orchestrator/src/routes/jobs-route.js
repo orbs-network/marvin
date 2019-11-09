@@ -2,16 +2,11 @@
 
 const express = require('express');
 const router = express.Router();
-const {listJobs, insertJobToDb} = require('../mysql');
+const {listJobsFromDb, insertJobToDb, updateJobInDb} = require('../mysql');
 const {info} = require('../util');
 const {sendJob, shutdownExecutor} = require('../job-runner');
 const {validateJobStart} = require('../controller/jobs-ctrl');
 const {notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError} = require('../slack');
-
-/* GET users listing. */
-router.get('/', (req, res) => {
-    res.json(listJobs());
-});
 
 router.post('/start', async (req, res, next) => {
     const jobProps = req.body;
@@ -22,15 +17,29 @@ router.post('/start', async (req, res, next) => {
         notifySlack(createSlackMessageJobError(jobProps));
         res.send(jobProps).status(400);
     } else {
-        jobProps.job_id = insertJobToDb(jobProps);
-        info(`SENDING JOB TO EXECUTOR [ID=${jobProps.job_id}]: ${JSON.stringify(jobProps)}`);
-        const jobStatus = await sendJob(jobProps);
-        res.send(jobStatus);
+        try {
+            jobProps.job_id = await insertJobToDb(jobProps);
+            info(`SENDING JOB TO EXECUTOR [ID=${jobProps.job_id}]: ${JSON.stringify(jobProps)}`);
+            const jobStatus = await sendJob(jobProps);
+            res.send(jobStatus);
+        } catch (ex) {
+            res.send(ex).status(500);
+        }
     }
-
 });
 
 /* GET users listing. */
+router.get('/list', async (req, res, next) => {
+
+    try {
+        const list = await listJobsFromDb();
+        res.json(list);
+    } catch (ex) {
+        res.send(ex).status(500);
+    }
+});
+
+
 router.get('/:id/status', (req, res, next) => {
     res.json({
         job_id: req.params.id,
@@ -39,24 +48,35 @@ router.get('/:id/status', (req, res, next) => {
     });
 });
 
-router.post('/:id/update', (req, res, next) => {
+router.post('/:id/update', async (req, res, next) => {
     const jobUpdate = req.body;
-    info(`RECEIVED /jobs/${req.params.id}/update: status: ${jobUpdate.job_status} ${JSON.stringify(jobUpdate.results || {})}`);
+    info(`RECEIVED /jobs/${req.params.id}/update: status: ${jobUpdate.job_status} ${JSON.stringify(jobUpdate)}`);
+
+    const appendErr = (ex) => {
+        jobUpdate.error = jobUpdate.error || '';
+        jobUpdate.error += ` ${ex}`;
+    };
 
     switch (jobUpdate.job_status) {
         case 'RUNNING':
+            jobUpdate.running = true;
+            await updateJobInDb(jobUpdate).catch(appendErr);
             notifySlack(createSlackMessageJobRunning(jobUpdate));
             break;
 
         case 'DONE':
             info(`Received DONE, shutting down executor`);
+            jobUpdate.running = false;
             shutdownExecutor();
+            await updateJobInDb(jobUpdate).catch(appendErr);
             notifySlack(createSlackMessageJobDone(jobUpdate));
             break;
 
         case 'ERROR':
             info(`Received ERROR, shutting down executor`);
+            jobUpdate.running = false;
             shutdownExecutor();
+            await updateJobInDb(jobUpdate).catch(appendErr);
             notifySlack(createSlackMessageJobError(jobUpdate));
     }
 
@@ -65,6 +85,7 @@ router.post('/:id/update', (req, res, next) => {
     // `Job ${jobUpdate.job_id} *${jobUpdate.job_status}*. Runtime: ${jobUpdate.runtime/1000} s. Results: ${JSON.stringify(jobUpdate.results||{})})`
     res.json({
         job_id: req.params.id,
+        error: jobUpdate.error,
         status: jobUpdate.job_status,
         runtime: jobUpdate.runtime
     });
