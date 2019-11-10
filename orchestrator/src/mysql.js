@@ -31,13 +31,17 @@ async function insertJobToDb(jobProps) {
             tx_response_max: 0,
             tx_response_p99: 0,
             tx_response_p95: 0,
+            tx_response_p90: 0,
             tx_response_median: 0,
             tx_response_avg: 0,
 
         })
         .then(res => {
-            info(`Inserted new job ${jobName} to DB`);
+            info(`[SQL] Inserted new job ${jobName} to DB`);
             return jobName;
+        })
+        .catch(ex => {
+            throw `[SQL] Error inserting to DB jobName=${jobName} ex=${ex}`;
         });
 }
 
@@ -45,16 +49,20 @@ async function updateJobInDb(jobUpdate) {
 
     const updateProps = {
         status: jobUpdate.job_status,
+        error: jobUpdate.error,
         running: jobUpdate.running ? 1 : 0,
         total_tx_count: jobUpdate.summary.total_tx_count,
         err_tx_count: jobUpdate.summary.err_tx_count,
-        tx_per_minute: jobUpdate.tpm||0.0,
-        expected_duration_sec: jobUpdate.duration_sec||0,
-        tx_response_max: jobUpdate.summary.max_service_time_ms||0,
-        tx_response_p99: jobUpdate.summary.p99_service_time_ms||0,
-        tx_response_p95: jobUpdate.summary.p95_service_time_ms||0,
-        tx_response_median: jobUpdate.summary.median_service_time_ms||0,
-        tx_response_avg: jobUpdate.summary.avg_service_time_ms||0,
+        tx_per_minute: jobUpdate.tpm || 0.0,
+        expected_duration_sec: jobUpdate.duration_sec || 0,
+        tx_response_max: jobUpdate.summary.max_service_time_ms || 0,
+        tx_response_p99: jobUpdate.summary.p99_service_time_ms || 0,
+        tx_response_p95: jobUpdate.summary.p95_service_time_ms || 0,
+        tx_response_p90: jobUpdate.summary.p90_service_time_ms || 0,
+        tx_response_median: jobUpdate.summary.median_service_time_ms || 0,
+        tx_response_avg: jobUpdate.summary.avg_service_time_ms || 0,
+        semantic_version: jobUpdate.summary.semantic_version,
+        commit_hash: jobUpdate.summary.commit_hash,
     };
 
     if (!jobUpdate.running) {
@@ -63,13 +71,13 @@ async function updateJobInDb(jobUpdate) {
 
     return knex('jobs')
         .where({name: jobUpdate.job_id})
-        .update({updateProps})
+        .update(updateProps)
         .then(res => {
-            info(`Updated job ${jobUpdate.job_id} in DB`);
+            info(`[SQL] Updated job ${jobUpdate.job_id} in DB`);
             return jobUpdate.job_id;
         })
         .catch(ex => {
-            throw `Error updating DB jobName=${jobUpdate.job_id} status=${jobUpdate.job_status} ex=${ex}`;
+            throw `[SQL] Error updating DB jobName=${jobUpdate.job_id} status=${jobUpdate.job_status} ex=${ex}`;
         });
 }
 
@@ -94,7 +102,15 @@ function insertTransaction(data, tableName, record = {}) {
 }
 
 async function listJobsFromDb() {
-    return knex.select().table('jobs');
+    return knex('jobs')
+        .select()
+        .then(res => {
+            info(`[SQL] Selected from jobs table: ${JSON.stringify(res)}`);
+            return res;
+        })
+        .catch(ex => {
+            throw `[SQL] Error selecting from DB jobs table ex=${ex}`;
+        });
 }
 
 

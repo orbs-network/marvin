@@ -9,14 +9,22 @@ module.exports = {
         accumulated_error_tx: 0,
         live_clients: 0,
         tpm: 0,
-        tx_durations: [],
+
         summary: {
             total_dur: 0,
             total_tx_count: 0,
             err_tx_count: 0,
             max_service_time_ms: 0,
             avg_service_time_ms: 0,
+            median_service_time_ms: 0,
+            p90_service_time_ms: 0,
+            p95_service_time_ms: 0,
+            p99_service_time_ms: 0,
         }
+    },
+    all_tx: {
+        tx_durations: [],
+        hdr: null,
     }
     // config: {
     //     port: 0,

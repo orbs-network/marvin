@@ -2,6 +2,7 @@
 
 const {exec} = require('child_process');
 const {info} = require('./util');
+const {all_tx} = require('./executor-state');
 const _ = require('lodash');
 
 async function runClientContainers(instances, state) {
@@ -85,22 +86,25 @@ async function runClientContainers(instances, state) {
 
 
 function processClientOutput(clientOutput, state) {
-    // info(`STDOUT ${JSON.stringify(clientOutput)}`);
+    info(`STDOUT ${JSON.stringify(clientOutput)}`);
     clientOutput.transactions = clientOutput.transactions || [];
     const clientTxDurations = _.map(clientOutput.transactions, tx => (tx.dur || 0));
-    state.tx_durations = _.concat(state.tx_durations, clientTxDurations||[]);
-    info(`TX_DURATIONS (${state.tx_durations.length}): ${JSON.stringify(state.tx_durations)}`);
+    all_tx.tx_durations = _.concat(all_tx.tx_durations, clientTxDurations||[]);
+    _.forEach(clientTxDurations||[], dur => all_tx.hdr.recordValue(dur));
+    info(`TX_DURATIONS (${all_tx.tx_durations.length}): ${JSON.stringify(all_tx.tx_durations)}`);
     state.summary.total_tx_count += clientOutput.totalTransactions;
     state.summary.err_tx_count += clientOutput.errorTransactions;
     const totalDurPerClient = _.reduce(clientTxDurations, (acc, val) => acc + val, 0);
     const slowestTxPerClient = _.max(clientTxDurations);
     state.summary.total_dur += totalDurPerClient;
-    state.summary.version = clientOutput.semanticVersion;
-    state.summary.version = '';
-    state.summary.avg_service_time_ms = state.summary.total_tx_count>0 ? Math.ceil(state.summary.total_dur / state.summary.total_tx_count) : 0;
-    if (state.summary.max_service_time_ms < slowestTxPerClient) {
-        state.summary.max_service_time_ms = slowestTxPerClient;
-    }
+    state.summary.semantic_version = clientOutput.semanticVersion;
+    state.summary.commit_hash = clientOutput.commitHash;
+    state.summary.median_service_time_ms = all_tx.hdr.getValueAtPercentile(50);
+    state.summary.p90_service_time_ms = all_tx.hdr.getValueAtPercentile(90);
+    state.summary.p95_service_time_ms = all_tx.hdr.getValueAtPercentile(95);
+    state.summary.p99_service_time_ms = all_tx.hdr.getValueAtPercentile(99);
+    state.summary.avg_service_time_ms = all_tx.hdr.getMean();
+    state.summary.max_service_time_ms = all_tx.hdr.maxValue;
 
     info(`Total duration of ${clientOutput.transactions.length} transactions: ${totalDurPerClient}`);
 

@@ -14,22 +14,22 @@ const defaultLoadSteps = [
         displayName: '10 tps',
         instances: 1 // amount of containers to startup for this step
     },
-    {
-        displayName: '20 tps',
-        instances: 2
-    },
-    {
-        displayName: '30 tps',
-        instances: 4
-    },
-    {
-        displayName: '40 tps',
-        instances: 5
-    },
-    {
-        displayName: '50 tps',
-        instances: 10
-    }
+    // {
+    //     displayName: '20 tps',
+    //     instances: 2
+    // },
+    // {
+    //     displayName: '30 tps',
+    //     instances: 4
+    // },
+    // {
+    //     displayName: '40 tps',
+    //     instances: 5
+    // },
+    // {
+    //     displayName: '50 tps',
+    //     instances: 10
+    // }
 ];
 
 

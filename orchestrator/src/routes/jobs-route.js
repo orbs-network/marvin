@@ -20,8 +20,16 @@ router.post('/start', async (req, res, next) => {
         try {
             jobProps.job_id = await insertJobToDb(jobProps);
             info(`SENDING JOB TO EXECUTOR [ID=${jobProps.job_id}]: ${JSON.stringify(jobProps)}`);
-            const jobStatus = await sendJob(jobProps);
-            res.send(jobStatus);
+            const sendJobResponse = await sendJob(jobProps);
+            if (sendJobResponse.status === 'ERROR') {
+                const err = `Error in job executor: ${sendJobResponse.error}`;
+                jobProps.job_status = 'ERROR';
+                jobProps.error = err;
+                await updateJobInDb(jobProps);
+                res.send(err).status(500);
+            } else {
+                res.send(sendJobResponse);
+            }
         } catch (ex) {
             res.send(ex).status(500);
         }
