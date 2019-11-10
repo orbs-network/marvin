@@ -1,5 +1,5 @@
 module.exports = {
-    state: {
+            state: {
         job_id: '0',
         job_status: 'NOT_STARTED',
         pct_done: 0,

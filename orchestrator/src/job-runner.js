@@ -4,6 +4,7 @@ const rp = require('request-promise-native');
 const {spawn} = require('child_process');
 const path = require('path');
 const {config} = require('./orchestrator-config');
+const {state} = require('./orch-state');
 
 const {info} = require('./util');
 const {insertTransaction} = require('./mysql');
@@ -20,12 +21,18 @@ async function storeBatchOutputs(dataAsString) {
 }
 
 async function sendJob(jobProps) {
-    console.log(__dirname);
     const cwd = path.join(__dirname, '../../job-executor');
     const jobExecutorPort = jobProps.port || 4568;
     const jobExecutor = spawn('node', ['executor.js', `-port=${jobExecutorPort}`], {cwd});
+    state.live_jobs++;
+    state.jobs[`${jobExecutor.pid}`] = {
+        timestamp: new Date().toISOString(),
+    };
+    info(`State after starting job: ${state}`);
 
     jobExecutor.on('exit', (code, signal) => {
+        state.live_jobs--;
+        delete state.jobs[`${jobExecutor.pid}`];
         info(`Job Executor process pid=${jobExecutor.pid} exited with code ${code} and signal ${signal}`);
     });
 
