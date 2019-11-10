@@ -37,7 +37,7 @@ router.post('/start', (req, res, next) => {
     );
     state.job_status = 'STARTING';
     state.job_id = jobProps.job_id; // This assumes a single job
-    state.client_timeout_sec = jobProps.client_timeout_sec || 3;
+    state.client_timeout_sec = jobProps.client_timeout_sec || 10;
     state.duration_sec = jobProps.duration_sec;
     state.tpm = jobProps.tpm;
     startJob(state);

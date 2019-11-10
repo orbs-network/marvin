@@ -5,9 +5,9 @@ const {info} = require('./util');
 const {all_tx} = require('./executor-state');
 const _ = require('lodash');
 
-async function runClientContainers(instances, state) {
+async function startClientContainers(instances, state) {
 
-    info(`runClientContainers(): running ${instances} instances`);
+    // info(`startClientContainers(): running ${instances} instances`);
     const clients = [];
     for (let i = 0; i < instances; i++) {
         clients.push({
@@ -34,7 +34,7 @@ async function runClientContainers(instances, state) {
                     error: `Error running client with cmd: ${cmd}`
                 };
             }
-            ++state.live_clients;
+            state.live_clients++;
             // info(`Started client #${state.live_clients}, pid=${clientProc.pid}: ${cmd}`);
             clientProc.stdout.on('data', (data) => {
                 try {
@@ -46,7 +46,7 @@ async function runClientContainers(instances, state) {
             });
 
             clientProc.on('close', (code) => {
-                --state.live_clients;
+                state.live_clients--;
                 // info(`child proc ${clientProc.pid} exited with code ${code}. #live=${state.live_clients}`);
             });
         } catch (ex) {
@@ -86,16 +86,14 @@ async function runClientContainers(instances, state) {
 
 
 function processClientOutput(clientOutput, state) {
-    info(`STDOUT ${JSON.stringify(clientOutput)}`);
     clientOutput.transactions = clientOutput.transactions || [];
     const clientTxDurations = _.map(clientOutput.transactions, tx => (tx.dur || 0));
     all_tx.tx_durations = _.concat(all_tx.tx_durations, clientTxDurations||[]);
     _.forEach(clientTxDurations||[], dur => all_tx.hdr.recordValue(dur));
-    info(`TX_DURATIONS (${all_tx.tx_durations.length}): ${JSON.stringify(all_tx.tx_durations)}`);
+    // info(`TX_DURATIONS (${all_tx.tx_durations.length}): ${JSON.stringify(all_tx.tx_durations)}`);
     state.summary.total_tx_count += clientOutput.totalTransactions;
     state.summary.err_tx_count += clientOutput.errorTransactions;
     const totalDurPerClient = _.reduce(clientTxDurations, (acc, val) => acc + val, 0);
-    const slowestTxPerClient = _.max(clientTxDurations);
     state.summary.total_dur += totalDurPerClient;
     state.summary.semantic_version = clientOutput.semanticVersion;
     state.summary.commit_hash = clientOutput.commitHash;
@@ -106,10 +104,10 @@ function processClientOutput(clientOutput, state) {
     state.summary.avg_service_time_ms = all_tx.hdr.getMean();
     state.summary.max_service_time_ms = all_tx.hdr.maxValue;
 
-    info(`Total duration of ${clientOutput.transactions.length} transactions: ${totalDurPerClient}`);
+    info(`Client completed, total duration of ${clientOutput.transactions.length} transactions: ${totalDurPerClient}`);
 
 }
 
 module.exports = {
-    runClientContainers: runClientContainers,
+    startClientContainers: startClientContainers,
 };

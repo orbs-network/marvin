@@ -1,7 +1,7 @@
 'use strict';
 
 const rp = require('request-promise-native');
-const {runClientContainers} = require('../client-runner');
+const {startClientContainers} = require('../client-runner');
 const {info, sleep} = require('../util');
 const {config} = require('../executor-state');
 
@@ -14,10 +14,10 @@ const defaultLoadSteps = [
         displayName: '10 tps',
         instances: 1 // amount of containers to startup for this step
     },
-    // {
-    //     displayName: '20 tps',
-    //     instances: 2
-    // },
+    {
+        displayName: '20 tps',
+        instances: 2
+    },
     // {
     //     displayName: '30 tps',
     //     instances: 4
@@ -49,38 +49,42 @@ async function runJobAndWaitForCompletion(state) {
 
     const startTime = new Date();
 
-
+    let iteration = 0;
     while (!state.should_stop) {
         let totalClients = 0;
-        info(`Iteration starts. Should_stop=${state.should_stop} Steps=${JSON.stringify(steps)}`);
+        ++iteration;
+
+        info(`[Iteration ${iteration}]: starts. Should_stop=${state.should_stop} Steps=${JSON.stringify(steps)}`);
         for (let step of steps) {
             totalClients += step.instances;
-            await runClientContainers(step.instances, state);
+            await startClientContainers(step.instances, state);
         }
 
         for (let step of reverseSteps) {
             totalClients += step.instances;
-            await runClientContainers(step.instances, state);
+            await startClientContainers(step.instances, state);
         }
 
-        info(`Started ${totalClients} clients in this iteration`);
-
+        info(`[Iteration ${iteration}]: started ${totalClients} clients, now waiting for their completion`);
+        await waitForAllClientsCompletion(state, 200);
+        info(`[Iteration ${iteration}]: clients completed.`);
         const now = new Date();
         if (now - startTime > state.duration_sec * 1000) {
-            info(`LAST ITERATION`);
+            info(`[Iteration ${iteration}]: THIS WAS THE LAST ITERATION`);
             state.should_stop = true;
         } else {
-            info(`Passed ${now - startTime} ms, should only end after ${state.duration_sec * 1000} ms`);
+            info(`[Iteration ${iteration}]: Passed ${now - startTime} ms, should only end after ${state.duration_sec * 1000} ms`);
         }
-        state.job_runtime = now - startTime;
-        await updateParentWithJob(state);
         // info(`Wait for client completion before next iteration. #live=${state.live_clients}`);
-        await waitForAllClientsCompletion(state, 2000);
+
+        state.job_runtime = now - startTime;
+        info(`[Iteration ${iteration}]: Finished running ${totalClients} clients. Accumulated: ${state.summary.total_tx_count} tx in ${now - startTime} ms.`)
+        await updateParentWithJob(state);
     }
 
     const endTime = new Date();
 
-    await waitForAllClientsCompletion(state, 2000);
+    await waitForAllClientsCompletion(state, 200);
     info(`--- All clients finished in ${endTime - startTime} ms`);
     state.job_status = 'DONE';
     state.job_runtime = endTime - startTime;

@@ -28,7 +28,7 @@ async function sendJob(jobProps) {
     state.jobs[`${jobExecutor.pid}`] = {
         timestamp: new Date().toISOString(),
     };
-    info(`State after starting job: ${state}`);
+    info(`State after starting job: ${JSON.stringify(state)}`);
 
     jobExecutor.on('exit', (code, signal) => {
         state.live_jobs--;

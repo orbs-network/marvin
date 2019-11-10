@@ -36,7 +36,7 @@ func (runner *Runner) Execute() (*reporter.Report, error) {
 	var slowestTransactionMs uint64
 
 	runtimeCtx, _ := context.WithTimeout(context.Background(), runConf.runTime)
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 100; i++ {
 		if runtimeCtx.Err() != nil {
 			break
 		}
