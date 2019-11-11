@@ -1,6 +1,7 @@
 module.exports = {
-            state: {
+    state: {
         job_id: '0',
+        vchain: '',
         job_status: 'NOT_STARTED',
         pct_done: 0,
         should_stop: false,

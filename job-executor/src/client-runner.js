@@ -5,11 +5,11 @@ const {info} = require('./util');
 const {all_tx} = require('./executor-state');
 const _ = require('lodash');
 
-async function startClientContainers(instances, state) {
+async function startClientContainers(step, state) {
 
-    // info(`startClientContainers(): running ${instances} instances`);
+    info(`startClientContainers(): running step: ${step.display_name}`);
     const clients = [];
-    for (let i = 0; i < instances; i++) {
+    for (let i = 0; i < step.instances; i++) {
         clients.push({
             id: `${state.job_id}_${state.instance_counter++}`,
         });
@@ -21,9 +21,9 @@ async function startClientContainers(instances, state) {
         try {
             let cmd;
             if (state.use_mock_client) {
-                cmd = `./src/mock-client.sh ${client.id} ${state.client_timeout_sec} 2013 10 2`;
+                cmd = `./src/mock-client.sh ${client.id} ${state.client_timeout_sec} ${state.vchain} 10 2`;
             } else {
-                cmd = `docker run -t --rm endurance:client ./client ${clientConfigPath} ${client.id},${state.client_timeout_sec}`;
+                cmd = `docker run -t --rm endurance:client ./client ${clientConfigPath} ${client.id},${state.client_timeout_sec},${step.tpm}`;
             }
 
 

@@ -25,6 +25,7 @@ type nodeConfiguration struct {
 type runConfiguration struct {
 	runTime time.Duration
 	name    string
+	tpm     int
 }
 
 type VirtualChainId uint32
@@ -83,19 +84,25 @@ func parseStringConfig(input string) (*nodeConfiguration, error) {
 func ParseRunConfig(s string) (*runConfiguration, error) {
 
 	tokens := strings.Split(s, ",")
-	if len(tokens) < 2 {
+	if len(tokens) < 3 {
 		util.Die("Error in command line: too few run config properties: %s", s)
 	}
 
 	runName := tokens[0]
-	sec, err := strconv.Atoi(tokens[1])
+	runtimeSec, err := strconv.Atoi(tokens[1])
+	tpm, err := strconv.Atoi(tokens[2])
 	if err != nil {
 		util.Die("Error in runtime param: %s", err)
 	}
 
+	if len(runName) == 0 || runtimeSec <= 0 || tpm <= 0 {
+		util.Die("runName is empty or runtimeSec is non-positive or tpm is non-positive")
+	}
+
 	return &runConfiguration{
 		name:    runName,
-		runTime: time.Duration(sec) * time.Second,
+		runTime: time.Duration(runtimeSec) * time.Second,
+		tpm:     tpm,
 	}, nil
 
 }

@@ -19,7 +19,7 @@ router.post('/start', async (req, res, next) => {
     } else {
         try {
             jobProps.job_id = await insertJobToDb(jobProps);
-            info(`SENDING JOB TO EXECUTOR [ID=${jobProps.job_id}]: ${JSON.stringify(jobProps)}`);
+            info(`SENDING JOB TO EXECUTOR [ID=${jobProps.job_id} VCHAIN=${jobProps.vchain}]: ${JSON.stringify(jobProps)}`);
             const sendJobResponse = await sendJob(jobProps);
             if (sendJobResponse.status === 'ERROR') {
                 const err = `Error in job executor: ${sendJobResponse.error}`;
@@ -88,9 +88,6 @@ router.post('/:id/update', async (req, res, next) => {
             notifySlack(createSlackMessageJobError(jobUpdate));
     }
 
-    // notifySlack(`Job: ${JSON.stringify(jobUpdate)}`);
-    // Another message form: "a stress test has been completed for the 2013 chain on testnet. Some key metrics from the run: the test sent *50433* transactions successfully with a maximal response rate of *16* ms"
-    // `Job ${jobUpdate.job_id} *${jobUpdate.job_status}*. Runtime: ${jobUpdate.runtime/1000} s. Results: ${JSON.stringify(jobUpdate.results||{})})`
     res.json({
         job_id: req.params.id,
         error: jobUpdate.error,

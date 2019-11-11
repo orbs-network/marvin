@@ -2,8 +2,10 @@ package runner
 
 import (
 	"github.com/orbs-network/marvin/client/keys"
-	"github.com/orbs-network/orbs-client-sdk-go/codec"
+	"github.com/orbs-network/marvin/client/reporter"
 	orbsClient "github.com/orbs-network/orbs-client-sdk-go/orbs"
+	"github.com/pkg/errors"
+	"time"
 )
 
 func createPayload(client *orbsClient.OrbsClient, targetAddress []byte) (rawTransaction []byte, err error) {
@@ -16,15 +18,17 @@ func createPayload(client *orbsClient.OrbsClient, targetAddress []byte) (rawTran
 		targetAddress,
 	)
 	return tx, err
-
 }
 
-func TrySendSync(client *orbsClient.OrbsClient, target []byte) (response *codec.SendTransactionResponse, err error) {
+func TrySendSync(client *orbsClient.OrbsClient, target []byte) (tx *reporter.ShortTransaction, err error) {
+	//util.Debug("Sending to URL: %s to account %s", client.Endpoint, hex.EncodeToString(target))
+	startTxTime := time.Now()
 	payload, err := createPayload(client, target)
 	if err != nil {
-		panic("Error creating transaction")
+		return nil, errors.New("Error creating transaction")
 	}
 
-	return client.SendTransaction(payload)
-
+	res, err := client.SendTransaction(payload)
+	endTxTime := time.Now()
+	return TransactionResult(endTxTime, startTxTime, err, res), err
 }

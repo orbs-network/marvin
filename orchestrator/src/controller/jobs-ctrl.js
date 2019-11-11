@@ -19,6 +19,8 @@ function validateJobStart(jobUpdate) {
         return jobUpdate;
     }
 
+    jobUpdate.vchain = jobUpdate.vchain || '2013'; // default testnet vchain as of Nov 2019
+
     return null;
 }
 

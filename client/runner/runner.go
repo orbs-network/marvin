@@ -2,7 +2,6 @@ package runner
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
 	"github.com/orbs-network/marvin/client/reporter"
 	"github.com/orbs-network/marvin/client/util"
@@ -17,48 +16,97 @@ type Runner struct {
 	Config          *Config
 	CtrlRand        *rand.Rand
 	TargetAddresses [][]byte
+	TargetUrl       string
+}
+
+func NewRunner(cfg *Config, ctrlRand *rand.Rand) *Runner {
+
+	firstIP := cfg.netConfig.ValidatorNodes[0].IP
+	vchain := cfg.netConfig.Chains[0].Id
+	url := fmt.Sprintf("http://%s/vchains/%d", firstIP, vchain)
+
+	return &Runner{
+		Config:          cfg,
+		CtrlRand:        ctrlRand,
+		TargetAddresses: cfg.Accounts,
+		TargetUrl:       url,
+	}
+}
+
+func (runner *Runner) NewClient() *orbsClient.OrbsClient {
+	return orbsClient.NewClient(runner.TargetUrl, uint32(runner.Config.netConfig.Chains[0].Id), codec.NETWORK_TYPE_TEST_NET)
 }
 
 func (runner *Runner) Execute() (*reporter.Report, error) {
 
 	runConf := runner.Config.runConfig
-	url := runner.nodeUrl()
-	client := runner.getOrbsClient(url)
-	nodeStatus, err := util.ReadStatus(url)
+	nodeStatus, err := reporter.ReadStatus(runner.TargetUrl)
 	if err != nil {
-		return nil, errors.Errorf("Cannot read nodeStatus from URL: %s", url)
+		return nil, errors.Errorf("Cannot run test - failed to read node status from URL: %s", runner.TargetUrl)
 	}
 
-	report := runner.createReport(nodeStatus)
-
-	var txs []*reporter.ShortTransaction
-	var errorTxs uint64
-	var slowestTransactionMs uint64
+	report := runner.initReport(nodeStatus)
 
 	runtimeCtx, _ := context.WithTimeout(context.Background(), runConf.runTime)
-	for i := 0; i < 100; i++ {
-		if runtimeCtx.Err() != nil {
-			break
-		}
-		util.Debug("Sending to URL: %s to account %s", client.Endpoint, hex.EncodeToString(runner.randomAddress()))
-		startTxTime := time.Now()
-		sendResult, err := TrySendSync(client, runner.randomAddress())
-		endTxTime := time.Now()
-		if err != nil {
-			errorTxs++
-		}
-		tx := runner.transactionResult(endTxTime, startTxTime, err, sendResult)
-		txs = append(txs, tx)
-		if slowestTransactionMs < tx.Duration {
-			slowestTransactionMs = tx.Duration
-		}
+	runResult, err := runner.loop(runtimeCtx)
+	if err != nil {
+		return nil, err
 	}
-	runner.updateReport(report, txs, errorTxs, slowestTransactionMs)
+	report.Update(runResult)
 
 	return report, nil
 }
 
-func (runner *Runner) createReport(nodeStatus *reporter.Status) *reporter.Report {
+func (runner *Runner) loop(runtimeCtx context.Context) (runResult *reporter.RunResult, err error) {
+
+	runResult = &reporter.RunResult{
+		Txs:           []*reporter.ShortTransaction{},
+		ErrorTxsCount: 0,
+		SlowestTxMs:   0,
+	}
+
+	interval := time.Minute / time.Duration(runner.Config.runConfig.tpm)
+	util.Debug("Interval between transactions: %s", interval)
+
+	pacer := time.Tick(interval)
+	txChan := make(chan *reporter.ShortTransaction, 100)
+
+	go func(ctx context.Context) {
+		util.Debug("TX receiver goroutine start")
+		for {
+			select {
+			case <-ctx.Done():
+				util.Debug("TX receiver goroutine end")
+				return
+			case tx := <-txChan:
+				//util.Debug("TX receiver read tx")
+				runResult.Txs = append(runResult.Txs, tx)
+				if runResult.SlowestTxMs < tx.Duration {
+					runResult.SlowestTxMs = tx.Duration
+				}
+			}
+		}
+	}(runtimeCtx)
+
+	for {
+		if runtimeCtx.Err() != nil {
+			break
+		}
+		go func(client *orbsClient.OrbsClient, target []byte) {
+			//util.Debug("Goroutine start TrySendSync: client=%p", client)
+			tx, err := TrySendSync(client, target)
+			//util.Debug("Goroutine end TrySendSync: client=%p", client)
+			if err != nil {
+				runResult.ErrorTxsCount++
+			}
+			txChan <- tx
+		}(runner.NewClient(), runner.randomAddress())
+		<-pacer
+	}
+	return runResult, nil
+}
+
+func (runner *Runner) initReport(nodeStatus *reporter.Status) *reporter.Report {
 	return &reporter.Report{
 		Name:              runner.Config.runConfig.name,
 		Error:             "",
@@ -73,15 +121,7 @@ func (runner *Runner) createReport(nodeStatus *reporter.Status) *reporter.Report
 	}
 }
 
-func (runner *Runner) updateReport(report *reporter.Report, txs []*reporter.ShortTransaction, errorTxs uint64, slowestTransactionMs uint64) {
-	report.EndTime = util.TimeToISO(time.Now())
-	report.TotalTransactions = uint64(len(txs))
-	report.ErrorTransactions = errorTxs
-	report.Transactions = txs
-	report.SlowestTransactionMs = slowestTransactionMs
-}
-
-func (runner *Runner) transactionResult(endTxTime time.Time, startTxTime time.Time, err error, res *codec.SendTransactionResponse) *reporter.ShortTransaction {
+func TransactionResult(endTxTime time.Time, startTxTime time.Time, err error, res *codec.SendTransactionResponse) *reporter.ShortTransaction {
 	txDuration := uint64(endTxTime.Sub(startTxTime) / time.Millisecond)
 	var tx *reporter.ShortTransaction
 	if err == nil {

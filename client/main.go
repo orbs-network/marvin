@@ -11,8 +11,8 @@ import (
 func main() {
 
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: <net_config_path> <test_name>,<runtime_sec>")
-		fmt.Println("Example: config/testnet-master-aws.json HELLO,5")
+		fmt.Println("Usage: <net_config_path> <test_name>,<runtime_sec>,<tx_per_minute>")
+		fmt.Println("Example: config/testnet-master-aws.json HELLO,5,10")
 		os.Exit(1)
 	}
 
@@ -25,11 +25,8 @@ func main() {
 
 func run(cfg *runner.Config) {
 
-	r := &runner.Runner{
-		Config:          cfg,
-		CtrlRand:        rand.New(rand.NewSource(0)),
-		TargetAddresses: cfg.Accounts,
-	}
+	r := runner.NewRunner(cfg, rand.New(rand.NewSource(0)))
+
 	report, err := r.Execute()
 	if err != nil {
 		util.Info("Error: %s", err)

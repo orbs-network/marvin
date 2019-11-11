@@ -3,6 +3,11 @@ package reporter
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/orbs-network/marvin/client/util"
+	"github.com/pkg/errors"
+	"io/ioutil"
+	"net/http"
+	"time"
 )
 
 type Transaction struct {
@@ -29,6 +34,12 @@ type Status struct {
 	Version version `json:"Version"`
 }
 
+type RunResult struct {
+	Txs           []*ShortTransaction
+	ErrorTxsCount uint64
+	SlowestTxMs   uint64
+}
+
 type Report struct {
 	Name                 string `json:"name"`
 	Error                string `json:"error"`
@@ -51,4 +62,36 @@ func (r *Report) ToJson() (string, error) {
 	}
 
 	return string(j), nil
+}
+
+func (r *Report) Update(runResult *RunResult) {
+	r.EndTime = util.TimeToISO(time.Now())
+	r.TotalTransactions = uint64(len(runResult.Txs))
+	r.ErrorTransactions = runResult.ErrorTxsCount
+	r.Transactions = runResult.Txs
+	r.SlowestTransactionMs = runResult.SlowestTxMs
+
+}
+
+func ReadStatus(url string) (*Status, error) {
+
+	response, err := http.Get(url)
+	if err != nil {
+		return nil, errors.Errorf("Failed to access %: %s", url, err)
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, errors.Errorf("Failed to read response from %: %s", url, err)
+	}
+
+	status := &Status{}
+
+	err = json.Unmarshal(body, status)
+	if err != nil {
+		return nil, errors.Errorf("Failed to parse response from %: %s", url, err)
+	}
+
+	return status, nil
 }

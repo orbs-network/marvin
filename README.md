@@ -139,17 +139,28 @@ This will rebuild the Docker images from local code.
 * To stop the network, run:
 > cd docker ; ./stop-network
 
+## Requesting the Marvin deployment to start a test:
+Replace the machine below with the actual Marvin deployment
+```
+URI="ec2-34-222-245-15.us-west-2.compute.amazonaws.com:4567/jobs/start"
+curl -d '{"tpm":10, "duration_sec":300}' -H "Content-Type: application/json" -X POST ${URI}
+```
+ 
+## Updating local client
+On local machine:
+> cd <marvin_home> ; ./client-build.sh
+
+
 ## Updating deployed Marvin
+On local machine:
+> cd <marvin_home> ; ./deploy-marvin.sh
 * Login to `marvin` machine and run:
 > cd marvin ; ./client-build.sh
 > 
 
-## Updating deployed testnet
-TBD
-
 ## Restarting deployed testnet
 * Login to marvin machine and run:
-
+TBD
 
 ## Running Prometheus locally
 See https://prometheus.io/docs/prometheus/latest/installation/

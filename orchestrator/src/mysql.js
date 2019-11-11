@@ -22,12 +22,14 @@ async function insertJobToDb(jobProps) {
     return knex('jobs')
         .insert({
             name: jobName,
+            vchain: jobProps.vchain,
             status: 'NOT_STARTED',
             running: 0,
             job_start: knex.fn.now(),
+            tx_per_minute: jobProps.tpm || 0.0,
+            expected_duration_sec: jobProps.duration_sec || 0,
             total_tx_count: 0,
             err_tx_count: 0,
-            tx_per_minute: 0,
             tx_response_max: 0,
             tx_response_p99: 0,
             tx_response_p95: 0,

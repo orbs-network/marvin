@@ -3,7 +3,6 @@
 const rp = require('request-promise-native');
 const {startClientContainers} = require('../client-runner');
 const {info, sleep} = require('../util');
-const {config} = require('../executor-state');
 
 async function startJob(state) {
     return runJobAndWaitForCompletion(state);
@@ -11,13 +10,14 @@ async function startJob(state) {
 
 const defaultLoadSteps = [
     {
-        displayName: '10 tps',
+        displayName: '10 tpm',
+        tpm: 10,
         instances: 1 // amount of containers to startup for this step
     },
-    {
-        displayName: '20 tps',
-        instances: 2
-    },
+    // {
+    //     displayName: '20 tps',
+    //     instances: 2
+    // },
     // {
     //     displayName: '30 tps',
     //     instances: 4
@@ -42,9 +42,6 @@ async function runJobAndWaitForCompletion(state) {
     state.job_runtime = 0;
     await updateParentWithJob(state);
     const steps = calculateSteps(state);
-
-    let reverseSteps = Array.from(steps);
-    reverseSteps.reverse();
     info(`runJob() Started: setting job duration to ${state.duration_sec * 1000} ms. State=${JSON.stringify(state)}`);
 
     const startTime = new Date();
@@ -57,12 +54,7 @@ async function runJobAndWaitForCompletion(state) {
         info(`[Iteration ${iteration}]: starts. Should_stop=${state.should_stop} Steps=${JSON.stringify(steps)}`);
         for (let step of steps) {
             totalClients += step.instances;
-            await startClientContainers(step.instances, state);
-        }
-
-        for (let step of reverseSteps) {
-            totalClients += step.instances;
-            await startClientContainers(step.instances, state);
+            await startClientContainers(step, state);
         }
 
         info(`[Iteration ${iteration}]: started ${totalClients} clients, now waiting for their completion`);
@@ -130,7 +122,12 @@ async function updateParentWithJob(currentState) {
 
 function calculateSteps(state) {
     info(`calculateSteps(): tpm=${state.tpm}, duration_sec=${state.duration_sec}`);
-    return defaultLoadSteps;
+    return [{
+        display_name: `${state.tpm} tpm`,
+        tpm: state.tpm,
+        instances: 1,
+    }];
+    // return defaultLoadSteps;
 }
 
 
