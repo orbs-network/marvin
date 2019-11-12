@@ -100,6 +100,7 @@ async function updateParentWithJob(currentState) {
     const body = {
         job_id: currentState.job_id,
         job_status: currentState.job_status,
+        vchain: currentState.vchain,
         live_clients: currentState.live_clients,
         runtime: currentState.job_runtime,
         duration_sec: currentState.duration_sec,

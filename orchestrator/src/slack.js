@@ -17,7 +17,7 @@ function notifySlack(message) {
 
 function createSlackMessageJobRunning(jobUpdate) {
     return `*[${jobUpdate.summary.semantic_version||''}]* *_RUNNING Job [${jobUpdate.job_id}]_*
-vchain: ${jobUpdate.vchain}. TX/min: ${jobUpdate.tpm}, Expected duration: >${jobUpdate.duration_sec} seconds. Current runtime: ${Math.floor((jobUpdate.runtime || 0) / 1000)} seconds. 
+vchain: ${jobUpdate.vchain}. TX/min: ${jobUpdate.tpm}, Expected runtime: >${jobUpdate.duration_sec} seconds. Current runtime: ${Math.floor((jobUpdate.runtime || 0) / 1000)} seconds. 
 All: ${JSON.stringify(jobUpdate)}`;
 }
 
