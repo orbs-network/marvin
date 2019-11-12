@@ -39,12 +39,12 @@ const defaultLoadSteps = [
  */
 async function runJobAndWaitForCompletion(state) {
     state.job_status = 'RUNNING';
-    state.job_runtime = 0;
+    state.job_runtime_millis = 0;
     await updateParentWithJob(state);
     const steps = calculateSteps(state);
     info(`runJob() Started: setting job duration to ${state.duration_sec * 1000} ms. State=${JSON.stringify(state)}`);
 
-    const startTime = new Date();
+    state.start_time = new Date();
 
     let iteration = 0;
     while (!state.should_stop) {
@@ -61,25 +61,25 @@ async function runJobAndWaitForCompletion(state) {
         await waitForAllClientsCompletion(state, 200);
         info(`[Iteration ${iteration}]: clients completed.`);
         const now = new Date();
-        if (now - startTime > state.duration_sec * 1000) {
+        if (now - state.start_time > state.duration_sec * 1000) {
             info(`[Iteration ${iteration}]: THIS WAS THE LAST ITERATION`);
             state.should_stop = true;
         } else {
-            info(`[Iteration ${iteration}]: Passed ${now - startTime} ms, should only end after ${state.duration_sec * 1000} ms`);
+            info(`[Iteration ${iteration}]: Passed ${now - state.start_time} ms, should only end after ${state.duration_sec * 1000} ms`);
         }
         // info(`Wait for client completion before next iteration. #live=${state.live_clients}`);
 
-        state.job_runtime = now - startTime;
-        info(`[Iteration ${iteration}]: Finished running ${totalClients} clients. Accumulated: ${state.summary.total_tx_count} tx in ${now - startTime} ms.`)
+        state.job_runtime_millis = now - state.start_time;
+        info(`[Iteration ${iteration}]: Finished running ${totalClients} clients. Accumulated: ${state.summary.total_tx_count} tx in ${now - state.start_time} ms.`)
         await updateParentWithJob(state);
     }
 
     const endTime = new Date();
 
     await waitForAllClientsCompletion(state, 200);
-    info(`--- All clients finished in ${endTime - startTime} ms`);
+    info(`--- All clients finished in ${endTime - state.start_time} ms`);
     state.job_status = 'DONE';
-    state.job_runtime = endTime - startTime;
+    state.job_runtime_millis = endTime - state.start_time;
     info(`Summary: ${JSON.stringify(state.summary)}`);
     await updateParentWithJob(state);
     info(`Sent update to orchestrator`);
@@ -102,7 +102,7 @@ async function updateParentWithJob(currentState) {
         job_status: currentState.job_status,
         vchain: currentState.vchain,
         live_clients: currentState.live_clients,
-        runtime: currentState.job_runtime,
+        runtime: currentState.job_runtime_millis,
         duration_sec: currentState.duration_sec,
         tpm: currentState.tpm,
         summary: currentState.summary || {},

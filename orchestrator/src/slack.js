@@ -23,7 +23,7 @@ All: ${JSON.stringify(jobUpdate)}`;
 
 function createSlackMessageJobDone(jobUpdate) {
     return `*[${jobUpdate.summary.semantic_version||''}]* *_FINISHED Job [${jobUpdate.job_id}]_*
-Status: *${jobUpdate.job_status}* vchain: *${jobUpdate.vchain}* version: _${jobUpdate.summary.version || 'NA'}_ runtime: *${Math.floor((jobUpdate.runtime || 0) / 1000)}* seconds. 
+Status: *${jobUpdate.job_status}* vchain: *${jobUpdate.vchain}* runtime: *${Math.floor((jobUpdate.runtime || 0) / 1000)}* seconds. 
 Total transactions: *${jobUpdate.summary.total_tx_count}* (of which *${jobUpdate.summary.err_tx_count}* returned with error). 
 Total transactions duration: ${jobUpdate.summary.total_dur} ms
 Avg service time: *${jobUpdate.summary.avg_service_time_ms}* ms
@@ -32,7 +32,7 @@ All: ${JSON.stringify(jobUpdate)}`;
 }
 
 function createSlackMessageJobError(jobUpdate) {
-    return `_[${jobUpdate.job_id}]_ *ERROR:* ${jobUpdate.error}`;
+    return `*[${jobUpdate.summary.semantic_version||''}]* _[${jobUpdate.job_id||''}]_ *ERROR:* ${jobUpdate.error}`;
 }
 
 module.exports = {

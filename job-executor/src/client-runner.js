@@ -17,13 +17,15 @@ async function startClientContainers(step, state) {
 
     const clientConfigPath = state.client_config || 'config/testnet-master-aws.json';
 
+    const remainingDurationSec = calcClientTimeout(state.duration_sec, state.client_timeout_sec, state.start_time);
+
     await Promise.all(clients.map(async (client) => {
         try {
             let cmd;
             if (state.use_mock_client) {
-                cmd = `./src/mock-client.sh ${client.id} ${state.client_timeout_sec} ${state.vchain} 10 2`;
+                cmd = `./src/mock-client.sh ${client.id} ${remainingDurationSec} ${state.vchain} 10 2`;
             } else {
-                cmd = `docker run -t --rm endurance:client ./client ${clientConfigPath} ${client.id},${state.client_timeout_sec},${step.tpm}`;
+                cmd = `docker run -t --rm endurance:client ./client ${clientConfigPath} ${client.id},${remainingDurationSec},${step.tpm}`;
             }
 
 
@@ -35,7 +37,7 @@ async function startClientContainers(step, state) {
                 };
             }
             state.live_clients++;
-            // info(`Started client #${state.live_clients}, pid=${clientProc.pid}: ${cmd}`);
+            info(`Started client #${state.live_clients}, pid=${clientProc.pid}: ${cmd}`);
             clientProc.stdout.on('data', (data) => {
                 try {
                     processClientOutput(JSON.parse(data || {}), state);
@@ -59,6 +61,13 @@ async function startClientContainers(step, state) {
     }));
 }
 
+function calcClientTimeout(durationSec, clientTimeoutSec, startTime) {
+    const now = new Date();
+    const remainingDuration = Math.floor((durationSec*1000 - (now-startTime))/1000);
+    const clientTimeout = Math.min(remainingDuration, clientTimeoutSec);
+    info(`calcClientTimeout(): duration_sec=${durationSec} start_time=${startTime}, client_timeout=${clientTimeout}`);
+    return clientTimeout;
+}
 
 // function agg(state) {
 //     // TODO aggregate results and return a single object

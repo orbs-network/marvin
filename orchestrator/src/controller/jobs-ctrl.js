@@ -13,6 +13,12 @@ function validateJobStart(jobUpdate) {
         jobUpdate.error = "Missing or zero tpm property";
         return jobUpdate;
     }
+    // Limit to 300 tpm (5 tps) because of client limitations.
+    // Once launching more than one client, can remove this limitation.
+    if (jobUpdate.tpm<1 || jobUpdate.tpm>300) {
+        jobUpdate.error = "Supported tpm values are between 1 to 300";
+        return jobUpdate;
+    }
 
     if (!jobUpdate.duration_sec) {
         jobUpdate.error = "Missing or zero duration_sec property";

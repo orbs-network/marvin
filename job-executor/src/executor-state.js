@@ -3,6 +3,8 @@ module.exports = {
         job_id: '0',
         vchain: '',
         job_status: 'NOT_STARTED',
+        job_runtime_millis: 0,
+        duration_sec: 0,
         pct_done: 0,
         should_stop: false,
         instance_counter: 0,
@@ -10,6 +12,7 @@ module.exports = {
         accumulated_error_tx: 0,
         live_clients: 0,
         tpm: 0,
+        start_time: 0,
 
         summary: {
             total_dur: 0,
