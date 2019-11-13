@@ -15,9 +15,11 @@ async function startClientContainers(step, state) {
         });
     }
 
-    const clientConfigPath = state.client_config || 'config/testnet-master-aws.json';
-
     const remainingDurationSec = calcClientTimeout(state.duration_sec, state.client_timeout_sec, state.start_time);
+    const targetIpsStr = (state.target_ips||[]).join('|');
+    if (!targetIpsStr || targetIpsStr.length === 0) {
+        throw "state.target_ips was not specified";
+    }
 
     await Promise.all(clients.map(async (client) => {
         try {
@@ -25,7 +27,7 @@ async function startClientContainers(step, state) {
             if (state.use_mock_client) {
                 cmd = `./src/mock-client.sh ${client.id} ${remainingDurationSec} ${state.vchain} 10 2`;
             } else {
-                cmd = `docker run -t --rm endurance:client ./client ${clientConfigPath} ${client.id},${remainingDurationSec},${step.tpm}`;
+                cmd = `docker run -t --rm endurance:client ./client ${state.vchain},${targetIpsStr} ${client.id},${remainingDurationSec},${step.tpm}`;
             }
 
 

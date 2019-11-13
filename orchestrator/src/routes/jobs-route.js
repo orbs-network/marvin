@@ -20,7 +20,9 @@ router.post('/start', async (req, res, next) => {
         try {
             jobProps.job_id = await insertJobToDb(jobProps);
             info(`SENDING JOB TO EXECUTOR [ID=${jobProps.job_id} VCHAIN=${jobProps.vchain}]: ${JSON.stringify(jobProps)}`);
+
             const sendJobResponse = await sendJob(jobProps);
+
             if (sendJobResponse.status === 'ERROR') {
                 const err = `Error in job executor: ${sendJobResponse.error}`;
                 jobProps.job_status = 'ERROR';

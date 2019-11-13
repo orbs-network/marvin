@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/orbs-network/marvin/client/keys"
 	"github.com/orbs-network/marvin/client/util"
-	"io/ioutil"
+	"github.com/pkg/errors"
 	"strconv"
 	"strings"
 	"time"
@@ -18,8 +18,8 @@ type Config struct {
 }
 
 type nodeConfiguration struct {
-	Chains         []*VirtualChain  `json:"chains"`
-	ValidatorNodes []*ValidatorNode `json:"network"`
+	Vchain    VirtualChainId
+	TargetIps []string
 }
 
 type runConfiguration struct {
@@ -30,29 +30,22 @@ type runConfiguration struct {
 
 type VirtualChainId uint32
 
-type VirtualChain struct {
-	Id         VirtualChainId
-	HttpPort   int
-	GossipPort int
-	Config     map[string]interface{}
-}
-
 type ValidatorNode struct {
 	Address string `json:"address"`
 	IP      string `json:"ip"`
 	Active  bool   `json:"active,string"`
 }
 
-func CreateConfig(cfgPath string, runConfigStr string) *Config {
+func CreateConfig(netConfigStr string, runConfigStr string) *Config {
 
-	netConfig, err := ReadFileConfig(cfgPath)
+	netConfig, err := ParseNetConfig(netConfigStr)
 	if err != nil {
-		panic(fmt.Sprintf("Failed parsing cfgPath=%s: %s", cfgPath, err))
+		panic(fmt.Sprintf("Failed to parse net config=%s: %s", netConfigStr, err))
 	}
 
 	runConfig, err := ParseRunConfig(runConfigStr)
 	if err != nil {
-		panic(fmt.Sprintf("Failed parsing runConfig=%s: %s", runConfigStr, err))
+		panic(fmt.Sprintf("Failed to parse run config=%s: %s", runConfigStr, err))
 	}
 
 	accounts := keys.ReadAccountsFromFile(keys.TestAccountsFilename)
@@ -64,21 +57,33 @@ func CreateConfig(cfgPath string, runConfigStr string) *Config {
 	}
 }
 
-func ReadFileConfig(configPath string) (*nodeConfiguration, error) {
-	input, err := ioutil.ReadFile(configPath)
-	if err != nil {
-		return nil, fmt.Errorf("could not read configuration from source: %s", err)
-	}
-
-	return parseStringConfig(string(input))
-}
-
 func parseStringConfig(input string) (*nodeConfiguration, error) {
 	var value nodeConfiguration
 	if err := json.Unmarshal([]byte(input), &value); err != nil {
 		return nil, err
 	}
 	return &value, nil
+}
+
+func ParseNetConfig(s string) (*nodeConfiguration, error) {
+	tokens := strings.Split(s, ",")
+	if len(tokens) < 2 {
+		return nil, errors.Errorf("too few net config properties: %s", s)
+	}
+	vchain, err := strconv.Atoi(tokens[0])
+	if err != nil {
+		return nil, errors.Errorf("VChain %s is not a number", tokens[0])
+	}
+	ipsStr := tokens[1]
+	ips := strings.Split(ipsStr, "|")
+	if len(ips) < 1 {
+		return nil, errors.New("no target IPs specified")
+	}
+
+	return &nodeConfiguration{
+		Vchain:    VirtualChainId(vchain),
+		TargetIps: ips,
+	}, nil
 }
 
 func ParseRunConfig(s string) (*runConfiguration, error) {

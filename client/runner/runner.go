@@ -21,8 +21,8 @@ type Runner struct {
 
 func NewRunner(cfg *Config, ctrlRand *rand.Rand) *Runner {
 
-	firstIP := cfg.netConfig.ValidatorNodes[0].IP
-	vchain := cfg.netConfig.Chains[0].Id
+	firstIP := cfg.netConfig.TargetIps[0]
+	vchain := cfg.netConfig.Vchain
 	url := fmt.Sprintf("http://%s/vchains/%d", firstIP, vchain)
 
 	return &Runner{
@@ -34,12 +34,13 @@ func NewRunner(cfg *Config, ctrlRand *rand.Rand) *Runner {
 }
 
 func (runner *Runner) NewClient() *orbsClient.OrbsClient {
-	return orbsClient.NewClient(runner.TargetUrl, uint32(runner.Config.netConfig.Chains[0].Id), codec.NETWORK_TYPE_TEST_NET)
+	return orbsClient.NewClient(runner.TargetUrl, uint32(runner.Config.netConfig.Vchain), codec.NETWORK_TYPE_TEST_NET)
 }
 
 func (runner *Runner) Execute() (*reporter.Report, error) {
 
 	runConf := runner.Config.runConfig
+	util.Debug("Checking status of target IP %s ...", runner.TargetUrl)
 	nodeStatus, err := reporter.ReadStatus(runner.TargetUrl)
 	if err != nil {
 		return nil, errors.Errorf("Cannot run test - failed to read node status from URL: %s", runner.TargetUrl)
@@ -72,14 +73,14 @@ func (runner *Runner) loop(runtimeCtx context.Context) (runResult *reporter.RunR
 	txChan := make(chan *reporter.ShortTransaction, 100)
 
 	go func(ctx context.Context) {
-		util.Debug("TX receiver goroutine start")
+		util.Debug("TX listener goroutine start")
 		for {
 			select {
 			case <-ctx.Done():
-				util.Debug("TX receiver goroutine end")
+				util.Debug("TX listener goroutine end")
 				return
 			case tx := <-txChan:
-				//util.Debug("TX receiver read tx")
+				//util.Debug("TX listener read tx")
 				runResult.Txs = append(runResult.Txs, tx)
 				if runResult.SlowestTxMs < tx.Duration {
 					runResult.SlowestTxMs = tx.Duration
@@ -150,7 +151,7 @@ func (runner *Runner) randomAddress() []byte {
 }
 
 func (runner *Runner) vchain() VirtualChainId {
-	return runner.Config.netConfig.Chains[0].Id
+	return runner.Config.netConfig.Vchain
 }
 
 func (runner *Runner) getOrbsClient(url string) *orbsClient.OrbsClient {
@@ -158,6 +159,6 @@ func (runner *Runner) getOrbsClient(url string) *orbsClient.OrbsClient {
 }
 
 func (runner *Runner) nodeUrl() string {
-	firstIP := runner.Config.netConfig.ValidatorNodes[0].IP
+	firstIP := runner.Config.netConfig.TargetIps[0]
 	return fmt.Sprintf("http://%s/vchains/%d", firstIP, runner.vchain())
 }

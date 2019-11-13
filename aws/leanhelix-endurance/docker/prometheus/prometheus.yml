@@ -13,43 +13,43 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: ["localhost:9090"]
-  - job_name: node1
+  - job_name: node1a
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["35.161.123.97"]
         labels:
-          machine: "node1"
+          machine: "node1a"
           vchain: 2013
-  - job_name: node2
+  - job_name: node2a
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["35.167.243.123"]
         labels:
-          machine: "node2"
+          machine: "node2a"
           vchain: 2013
-  - job_name: node3
+  - job_name: node3a
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["52.35.218.240"]
         labels:
-          machine: "node3"
+          machine: "node3a"
           vchain: 2013
-  - job_name: node4
+  - job_name: node4a
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["52.42.4.94"]
         labels:
-          machine: "node4"
+          machine: "node4a"
           vchain: 2013
-  - job_name: node5
+  - job_name: node5a
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["54.149.67.22"]
         labels:
-          machine: "node5"
+          machine: "node5a"
           vchain: 2013

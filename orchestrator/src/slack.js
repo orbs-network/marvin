@@ -32,6 +32,9 @@ All: ${JSON.stringify(jobUpdate)}`;
 }
 
 function createSlackMessageJobError(jobUpdate) {
+    jobUpdate = jobUpdate||{};
+    jobUpdate.summary = jobUpdate.summary||{};
+
     return `*[${jobUpdate.summary.semantic_version||''}]* _[${jobUpdate.job_id||''}]_ *ERROR:* ${jobUpdate.error}`;
 }
 

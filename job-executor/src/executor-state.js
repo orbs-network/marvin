@@ -2,6 +2,7 @@ module.exports = {
     state: {
         job_id: '0',
         vchain: '',
+        target_ips: [],
         job_status: 'NOT_STARTED',
         job_runtime_millis: 0,
         duration_sec: 0,

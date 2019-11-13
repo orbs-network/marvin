@@ -77,20 +77,20 @@ func ReadStatus(url string) (*Status, error) {
 
 	response, err := http.Get(url)
 	if err != nil {
-		return nil, errors.Errorf("Failed to access %: %s", url, err)
+		return nil, errors.Errorf("Failed to access URL %s: %s", url, err)
 	}
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return nil, errors.Errorf("Failed to read response from %: %s", url, err)
+		return nil, errors.Errorf("Failed to read response from URL %s: %s", url, err)
 	}
 
 	status := &Status{}
 
 	err = json.Unmarshal(body, status)
 	if err != nil {
-		return nil, errors.Errorf("Failed to parse response from %: %s", url, err)
+		return nil, errors.Errorf("Failed to parse response from URL %s: %s", url, err)
 	}
 
 	return status, nil
