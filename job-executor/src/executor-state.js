@@ -31,8 +31,4 @@ module.exports = {
         tx_durations: [],
         hdr: null,
     }
-    // config: {
-    //     port: 0,
-    //     parent_port: 0,
-    // }
 };

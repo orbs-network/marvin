@@ -13,43 +13,125 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: ["localhost:9090"]
-  - job_name: node1a
+  - job_name: node1_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["35.161.123.97"]
         labels:
-          machine: "node1a"
-          vchain: 2013
-  - job_name: node2a
+          machine: "node1"
+          vcid: 2013
+  - job_name: node2_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["35.167.243.123"]
         labels:
-          machine: "node2a"
-          vchain: 2013
-  - job_name: node3a
+          machine: "node2"
+          vcid: 2013
+  - job_name: node3_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["52.35.218.240"]
         labels:
-          machine: "node3a"
-          vchain: 2013
-  - job_name: node4a
+          machine: "node3"
+          vcid: 2013
+  - job_name: node4_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["52.42.4.94"]
         labels:
-          machine: "node4a"
-          vchain: 2013
-  - job_name: node5a
+          machine: "node4"
+          vcid: 2013
+  - job_name: node5_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["54.149.67.22"]
         labels:
-          machine: "node5a"
-          vchain: 2013
+          machine: "node5"
+          vcid: 2013
+
+  - job_name: node1_2015
+    metrics_path: "/vchains/2015/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["3.9.227.38"]
+        labels:
+          machine: "node1"
+          vcid: 2015
+  - job_name: node2_2015
+    metrics_path: "/vchains/2015/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["3.10.219.143"]
+        labels:
+          machine: "node2"
+          vcid: 2015
+  - job_name: node3_2015
+    metrics_path: "/vchains/2015/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["54.246.193.160"]
+        labels:
+          machine: "node3"
+          vcid: 2015
+  - job_name: node4_2015
+    metrics_path: "/vchains/2015/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["52.50.194.217"]
+        labels:
+          machine: "node4"
+          vcid: 2015
+  - job_name: node5_2015
+    metrics_path: "/vchains/2015/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["52.28.21.176"]
+        labels:
+          machine: "node5"
+          vcid: 2015
+
+  - job_name: node1_3015
+    metrics_path: "/vchains/3015/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["3.9.227.38"]
+        labels:
+          machine: "node1"
+          vcid: 3015
+  - job_name: node2_3015
+    metrics_path: "/vchains/3015/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["3.10.219.143"]
+        labels:
+          machine: "node2"
+          vcid: 3015
+  - job_name: node3_3015
+    metrics_path: "/vchains/3015/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["54.246.193.160"]
+        labels:
+          machine: "node3"
+          vcid: 3015
+  - job_name: node4_3015
+    metrics_path: "/vchains/3015/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["52.50.194.217"]
+        labels:
+          machine: "node4"
+          vcid: 3015
+  - job_name: node5_3015
+    metrics_path: "/vchains/3015/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["52.28.21.176"]
+        labels:
+          machine: "node5"
+          vcid: 3015
