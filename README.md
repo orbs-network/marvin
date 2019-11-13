@@ -167,6 +167,20 @@ See https://prometheus.io/docs/prometheus/latest/installation/
 To start with a config file located at `/tmp/prometheus.yml`, use: 
 >  docker run --network=host --mount source=prometheus,target=/etc/prometheus prom/prometheus
 
+### Querying Prometheus via HTTP API
+See https://prometheus.io/docs/prometheus/latest/querying/api/#http-api
+
+Job Executor uses HTTP API to extract data from Prometheus.
+* Examples:
+
+`http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query?query=BlockStorage_BlockHeight`
+`http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query_range?query=BlockStorage_BlockHeight&start=2019-11-13T22:59:00Z&end=2019-11-13T23:00:00Z&step=15s`
+`http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query_range?query=Runtime_HeapAlloc_Bytes{vcid=%223015%22,machine=%22node1%22}&start=2019-11-13T20:59:00Z&end=2019-11-13T21:00:00Z&step=15s`
+`http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query_range?query=rate(TransactionPool_TotalCommits_Count{vcid=%223015%22,machine=%22node1%22}[1m])&start=2019-11-13T20:59:00Z&end=2019-11-13T21:00:00Z&step=10s`
+
+then read from the resulting JSON:
+> data.result[0].metric.__name__
+> data.result[0].metric.values - array of 2-element arrays. So for example, calc max() over  `values[0][1], values[1][1], values[2][1]`, etc.
 ## Running Grafana
 This project uses Orbs' Hosted Grafana solution which is also used by the production network.
 It is configured with a built-in Prometheus instance that accepts data by [remote_write](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_write).
