@@ -173,10 +173,10 @@ See https://prometheus.io/docs/prometheus/latest/querying/api/#http-api
 Job Executor uses HTTP API to extract data from Prometheus.
 * Examples:
 
-`http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query?query=BlockStorage_BlockHeight`
-`http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query_range?query=BlockStorage_BlockHeight&start=2019-11-13T22:59:00Z&end=2019-11-13T23:00:00Z&step=15s`
-`http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query_range?query=Runtime_HeapAlloc_Bytes{vcid=%223015%22,machine=%22node1%22}&start=2019-11-13T20:59:00Z&end=2019-11-13T21:00:00Z&step=15s`
-`http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query_range?query=rate(TransactionPool_TotalCommits_Count{vcid=%223015%22,machine=%22node1%22}[1m])&start=2019-11-13T20:59:00Z&end=2019-11-13T21:00:00Z&step=10s`
+  * `http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query?query=BlockStorage_BlockHeight`
+  * `http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query_range?query=BlockStorage_BlockHeight&start=2019-11-13T22:59:00Z&end=2019-11-13T23:00:00Z&step=15s`
+  * `http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query_range?query=Runtime_HeapAlloc_Bytes{vcid=%223015%22,machine=%22node1%22}&start=2019-11-13T20:59:00Z&end=2019-11-13T21:00:00Z&step=15s`
+  * `http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query_range?query=rate(TransactionPool_TotalCommits_Count{vcid=%223015%22,machine=%22node1%22}[1m])&start=2019-11-13T20:59:00Z&end=2019-11-13T21:00:00Z&step=10s`
 
 then read from the resulting JSON:
 > data.result[0].metric.__name__

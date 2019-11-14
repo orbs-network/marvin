@@ -20,6 +20,7 @@ module.exports = {
             total_tx_count: 0,
             err_tx_count: 0,
             max_service_time_ms: 0,
+            stddev_service_time_ms: 0,
             avg_service_time_ms: 0,
             median_service_time_ms: 0,
             p90_service_time_ms: 0,

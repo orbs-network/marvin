@@ -57,6 +57,7 @@ async function updateJobInDb(jobUpdate) {
         err_tx_count: jobUpdate.summary.err_tx_count,
         tx_per_minute: jobUpdate.tpm || 0.0,
         expected_duration_sec: jobUpdate.duration_sec || 0,
+        tx_response_stddev: jobUpdate.summary.stddev_service_time_ms || 0,
         tx_response_max: jobUpdate.summary.max_service_time_ms || 0,
         tx_response_p99: jobUpdate.summary.p99_service_time_ms || 0,
         tx_response_p95: jobUpdate.summary.p95_service_time_ms || 0,

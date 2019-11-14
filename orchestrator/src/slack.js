@@ -26,8 +26,7 @@ function createSlackMessageJobDone(jobUpdate) {
 Status: *${jobUpdate.job_status}* vchain: *${jobUpdate.vchain}* runtime: *${Math.floor((jobUpdate.runtime || 0) / 1000)}* seconds. 
 Total transactions: *${jobUpdate.summary.total_tx_count}* (of which *${jobUpdate.summary.err_tx_count}* returned with error). 
 Total transactions duration: ${jobUpdate.summary.total_dur} ms
-Avg service time: *${jobUpdate.summary.avg_service_time_ms}* ms
-Max service time: *${jobUpdate.summary.max_service_time_ms}* ms
+Service times (ms): AVG=*${jobUpdate.summary.avg_service_time_ms}* MEDIAN=*${jobUpdate.summary.median_service_time_ms}* P90=*${jobUpdate.summary.p90_service_time_ms}* P99=*${jobUpdate.summary.p99_service_time_ms}* MAX=*${jobUpdate.summary.max_service_time_ms}* STDDEV=*${jobUpdate.summary.stddev_service_time_ms}*
 All: ${JSON.stringify(jobUpdate)}`;
 }
 

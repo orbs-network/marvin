@@ -17,6 +17,7 @@ CREATE TABLE `jobs`
     `tx_response_p90`       int(11)                   DEFAULT NULL,
     `tx_response_median`    int(11)                   DEFAULT NULL,
     `tx_response_avg`       int(11)                   DEFAULT NULL,
+    `tx_response_stddev`    float                     DEFAULT NULL,
     `semantic_version`      varchar(50)               DEFAULT NULL,
     `commit_hash`           varchar(50)               DEFAULT NULL,
     `error`                 varchar(100)              DEFAULT NULL,
