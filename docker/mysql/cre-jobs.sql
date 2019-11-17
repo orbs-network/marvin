@@ -3,6 +3,7 @@ CREATE TABLE `jobs`
     `id`                    int(11) unsigned NOT NULL AUTO_INCREMENT,
     `name`                  varchar(100)              DEFAULT NULL,
     `vchain`                varchar(50)               DEFAULT NULL,
+    `branch`                varchar(100)              DEFAULT NULL,
     `status`                varchar(11)               DEFAULT NULL,
     `running`               tinyint(1)       NOT NULL DEFAULT '0',
     `job_start`             datetime                  DEFAULT NULL,
@@ -24,5 +25,5 @@ CREATE TABLE `jobs`
     `comment`               varchar(100)              DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 17
+  AUTO_INCREMENT = 1
   DEFAULT CHARSET = latin1;
