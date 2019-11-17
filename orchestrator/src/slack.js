@@ -6,7 +6,7 @@ const {info} = require('./util');
 
 // Read a url from the environment variables
 function notifySlack(message) {
-    info(`Sending to Slack URL: ${config.slack_url}`);
+    // info(`Sending to Slack URL: ${config.slack_url}`);
     const baseCommand = `curl -s -X POST --data-urlencode "payload={\\"text\\": \\"${message}\\"}" ${config.slack_url}`;
     try {
         execSync(baseCommand);
@@ -15,22 +15,26 @@ function notifySlack(message) {
     }
 }
 
-function createSlackMessageJobRunning(jobUpdate) {
+function createSlackMessageJobRunning(jobUpdate, state) {
     return `*[${jobUpdate.summary.semantic_version||''}]* *_RUNNING Job [${jobUpdate.job_id}]_*
-vchain: ${jobUpdate.vchain}. TX/min: ${jobUpdate.tpm}, Expected runtime: >${jobUpdate.duration_sec} seconds. Current runtime: ${Math.floor((jobUpdate.runtime || 0) / 1000)} seconds. 
+vchain: ${jobUpdate.vchain}. TX/min: ${jobUpdate.tpm}, Expected runtime: >${jobUpdate.duration_sec} seconds. Current runtime: *${Math.floor((jobUpdate.runtime || 0) / 1000)}* seconds. 
+Total transactions: *${jobUpdate.summary.total_tx_count}* (of which *${jobUpdate.summary.err_tx_count}* returned with error).
+Service times (ms): AVG=*${jobUpdate.summary.avg_service_time_ms}* MEDIAN=*${jobUpdate.summary.median_service_time_ms}* P90=*${jobUpdate.summary.p90_service_time_ms}* P99=*${jobUpdate.summary.p99_service_time_ms}* MAX=*${jobUpdate.summary.max_service_time_ms}* STDDEV=*${jobUpdate.summary.stddev_service_time_ms}*
+Live jobs: ${state.live_jobs}
 All: ${JSON.stringify(jobUpdate)}`;
 }
 
-function createSlackMessageJobDone(jobUpdate) {
+function createSlackMessageJobDone(jobUpdate, state) {
     return `*[${jobUpdate.summary.semantic_version||''}]* *_FINISHED Job [${jobUpdate.job_id}]_*
 Status: *${jobUpdate.job_status}* vchain: *${jobUpdate.vchain}* runtime: *${Math.floor((jobUpdate.runtime || 0) / 1000)}* seconds. 
 Total transactions: *${jobUpdate.summary.total_tx_count}* (of which *${jobUpdate.summary.err_tx_count}* returned with error). 
 Total transactions duration: ${jobUpdate.summary.total_dur} ms
 Service times (ms): AVG=*${jobUpdate.summary.avg_service_time_ms}* MEDIAN=*${jobUpdate.summary.median_service_time_ms}* P90=*${jobUpdate.summary.p90_service_time_ms}* P99=*${jobUpdate.summary.p99_service_time_ms}* MAX=*${jobUpdate.summary.max_service_time_ms}* STDDEV=*${jobUpdate.summary.stddev_service_time_ms}*
+Live jobs: ${state.live_jobs}
 All: ${JSON.stringify(jobUpdate)}`;
 }
 
-function createSlackMessageJobError(jobUpdate) {
+function createSlackMessageJobError(jobUpdate, state) {
     jobUpdate = jobUpdate||{};
     jobUpdate.summary = jobUpdate.summary||{};
 

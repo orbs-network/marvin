@@ -112,9 +112,9 @@ function processClientOutput(clientOutput, state) {
     state.summary.p90_service_time_ms = all_tx.hdr.getValueAtPercentile(90);
     state.summary.p95_service_time_ms = all_tx.hdr.getValueAtPercentile(95);
     state.summary.p99_service_time_ms = all_tx.hdr.getValueAtPercentile(99);
-    state.summary.avg_service_time_ms = all_tx.hdr.getMean();
+    state.summary.avg_service_time_ms = Math.floor(all_tx.hdr.getMean()||0);
     state.summary.max_service_time_ms = all_tx.hdr.maxValue;
-    state.summary.stddev_service_time_ms = all_tx.hdr.getStdDeviation();
+    state.summary.stddev_service_time_ms = Math.floor(all_tx.hdr.getStdDeviation()||0);
 
     info(`Client completed, total duration of ${clientOutput.transactions.length} transactions: ${totalDurPerClient}`);
 

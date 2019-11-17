@@ -99,6 +99,8 @@ async function updateParentWithJob(currentState) {
     const uri = `http://${currentState.parent_base_url}/jobs/${currentState.job_id}/update`;
     const body = {
         job_id: currentState.job_id,
+        executor_port: currentState.port,
+        executor_pid: currentState.pid,
         job_status: currentState.job_status,
         vchain: currentState.vchain,
         live_clients: currentState.live_clients,

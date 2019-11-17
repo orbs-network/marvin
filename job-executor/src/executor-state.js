@@ -1,6 +1,8 @@
 module.exports = {
     state: {
         job_id: '0',
+        port: 0,
+        pid: process.pid,
         vchain: '',
         target_ips: [],
         job_status: 'NOT_STARTED',

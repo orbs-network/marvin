@@ -7,6 +7,7 @@ const {info} = require('../util');
 const {sendJob, shutdownExecutor} = require('../job-runner');
 const {validateJobStart} = require('../controller/jobs-ctrl');
 const {notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError} = require('../slack');
+const {state} = require('../orch-state');
 
 router.post('/start', async (req, res, next) => {
     const jobProps = req.body;
@@ -71,15 +72,15 @@ router.post('/:id/update', async (req, res, next) => {
         case 'RUNNING':
             jobUpdate.running = true;
             await updateJobInDb(jobUpdate).catch(appendErr);
-            notifySlack(createSlackMessageJobRunning(jobUpdate));
+            notifySlack(createSlackMessageJobRunning(jobUpdate, state));
             break;
 
         case 'DONE':
-            info(`Received DONE, shutting down executor`);
+            // info(`Received DONE, shutting down executor`);
             jobUpdate.running = false;
-            shutdownExecutor();
+            shutdownExecutor(jobUpdate);
             await updateJobInDb(jobUpdate).catch(appendErr);
-            notifySlack(createSlackMessageJobDone(jobUpdate));
+            notifySlack(createSlackMessageJobDone(jobUpdate, state));
             break;
 
         case 'ERROR':
@@ -87,7 +88,7 @@ router.post('/:id/update', async (req, res, next) => {
             jobUpdate.running = false;
             shutdownExecutor();
             await updateJobInDb(jobUpdate).catch(appendErr);
-            notifySlack(createSlackMessageJobError(jobUpdate));
+            notifySlack(createSlackMessageJobError(jobUpdate, state));
     }
 
     res.json({

@@ -182,9 +182,10 @@ then read from the resulting JSON:
 > data.result[0].metric.__name__
 > data.result[0].metric.values - array of 2-element arrays. So for example, calc max() over  `values[0][1], values[1][1], values[2][1]`, etc.
 ## Running Grafana
-This project uses Orbs' Hosted Grafana solution which is also used by the production network.
-It is configured with a built-in Prometheus instance that accepts data by [remote_write](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_write).
-Project [Kartoha](https://github.com/orbs-network/kartoha) can be used to generate the Prometheus `yml` config file.
+This project installs its own Grafana instance in a Docker container, as part of Docker Compose. It queries data from the Prometheus instance which is also a Docker container, part of Docker compose.
+
+To show events on the Grafana timeline, a dashboard should enable "Annotations" and set the query to:
+
 
 
 ## Sequence diagram

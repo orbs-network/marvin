@@ -10,7 +10,7 @@ function init() {
     }
     config.slack_url = `https://hooks.slack.com/services/${process.env.SLACK_MARVIN_NOTIFICATIONS_KEY}`;
     config.executor_host = `127.0.0.1`;
-    config.executor_port = 4568;
+    config.executor_base_port = 4568;
     info(`Set Slack URL to ${config.slack_url}`);
 }
 

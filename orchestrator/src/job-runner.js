@@ -22,8 +22,9 @@ async function storeBatchOutputs(dataAsString) {
 
 async function sendJob(jobProps) {
     const cwd = path.join(__dirname, '../../job-executor');
-    const jobExecutorPort = jobProps.port || 4568;
-    const jobExecutor = spawn('node', ['executor.js', `-port=${jobExecutorPort}`], {cwd});
+    const jobExecutorPort = (jobProps.port || 4568) + state.live_jobs;
+    jobProps.executor_port = jobExecutorPort;
+    const jobExecutor = spawn('node', ['executor.js', `${jobExecutorPort}`], {cwd});
     state.live_jobs++;
     state.jobs[`${jobExecutor.pid}`] = {
         timestamp: new Date().toISOString(),
@@ -41,7 +42,7 @@ async function sendJob(jobProps) {
     });
     sendJobStartToExecutor(jobProps);
 
-    info(`JobExecutor with ${jobExecutor.pid} started on port ${jobExecutorPort}.`);
+    info(`JobExecutor with pid ${jobExecutor.pid} started on port ${jobExecutorPort}.`);
 
     // TODO Call executor with /job/start
 
@@ -54,7 +55,7 @@ async function sendJob(jobProps) {
 
 function sendJobStartToExecutor(jobProps) {
 
-    const uri = `http://${config.executor_host}:${config.executor_port}/job/start`;
+    const uri = `http://${config.executor_host}:${jobProps.executor_port}/job/start`;
 
     const options = {
         method: 'POST',
@@ -72,8 +73,9 @@ function sendJobStartToExecutor(jobProps) {
         });
 }
 
-function shutdownExecutor() {
-    const uri = `http://${config.executor_host}:${config.executor_port}/shutdown`;
+function shutdownExecutor(jobUpdate) {
+    info(`Shutting down executor on port ${jobUpdate.executor_port}`);
+    const uri = `http://${config.executor_host}:${jobUpdate.executor_port}/shutdown`;
     const options = {
         method: 'GET',
         uri: uri,
