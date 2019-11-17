@@ -16,22 +16,23 @@ function notifySlack(message) {
 }
 
 function createSlackMessageJobRunning(jobUpdate, state) {
-    return `*[${jobUpdate.summary.semantic_version||''}]* *_RUNNING Job [${jobUpdate.job_id}]_*
-vchain: ${jobUpdate.vchain}. TX/min: ${jobUpdate.tpm}, Expected runtime: >${jobUpdate.duration_sec} seconds. Current runtime: *${Math.floor((jobUpdate.runtime || 0) / 1000)}* seconds. 
-Total transactions: *${jobUpdate.summary.total_tx_count}* (of which *${jobUpdate.summary.err_tx_count}* returned with error).
+    return `Now running on vchain ${jobUpdate.vchain} with ${jobUpdate.tpm} tx/min. Passed *${Math.floor((jobUpdate.runtime || 0) / 1000)}* of ${jobUpdate.duration_sec} seconds.
+Sent *${jobUpdate.summary.total_tx_count}* transactions with *${jobUpdate.summary.err_tx_count}* errors.
 Service times (ms): AVG=*${jobUpdate.summary.avg_service_time_ms}* MEDIAN=*${jobUpdate.summary.median_service_time_ms}* P90=*${jobUpdate.summary.p90_service_time_ms}* P99=*${jobUpdate.summary.p99_service_time_ms}* MAX=*${jobUpdate.summary.max_service_time_ms}* STDDEV=*${jobUpdate.summary.stddev_service_time_ms}*
-Live jobs: ${state.live_jobs}
-All: ${JSON.stringify(jobUpdate)}`;
+Grafana: http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:3000/d/a-3pW-3mk/testnet-results?orgId=1&from=now-1h&to=now&var-vchain=All&var-validator=All
+
+_Job ID: [${jobUpdate.job_id||'NA'}] Version: ${jobUpdate.summary.semantic_version||'NA'} Hash: ${jobUpdate.summary.commit_hash||'NA'}_`;
+// All: ${JSON.stringify(jobUpdate)}`;
 }
 
 function createSlackMessageJobDone(jobUpdate, state) {
-    return `*[${jobUpdate.summary.semantic_version||''}]* *_FINISHED Job [${jobUpdate.job_id}]_*
-Status: *${jobUpdate.job_status}* vchain: *${jobUpdate.vchain}* runtime: *${Math.floor((jobUpdate.runtime || 0) / 1000)}* seconds. 
-Total transactions: *${jobUpdate.summary.total_tx_count}* (of which *${jobUpdate.summary.err_tx_count}* returned with error). 
-Total transactions duration: ${jobUpdate.summary.total_dur} ms
+    return `*DONE* running on vchain ${jobUpdate.vchain} with ${jobUpdate.tpm} tx/min. Passed *${Math.floor((jobUpdate.runtime || 0) / 1000)}* of ${jobUpdate.duration_sec} seconds.
+Sent *${jobUpdate.summary.total_tx_count}* transactions with *${jobUpdate.summary.err_tx_count}* errors.
 Service times (ms): AVG=*${jobUpdate.summary.avg_service_time_ms}* MEDIAN=*${jobUpdate.summary.median_service_time_ms}* P90=*${jobUpdate.summary.p90_service_time_ms}* P99=*${jobUpdate.summary.p99_service_time_ms}* MAX=*${jobUpdate.summary.max_service_time_ms}* STDDEV=*${jobUpdate.summary.stddev_service_time_ms}*
-Live jobs: ${state.live_jobs}
-All: ${JSON.stringify(jobUpdate)}`;
+Grafana: http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:3000/d/a-3pW-3mk/testnet-results?orgId=1&from=now-1h&to=now&var-vchain=All&var-validator=All
+
+_Job ID: [${jobUpdate.job_id||'NA'}] Version: ${jobUpdate.summary.semantic_version||'NA'} Hash: ${jobUpdate.summary.commit_hash||'NA'}_`;
+// All: ${JSON.stringify(jobUpdate)}`;
 }
 
 function createSlackMessageJobError(jobUpdate, state) {
