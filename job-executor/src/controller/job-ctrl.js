@@ -80,6 +80,7 @@ async function runJobAndWaitForCompletion(state) {
     info(`--- All clients finished in ${endTime - state.start_time} ms`);
     state.job_status = 'DONE';
     state.job_runtime_millis = endTime - state.start_time;
+    state.end_time = endTime;
     info(`Summary: ${JSON.stringify(state.summary)}`);
     await updateParentWithJob(state);
     info(`Sent update to orchestrator`);
@@ -108,6 +109,8 @@ async function updateParentWithJob(currentState) {
         duration_sec: currentState.duration_sec,
         tpm: currentState.tpm,
         summary: currentState.summary || {},
+        start_time: currentState.start_time,
+        end_time: currentState.end_time,
     };
     const options = {
         method: 'POST',

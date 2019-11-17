@@ -16,6 +16,7 @@ module.exports = {
         live_clients: 0,
         tpm: 0,
         start_time: 0,
+        end_time: 0,
 
         summary: {
             total_dur: 0,
