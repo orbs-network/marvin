@@ -23,8 +23,11 @@ function createSlackMessageJobRunning(jobUpdate, state) {
 *--------------------------------------------------------------------------*
 Sent *${jobUpdate.summary.total_tx_count}* transactions with *${jobUpdate.summary.err_tx_count}* errors.
 Service times (ms): AVG=*${jobUpdate.summary.avg_service_time_ms}* MEDIAN=*${jobUpdate.summary.median_service_time_ms}* P90=*${jobUpdate.summary.p90_service_time_ms}* P99=*${jobUpdate.summary.p99_service_time_ms}* MAX=*${jobUpdate.summary.max_service_time_ms}* STDDEV=*${jobUpdate.summary.stddev_service_time_ms}*
+MaxAllocMem: ${state.summary.max_alloc_mem} bytes, MaxGoroutines: ${state.summary.max_goroutines}
+Errors: ${jobUpdate.error||'none'}
 <http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:3000/d/a-3pW-3mk/testnet-results?orgId=1&from=${startTime}&to=${endTime}&var-vchain=${jobUpdate.vchain}&var-validator=All|Grafana> | _Job ID: [${jobUpdate.job_id||'NA'}] Version: ${jobUpdate.summary.semantic_version||'NA'} Hash: ${jobUpdate.summary.commit_hash||'NA'}_`;
-// All: ${JSON.stringify(jobUpdate)}`; 1573999200000
+
+// All: ${JSON.stringify(jobUpdate)}`;
 }
 
 function createSlackMessageJobDone(jobUpdate, state) {
@@ -35,6 +38,8 @@ function createSlackMessageJobDone(jobUpdate, state) {
 *--------------------------------------------------------------------------*
 Sent *${jobUpdate.summary.total_tx_count}* transactions with *${jobUpdate.summary.err_tx_count}* errors.
 Service times (ms): AVG=*${jobUpdate.summary.avg_service_time_ms}* MEDIAN=*${jobUpdate.summary.median_service_time_ms}* P90=*${jobUpdate.summary.p90_service_time_ms}* P99=*${jobUpdate.summary.p99_service_time_ms}* MAX=*${jobUpdate.summary.max_service_time_ms}* STDDEV=*${jobUpdate.summary.stddev_service_time_ms}*
+MaxAllocMem: ${state.summary.max_alloc_mem} bytes, MaxGoroutines: ${state.summary.max_goroutines}
+Errors: ${jobUpdate.error||'none'}
 <http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:3000/d/a-3pW-3mk/testnet-results?orgId=1&from=${startTime}&to=${endTime}&var-vchain=${jobUpdate.vchain}&var-validator=All|Grafana> | _Job ID: [${jobUpdate.job_id||'NA'}] Version: ${jobUpdate.summary.semantic_version||'NA'} Hash: ${jobUpdate.summary.commit_hash||'NA'}_`;
 // All: ${JSON.stringify(jobUpdate)}`;
 }

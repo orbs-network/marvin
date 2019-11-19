@@ -40,11 +40,12 @@ const defaultLoadSteps = [
 async function runJobAndWaitForCompletion(state) {
     state.job_status = 'RUNNING';
     state.job_runtime_millis = 0;
+    state.start_time = new Date();
     await updateParentWithJob(state);
     const steps = calculateSteps(state);
     info(`runJob() Started: setting job duration to ${state.duration_sec * 1000} ms. State=${JSON.stringify(state)}`);
 
-    state.start_time = new Date();
+
 
     let iteration = 0;
     while (!state.should_stop) {

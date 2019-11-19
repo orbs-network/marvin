@@ -1,5 +1,6 @@
 'use strict';
 
+const moment = require('moment');
 const {config} = require('./orchestrator-config');
 const verbosity = process.env.VERBOSE === 'true';
 
@@ -20,8 +21,8 @@ function info() {
     }
 }
 
-function generateJobName() {
-    const dateStr = new Date().toISOString();
+function generateJobId() {
+    const dateStr = moment().format('YYYYMMDD_HHmmss');
     const randomSuffix = zeroPad(Math.floor(Math.random() * 100), 3);
     return `${dateStr}_${randomSuffix}`;
 }
@@ -33,5 +34,5 @@ function zeroPad(num, places) {
 module.exports = {
     init: init,
     info: info,
-    generateJobName: generateJobName,
+    generateJobId: generateJobId,
 };

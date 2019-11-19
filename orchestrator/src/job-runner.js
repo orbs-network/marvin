@@ -49,6 +49,8 @@ async function sendJob(jobProps) {
     return {
         status: 'PENDING',
         job_id: jobProps.job_id,
+        executor_port: jobExecutorPort,
+        executor_pid: jobExecutor.pid,
         props: jobProps,
     };
 }

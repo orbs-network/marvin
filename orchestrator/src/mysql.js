@@ -1,6 +1,6 @@
 'use strict';
 
-const {generateJobName, info} = require('./util');
+const {generateJobId, info} = require('./util');
 
 const knex = require('knex')({
     client: 'mysql2',
@@ -17,11 +17,11 @@ const knex = require('knex')({
 
 async function insertJobToDb(jobProps) {
 
-    const jobName = generateJobName();
+    const jobId = generateJobId();
 
     return knex('jobs')
         .insert({
-            name: jobName,
+            name: jobId,
             vchain: jobProps.vchain,
             status: 'NOT_STARTED',
             running: 0,
@@ -39,11 +39,11 @@ async function insertJobToDb(jobProps) {
 
         })
         .then(res => {
-            info(`[SQL] Inserted new job ${jobName} to DB`);
-            return jobName;
+            info(`[SQL] Inserted new job ${jobId} to DB`);
+            return jobId;
         })
         .catch(ex => {
-            throw `[SQL] Error inserting to DB jobName=${jobName} ex=${ex}`;
+            throw `[SQL] Error inserting to DB jobName=${jobId} ex=${ex}`;
         });
 }
 

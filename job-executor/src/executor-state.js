@@ -29,6 +29,9 @@ module.exports = {
             p90_service_time_ms: 0,
             p95_service_time_ms: 0,
             p99_service_time_ms: 0,
+            max_alloc_mem: 0,
+            max_goroutines: 0,
+
         }
     },
     all_tx: {

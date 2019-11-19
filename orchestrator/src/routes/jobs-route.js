@@ -5,7 +5,7 @@ const router = express.Router();
 const {listJobsFromDb, insertJobToDb, updateJobInDb} = require('../mysql');
 const {info} = require('../util');
 const {sendJob, shutdownExecutor} = require('../job-runner');
-const {validateJobStart} = require('../controller/jobs-ctrl');
+const {validateJobStart, updateStateFromPrometheus} = require('../controller/jobs-ctrl');
 const {notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError} = require('../slack');
 const {state} = require('../orch-state');
 
@@ -72,6 +72,7 @@ router.post('/:id/update', async (req, res, next) => {
         case 'RUNNING':
             jobUpdate.running = true;
             await updateJobInDb(jobUpdate).catch(appendErr);
+            await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
             notifySlack(createSlackMessageJobRunning(jobUpdate, state));
             break;
 
@@ -80,6 +81,7 @@ router.post('/:id/update', async (req, res, next) => {
             jobUpdate.running = false;
             shutdownExecutor(jobUpdate);
             await updateJobInDb(jobUpdate).catch(appendErr);
+            await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
             notifySlack(createSlackMessageJobDone(jobUpdate, state));
             break;
 
