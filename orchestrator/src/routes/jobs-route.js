@@ -2,13 +2,25 @@
 
 const express = require('express');
 const router = express.Router();
-const {listJobsFromDb, insertJobToDb, updateJobInDb} = require('../mysql');
-const {info} = require('../util');
-const {sendJob, shutdownExecutor} = require('../job-runner');
-const {validateJobStart, updateStateFromPrometheus} = require('../controller/jobs-ctrl');
-const {notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError} = require('../slack');
-const {state} = require('../orch-state');
+const { listJobsFromDb, insertJobToDb, updateJobInDb } = require('../mysql');
+const { info } = require('../util');
+const { sendJob, shutdownExecutor } = require('../job-runner');
+const { validateJobStart, updateStateFromPrometheus } = require('../controller/jobs-ctrl');
+const { notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError } = require('../slack');
+const { state } = require('../orch-state');
 
+/**
+ * To start a job the following params at the moment are:
+ * 
+ * {
+	"vchain": 3016,
+	"tpm": 60,
+	"duration_sec": 3600,
+	"client_timeout_sec": 120,
+	"target_ips": ["35.161.123.97"]
+    }
+ * 
+ */
 router.post('/start', async (req, res, next) => {
     const jobProps = req.body;
     // TODO Create job entry entry in MySQL and get an ID from an incrementing sequence
@@ -73,16 +85,15 @@ router.post('/:id/update', async (req, res, next) => {
             jobUpdate.running = true;
             await updateJobInDb(jobUpdate).catch(appendErr);
             await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
-            notifySlack(createSlackMessageJobRunning(jobUpdate, state));
+            //notifySlack(createSlackMessageJobRunning(jobUpdate, state));
             break;
 
         case 'DONE':
-            // info(`Received DONE, shutting down executor`);
             jobUpdate.running = false;
             shutdownExecutor(jobUpdate);
             await updateJobInDb(jobUpdate).catch(appendErr);
             await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
-            notifySlack(createSlackMessageJobDone(jobUpdate, state));
+            notifySlack(await createSlackMessageJobDone(jobUpdate, state));
             break;
 
         case 'ERROR':

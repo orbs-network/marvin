@@ -16,7 +16,6 @@ const knex = require('knex')({
 
 
 async function insertJobToDb(jobProps) {
-
     const jobId = generateJobId();
 
     return knex('jobs')

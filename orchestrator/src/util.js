@@ -1,7 +1,7 @@
 'use strict';
 
 const moment = require('moment');
-const {config} = require('./orchestrator-config');
+const { config } = require('./orchestrator-config');
 const verbosity = process.env.VERBOSE === 'true';
 
 function init() {

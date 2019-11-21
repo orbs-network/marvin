@@ -46,7 +46,6 @@ function validateJobStart(jobUpdate) {
 
 async function updateStateFromPrometheus(job, state) {
     try {
-
         info(`updateStateFromPrometheus(): job=${JSON.stringify(job)}`);
         const startTime = toUtcISO(job.start_time);
         const endTime = toUtcISO(job.end_time);
