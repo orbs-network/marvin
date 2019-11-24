@@ -1,7 +1,6 @@
 package runner
 
 import (
-	"encoding/hex"
 	"github.com/orbs-network/marvin/client/keys"
 	"github.com/orbs-network/marvin/client/reporter"
 	"github.com/orbs-network/marvin/client/util"
@@ -26,7 +25,7 @@ func createPayloadOpenRights(client *orbsClient.OrbsClient) (rawTransaction []by
 }
 
 func TrySendSyncOpenRights(client *orbsClient.OrbsClient) (tx *reporter.ShortTransaction, err error) {
-	util.Debug("Sending to URL: %s to account %s", client.Endpoint, hex.EncodeToString(target))
+	util.Debug("Sending to URL: %s", client.Endpoint)
 	startTxTime := time.Now()
 	payload, err := createPayloadOpenRights(client)
 	if err != nil {
