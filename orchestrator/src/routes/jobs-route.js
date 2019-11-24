@@ -85,7 +85,7 @@ router.post('/:id/update', async (req, res, next) => {
             jobUpdate.running = true;
             await updateJobInDb(jobUpdate).catch(appendErr);
             await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
-            //notifySlack(createSlackMessageJobRunning(jobUpdate, state));
+            notifySlack(createSlackMessageJobRunning(jobUpdate, state));
             break;
 
         case 'DONE':
