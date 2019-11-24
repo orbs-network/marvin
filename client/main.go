@@ -11,7 +11,7 @@ import (
 func main() {
 
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: {vchain},{ip1[|ip2|...]} {run_name},{runtime_sec},{tx_per_minute} {testFlavor}")
+		fmt.Println("Usage: {vchain},{ip1[|ip2|...]} {run_name},{runtime_sec},{tx_per_minute}")
 		fmt.Println("Example: 2013,35.167.243.123 TEST1,5,60")
 		os.Exit(1)
 	}

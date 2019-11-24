@@ -1,12 +1,14 @@
 package runner
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/orbs-network/marvin/client/keys"
 	"github.com/orbs-network/marvin/client/reporter"
 	"github.com/orbs-network/marvin/client/util"
 	orbsClient "github.com/orbs-network/orbs-client-sdk-go/orbs"
 	"github.com/pkg/errors"
-	"time"
 )
 
 func createPayloadOpenRights(client *orbsClient.OrbsClient) (rawTransaction []byte, err error) {
@@ -33,6 +35,7 @@ func TrySendSyncOpenRights(client *orbsClient.OrbsClient) (tx *reporter.ShortTra
 	}
 
 	res, err := client.SendTransaction(payload)
+
 	endTxTime := time.Now()
 	return TransactionResult(endTxTime, startTxTime, err, res), err
 }
