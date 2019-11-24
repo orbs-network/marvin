@@ -1,7 +1,6 @@
 package runner
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/orbs-network/marvin/client/keys"
