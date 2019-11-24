@@ -20,7 +20,6 @@ type Runner struct {
 }
 
 func NewRunner(cfg *Config, ctrlRand *rand.Rand) *Runner {
-
 	firstIP := cfg.netConfig.TargetIps[0]
 	vchain := cfg.netConfig.Vchain
 	url := fmt.Sprintf("http://%s/vchains/%d", firstIP, vchain)
@@ -95,7 +94,7 @@ func (runner *Runner) loop(runtimeCtx context.Context) (runResult *reporter.RunR
 		}
 		go func(client *orbsClient.OrbsClient, target []byte) {
 			//util.Debug("Goroutine start TrySendSync: client=%p", client)
-			tx, err := TrySendSync(client, target)
+			tx, err := TrySendSyncOpenRights(client, target)
 			//util.Debug("Goroutine end TrySendSync: client=%p", client)
 			if err != nil {
 				runResult.ErrorTxsCount++
