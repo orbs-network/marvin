@@ -9,7 +9,6 @@ const {state} = require('./orch-state');
 const {info} = require('./util');
 const {insertTransaction} = require('./mysql');
 
-
 async function storeBatchOutputs(dataAsString) {
     const data = JSON.parse(dataAsString);
     const tableName = 'transactions';
