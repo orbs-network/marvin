@@ -124,7 +124,6 @@ async function updateParentWithJob(currentState) {
         .catch(err => {
             info(`Error sending to orchestrator, ignoring: ${err}`);
         });
-
 }
 
 function calculateSteps(state) {
@@ -132,7 +131,7 @@ function calculateSteps(state) {
     return [{
         display_name: `${state.tpm} tpm`,
         tpm: state.tpm,
-        instances: 1,
+        instances: 120,
     }];
     // return defaultLoadSteps;
 }
