@@ -9,6 +9,18 @@ const { validateJobStart, updateStateFromPrometheus } = require('../controller/j
 const { notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError } = require('../slack');
 const { state } = require('../orch-state');
 
+const availableJobs = require('./../jobs');
+const { JobsService } = require('./../services/jobs');
+const { PersistenceService } = require('./../services/persistence');
+const connector = require('./../connection');
+
+const db = new PersistenceService({ connector });
+const s = new JobsService({ availableJobs, db });
+
+router.get('/', (_, res) => {
+    res.json(s.listAvailableJobs()).end();
+});
+
 /**
  * To start a job the following params at the moment are:
  * 
@@ -21,8 +33,22 @@ const { state } = require('../orch-state');
     }
  * 
  */
-router.post('/start', async (req, res, next) => {
+router.post('/start/:jobId', async (req, res, next) => {
     const jobProps = req.body;
+
+    if (!req.params.jobId) {
+        res.status(400).send('Missing job id in path (Example: /jobs/start/helloWorld)').end();
+    }
+
+    // Let's skip validations for now as we're re-wiring
+    const result = await s.start({
+        jobId: req.params.jobId
+    });
+
+    res.json(result).end();
+
+    return;
+
     // TODO Create job entry entry in MySQL and get an ID from an incrementing sequence
 
     const err = validateJobStart(jobProps);
@@ -51,7 +77,13 @@ router.post('/start', async (req, res, next) => {
     }
 });
 
-/* GET users listing. */
+router.get('/list/active/:jobId', async (req, res) => {
+    const { jobId } = req.params;
+    const { result } = await db.getActiveJobs({ jobId });
+    res.json({ data: result }).end();
+});
+
+/* GET users listing */
 router.get('/list', async (req, res, next) => {
 
     try {

@@ -7,7 +7,12 @@ const { getCommiterUsernameByCommitHash, getSlackUsernameForGithubUser } = requi
 
 // Read a url from the environment variables
 function notifySlack(message) {
-    // info(`Sending to Slack URL: ${config.slack_url}`);
+    if (config.slack_url.length === 0) {
+        info('Skipping reporting to Slack since no Slack URL was provided');
+        info(message);
+        return;
+    }
+
     const baseCommand = `curl -s -X POST --data-urlencode "payload={\\"text\\": \\"${message}\\"}" ${config.slack_url}`;
     try {
         execSync(baseCommand);

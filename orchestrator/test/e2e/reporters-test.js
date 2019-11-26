@@ -3,7 +3,7 @@
 const { describe, it } = require('mocha');
 const chai = require('chai');
 const { expect, assert } = require('chai');
-const { createSlackMessageJobDone } = require('../src/slack');
+const { createSlackMessageJobDone } = require('../../src/slack');
 
 describe('reporters test suite', () => {
     it.skip('should reply back with general status', () => {
@@ -22,7 +22,7 @@ describe('reporters test suite', () => {
             status: 'DONE',
         };
 
-        const actual = await createSlackMessageJobDone(jobUpdate);
+        //const actual = await createSlackMessageJobDone(jobUpdate);
     });
 
 });

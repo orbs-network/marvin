@@ -45,8 +45,6 @@ async function runJobAndWaitForCompletion(state) {
     const steps = calculateSteps(state);
     info(`runJob() Started: setting job duration to ${state.duration_sec * 1000} ms. State=${JSON.stringify(state)}`);
 
-
-
     let iteration = 0;
     while (!state.should_stop) {
         let totalClients = 0;
@@ -131,7 +129,7 @@ function calculateSteps(state) {
     return [{
         display_name: `${state.tpm} tpm`,
         tpm: state.tpm,
-        instances: 120,
+        instances: 1,
     }];
     // return defaultLoadSteps;
 }

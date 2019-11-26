@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const nock = require('nock');
 const metricsFixture = require('./fixtures/metrics');
 
-const { getCommitFromMetricsURL, getCommiterUsernameByCommitHash, getSlackUsernameForGithubUser } = require('../src/github');
+const { getCommitFromMetricsURL, getCommiterUsernameByCommitHash, getSlackUsernameForGithubUser } = require('./../../src/github');
 nock('http://1.2.3.4')
     .get('/metrics')
     .reply(200, metricsFixture);

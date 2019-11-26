@@ -1,19 +1,8 @@
 'use strict';
 
 const moment = require('moment');
-const { config } = require('./orchestrator-config');
-const verbosity = process.env.VERBOSE === 'true';
 
-function init() {
-    if (!process.env.SLACK_MARVIN_NOTIFICATIONS_KEY || process.env.SLACK_MARVIN_NOTIFICATIONS_KEY.length === 0) {
-        info(`Environment variable SLACK_MARVIN_NOTIFICATIONS_KEY must be set!`);
-        process.exit(1);
-    }
-    config.slack_url = `https://hooks.slack.com/services/${process.env.SLACK_MARVIN_NOTIFICATIONS_KEY}`;
-    config.executor_host = `127.0.0.1`;
-    config.executor_base_port = 4568;
-    info(`Set Slack URL to ${config.slack_url}`);
-}
+const verbosity = process.env.VERBOSE === 'true';
 
 function info() {
     if (verbosity) {
@@ -32,7 +21,6 @@ function zeroPad(num, places) {
 }
 
 module.exports = {
-    init: init,
-    info: info,
-    generateJobId: generateJobId,
+    info,
+    generateJobId,
 };
