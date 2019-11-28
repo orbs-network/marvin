@@ -1,11 +1,12 @@
 module.exports = {
     state: {
+        job_status: 'NOT_STARTED',
+        job_errors: [],
         job_id: '0',
         port: 0,
         pid: process.pid,
         vchain: '',
         target_ips: [],
-        job_status: 'NOT_STARTED',
         job_runtime_millis: 0,
         duration_sec: 0,
         pct_done: 0,
@@ -17,6 +18,7 @@ module.exports = {
         tpm: 0,
         start_time: 0,
         end_time: 0,
+        client_params: '',
 
         summary: {
             total_dur: 0,

@@ -9,7 +9,7 @@ async function readPrometheus(state, startTimeISO, endTimeISO, metric, vchain) {
         throw "readPrometheus(): startTime or endTime are empty";
     }
     const queryUrl = `${state.prometheus_url}/api/v1/query_range?query=${metric}{vcid="${vchain}"}&start=${startTimeISO}&end=${endTimeISO}&step=15s`;
-    info(`PROMETHEUS calling URL: ${queryUrl}`);
+    // info(`PROMETHEUS calling URL: ${queryUrl}`);
 
     const options = {
         method: 'GET',

@@ -1,8 +1,9 @@
 'use strict';
 
 const moment = require('moment');
-const { config } = require('./orchestrator-config');
+const {config} = require('./orchestrator-config');
 const verbosity = process.env.VERBOSE === 'true';
+const verbosityDebug = process.env.VERBOSE_DEBUG === 'true';
 
 function init() {
     if (!process.env.SLACK_MARVIN_NOTIFICATIONS_KEY || process.env.SLACK_MARVIN_NOTIFICATIONS_KEY.length === 0) {
@@ -15,24 +16,38 @@ function init() {
     info(`Set Slack URL to ${config.slack_url}`);
 }
 
-function info() {
-    if (verbosity) {
-        console.log.apply(this, arguments);
+
+function debug(s) {
+    if (verbosityDebug) {
+        console.log(s);
+    }
+}
+
+function info(s) {
+    if (verbosity || verbosityDebug) {
+        console.log(s);
     }
 }
 
 function generateJobId() {
-    const dateStr = moment().format('YYYYMMDD_HHmmss');
+    const dateStr = moment.utc().format('YYYYMMDD_HHmmss');
     const randomSuffix = zeroPad(Math.floor(Math.random() * 100), 3);
     return `${dateStr}_${randomSuffix}`;
 }
+
+function isoToDate(iso) {
+    return moment(iso);
+}
+
 
 function zeroPad(num, places) {
     return String(num).padStart(places, '0');
 }
 
 module.exports = {
+    debug: debug,
     init: init,
     info: info,
     generateJobId: generateJobId,
+    isoToDate: isoToDate,
 };

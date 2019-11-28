@@ -6,17 +6,17 @@ const path = require('path');
 const {config} = require('./orchestrator-config');
 const {state} = require('./orch-state');
 
-const {info} = require('./util');
-const {insertTransaction} = require('./mysql');
+const {debug, info} = require('./util');
+// const {insertTransaction} = require('./mysql');
 
 async function storeBatchOutputs(dataAsString) {
     const data = JSON.parse(dataAsString);
     const tableName = 'transactions';
     // const tableName = config.outputTable || 'transactions';
 
-    await Promise.all(data.transactions.map(tx => {
-        return insertTransaction(data, tableName, tx);
-    }));
+    // await Promise.all(data.transactions.map(tx => {
+    //     return insertTransaction(data, tableName, tx);
+    // }));
 }
 
 async function sendJob(jobProps) {
@@ -28,7 +28,7 @@ async function sendJob(jobProps) {
     state.jobs[`${jobExecutor.pid}`] = {
         timestamp: new Date().toISOString(),
     };
-    info(`State after starting job: ${JSON.stringify(state)}`);
+    debug(`State after starting job: ${JSON.stringify(state)}`);
 
     jobExecutor.on('exit', (code, signal) => {
         state.live_jobs--;
@@ -64,6 +64,7 @@ function sendJobStartToExecutor(jobProps) {
         body: jobProps,
         json: true,
     };
+    info(`SENDING JOB TO EXECUTOR: HTTP POST ${uri} BODY=${JSON.stringify(jobProps)}`);
 
     return rp(options)
         .then(res => {

@@ -6,7 +6,7 @@ const logger = require('morgan');
 const http = require('http');
 const hdr = require('hdr-histogram-js/dist/hdrhistogram');
 
-const {info} = require('./util');
+const {debug, info} = require('./util');
 const {all_tx} = require('./executor-state');
 const indexRouter = require('./routes/index-route');
 const jobRouter = require('./routes/job-route');
@@ -36,7 +36,7 @@ app.server = server; // for shutdown in testing
 
 
 async function bootstrap(props, state) {
-    info('bootstrap()');
+    debug('bootstrap() starts');
     if (isUp) {
         return;
     }
@@ -50,7 +50,7 @@ async function bootstrap(props, state) {
     // state.job_id = props.job_id;
     hdrSetup();
     await app.server.listen(port);
-    info(`Listening on port ${port}`);
+    debug(`Listening on port ${port}`);
 }
 
 function hdrSetup() {

@@ -1,6 +1,7 @@
 'use strict';
 
-const {generateJobId, info} = require('./util');
+const {generateJobId, info, isoToDate} = require('./util');
+const moment = require('moment');
 
 const knex = require('knex')({
     client: 'mysql2',
@@ -43,6 +44,25 @@ async function insertJobToDb(jobProps) {
         })
         .catch(ex => {
             throw `[SQL] Error inserting to DB jobName=${jobId} ex=${ex}`;
+        });
+}
+
+async function insertEventToDb(event) {
+
+    info(`[SQL] Inserting event I: ${JSON.stringify(event)}`);
+    event.event_start = knex.fn.now();
+    event.event_end = knex.fn.now();
+
+    info(`[SQL] Inserting event II: ${JSON.stringify(event)}`);
+
+    return knex('events')
+        .insert(event)
+        .then(res => {
+            info(`[SQL] Inserted new event to DB. Res=${JSON.stringify(res)}`);
+            return;
+        })
+        .catch(ex => {
+            throw `[SQL] Error inserting event to DB: ex=${ex}`;
         });
 }
 
@@ -122,4 +142,5 @@ module.exports = {
     insertJobToDb: insertJobToDb,
     updateJobInDb: updateJobInDb,
     listJobsFromDb: listJobsFromDb,
+    insertEventToDb: insertEventToDb,
 };

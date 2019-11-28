@@ -94,7 +94,10 @@ func (runner *Runner) loop(runtimeCtx context.Context) (runResult *reporter.RunR
 		}
 		go func(client *orbsClient.OrbsClient, target []byte) {
 			//util.Debug("Goroutine start TrySendSync: client=%p", client)
-			tx, err := TrySendSyncOpenRights(client)
+
+			// TODO Refactor here if more than 2 use cases for "Send" functions emerge
+			tx, err := TrySendSync(client, target)
+			//tx, err := TrySendSyncOpenRights(client)
 			//util.Debug("Goroutine end TrySendSync: client=%p", client)
 			if err != nil {
 				runResult.ErrorTxsCount++

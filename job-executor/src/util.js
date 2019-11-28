@@ -1,10 +1,17 @@
 'use strict';
 
 const verbosity = process.env.VERBOSE === 'true';
+const verbosityDebug = process.env.VERBOSE_DEBUG === 'true';
 
-function info() {
-    if (verbosity) {
-        console.log.apply(this, arguments);
+function debug(s) {
+    if (verbosityDebug) {
+        console.log(s);
+    }
+}
+
+function info(s) {
+    if (verbosity || verbosityDebug) {
+        console.log(s);
     }
 }
 
@@ -13,5 +20,5 @@ async function sleep(ms) {
 }
 
 module.exports = {
-    info, sleep
+    info, debug, sleep
 };
