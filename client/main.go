@@ -4,29 +4,33 @@ import (
 	"fmt"
 	"github.com/orbs-network/marvin/client/runner"
 	"github.com/orbs-network/marvin/client/util"
+	"math/rand"
 	"os"
 )
 
 func main() {
 
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: <net_config_path> <test_name>,<runtime_sec>")
-		fmt.Println("Example: config/testnet-master-aws.json HELLO,5")
+		fmt.Println("Usage: {vchain},{ip1[|ip2|...]} {run_name},{runtime_sec},{tx_per_minute}")
+		fmt.Println("Example: 2013,35.167.243.123 TEST1,5,60")
 		os.Exit(1)
 	}
 
 	argsWithoutProg := os.Args[1:]
-	netConfigPath := argsWithoutProg[0]
+	netConfigStr := argsWithoutProg[0]
 	runConfigStr := argsWithoutProg[1]
-	util.Debug("Start, reading config from %s", netConfigPath)
-	run(runner.CreateConfig(netConfigPath, runConfigStr))
+	//testFlavor := argsWithoutProg[2]
+
+	util.Debug("Net config: %s", netConfigStr)
+	util.Debug("Run config: %s", runConfigStr)
+	cfg := runner.CreateConfig(netConfigStr, runConfigStr)
+	run(cfg)
 }
 
 func run(cfg *runner.Config) {
 
-	r := &runner.Runner{
-		Config: cfg,
-	}
+	r := runner.NewRunner(cfg, rand.New(rand.NewSource(0)))
+
 	report, err := r.Execute()
 	if err != nil {
 		util.Info("Error: %s", err)

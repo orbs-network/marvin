@@ -73,6 +73,28 @@ All transactions are in table `transactions`.
  
  > It takes time (30s on a Mac) to initialize the DB, after running `./start-network.sh`
 
+We use [knex](http://knexjs.org/) library to communicate with the DB.
+Regular connection:
+```
+const knex = require('knex')({
+    client: 'mysql2',
+    version: '5.7',
+    connection: {
+        host: '127.0.0.1',
+        user: process.env.MYSQL_USER,
+        password: process.env.MYSQL_PASSWORD,
+        database: 'marvin'
+    },
+    pool: {min: 0}
+});
+
+```
+
+Connection with SSH:
+```
+
+```
+
 
 ## Client
 
@@ -92,6 +114,18 @@ Based on https://github.com/deviantony/docker-elk
 
 # Developer Notes
 
+## Running Marvin locally
+Marvin consists of Prometheus, Grafana, MySQL.
+It is all part of a docker-compose, so it can be run locally as follows:
+
+`cd docker && docker-compose up -d`
+
+You can then run the Orchestrator locally, and interact with it using REST API calls 
+(using Postman, for example).
+
+ 
+
+
 ## Running testnet locally
 
 * To rebuild Orbs, clone the [repo](https://github.com/orbs-network/orbs-network-go/), then from its root directory, run:
@@ -105,29 +139,53 @@ This will rebuild the Docker images from local code.
 * To stop the network, run:
 > cd docker ; ./stop-network
 
+## Requesting the Marvin deployment to start a test:
+Replace the machine below with the actual Marvin deployment
+```
+URI="ec2-34-222-245-15.us-west-2.compute.amazonaws.com:4567/jobs/start"
+curl -d '{"tpm":10, "duration_sec":300}' -H "Content-Type: application/json" -X POST ${URI}
+```
+ 
+## Updating local client
+On local machine:
+> cd <marvin_home> ; ./client-build.sh
+
+
 ## Updating deployed Marvin
+On local machine:
+> cd <marvin_home> ; ./deploy-marvin.sh
 * Login to `marvin` machine and run:
 > cd marvin ; ./client-build.sh
 > 
 
-## Updating deployed testnet
-TBD
-
 ## Restarting deployed testnet
 * Login to marvin machine and run:
-
+TBD
 
 ## Running Prometheus locally
 See https://prometheus.io/docs/prometheus/latest/installation/
 To start with a config file located at `/tmp/prometheus.yml`, use: 
 >  docker run --network=host --mount source=prometheus,target=/etc/prometheus prom/prometheus
 
-## Running Grafana
-This project uses Orbs' Hosted Grafana solution which is also used by the production network.
-It is configured with a built-in Prometheus instance that accepts data by [remote_write](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_write).
-Project [Kartoha](https://github.com/orbs-network/kartoha) can be used to generate the Prometheus `yml` config file.
+### Querying Prometheus via HTTP API
+See https://prometheus.io/docs/prometheus/latest/querying/api/#http-api
 
-## Running Prometheus on local machine
+Job Executor uses HTTP API to extract data from Prometheus.
+* Examples:
+
+  * `http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query?query=BlockStorage_BlockHeight`
+  * `http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query_range?query=BlockStorage_BlockHeight&start=2019-11-13T22:59:00Z&end=2019-11-13T23:00:00Z&step=15s`
+  * `http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query_range?query=Runtime_HeapAlloc_Bytes{vcid=%223015%22,machine=%22node1%22}&start=2019-11-13T20:59:00Z&end=2019-11-13T21:00:00Z&step=15s`
+  * `http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:9090/api/v1/query_range?query=rate(TransactionPool_TotalCommits_Count{vcid=%223015%22,machine=%22node1%22}[1m])&start=2019-11-13T20:59:00Z&end=2019-11-13T21:00:00Z&step=10s`
+
+then read from the resulting JSON:
+> data.result[0].metric.__name__
+> data.result[0].metric.values - array of 2-element arrays. So for example, calc max() over  `values[0][1], values[1][1], values[2][1]`, etc.
+## Running Grafana
+This project installs its own Grafana instance in a Docker container, as part of Docker Compose. It queries data from the Prometheus instance which is also a Docker container, part of Docker compose.
+
+To show events on the Grafana timeline, a dashboard should enable "Annotations" and set the query to:
+
 
 
 ## Sequence diagram

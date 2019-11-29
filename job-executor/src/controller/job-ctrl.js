@@ -1,9 +1,8 @@
 'use strict';
 
 const rp = require('request-promise-native');
-const {runClientContainers} = require('../client-runner');
-const {info, sleep} = require('../util');
-const {config} = require('../executor-state');
+const {startClientContainers} = require('../client-runner');
+const {debug, info, sleep} = require('../util');
 
 async function startJob(state) {
     return runJobAndWaitForCompletion(state);
@@ -11,24 +10,25 @@ async function startJob(state) {
 
 const defaultLoadSteps = [
     {
-        displayName: '10 tps',
+        displayName: '10 tpm',
+        tpm: 10,
         instances: 1 // amount of containers to startup for this step
     },
-    {
-        displayName: '20 tps',
-        instances: 2
-    },
+    // {
+    //     displayName: '20 tps',
+    //     instances: 2
+    // },
     // {
     //     displayName: '30 tps',
-    //     endurance: 4
+    //     instances: 4
     // },
     // {
     //     displayName: '40 tps',
-    //     endurance: 5
+    //     instances: 5
     // },
     // {
     //     displayName: '50 tps',
-    //     endurance: 10
+    //     instances: 10
     // }
 ];
 
@@ -39,77 +39,78 @@ const defaultLoadSteps = [
  */
 async function runJobAndWaitForCompletion(state) {
     state.job_status = 'RUNNING';
-    state.job_runtime = 0;
+    state.job_runtime_millis = 0;
+    state.start_time = new Date();
     await updateParentWithJob(state);
     const steps = calculateSteps(state);
-
-    let reverseSteps = Array.from(steps);
-    reverseSteps.reverse();
-    info(`runJob() Started: setting job duration to ${state.duration_sec * 1000} ms. State=${JSON.stringify(state)}`);
-
-    const startTime = new Date();
+    info(`runJob() Started: setting job duration to ${state.duration_sec * 1000} ms.`);
+    debug(`STATE=${JSON.stringify(state)}`);
 
 
+    let iteration = 0;
     while (!state.should_stop) {
         let totalClients = 0;
-        info(`Iteration starts. Should_stop=${state.should_stop} Steps=${JSON.stringify(steps)}`);
+        ++iteration;
+
+        info(`[Iteration ${iteration}]: starts. Should_stop=${state.should_stop} Steps=${JSON.stringify(steps)}`);
         for (let step of steps) {
             totalClients += step.instances;
-            await runClientContainers(step.instances, state);
+            await startClientContainers(step, state);
         }
 
-        for (let step of reverseSteps) {
-            totalClients += step.instances;
-            await runClientContainers(step.instances, state);
-        }
-
-        info(`Started ${totalClients} clients in this iteration`);
-
+        info(`[Iteration ${iteration}]: started ${totalClients} clients, now waiting for their completion`);
+        await waitForAllClientsCompletion(state, 200);
         const now = new Date();
-        if (now - startTime > state.duration_sec * 1000) {
-            info(`LAST ITERATION`);
+        if (now - state.start_time > state.duration_sec * 1000) {
+            info(`[Iteration ${iteration}]: THIS WAS THE LAST ITERATION`);
             state.should_stop = true;
         } else {
-            info(`Passed ${now - startTime} ms, should only end after ${state.duration_sec * 1000} ms`);
+            info(`[Iteration ${iteration}]: Passed ${now - state.start_time} ms, should only end after ${state.duration_sec * 1000} ms`);
         }
-        state.job_runtime = now - startTime;
+        // info(`Wait for client completion before next iteration. #live=${state.live_clients}`);
+
+        state.job_runtime_millis = now - state.start_time;
+        info(`[Iteration ${iteration}]: Finished running ${totalClients} clients. Accumulated: ${state.summary.total_tx_count} tx in ${now - state.start_time} ms.`)
         await updateParentWithJob(state);
-        info(`Wait for client completion before next iteration. #live=${state.live_clients}`);
-        await waitForAllClientsCompletion(state, 2000);
     }
 
     const endTime = new Date();
 
-    await waitForAllClientsCompletion(state, 2000);
-    info(`--- All clients finished in ${endTime - startTime} ms`);
+    await waitForAllClientsCompletion(state, 200);
+    debug(`All clients finished in ${endTime - state.start_time} ms`);
     state.job_status = 'DONE';
-    state.job_runtime = endTime - startTime;
-    const aggregatedResults = agg(state);
-    info(`Summary: ${JSON.stringify(state.summary)}`);
+    state.job_runtime_millis = endTime - state.start_time;
+    state.end_time = endTime;
     await updateParentWithJob(state);
-    info(`Sent update to orchestrator`);
+    info(`Final Summary: ${JSON.stringify(state.summary)}`);
+    info(`Job complete. Call /shutdown route to shutdown this executor.`);
     // await updateParentWithJob(state, aggregatedResults);
 }
 
 async function waitForAllClientsCompletion(state, pollingIntervalMs) {
     while (state.live_clients > 0) {
-        info(`Sleeping because #live=${state.live_clients}`);
+        debug(`Sleeping because #live=${state.live_clients}`);
         await sleep(pollingIntervalMs);
     }
 }
 
 
-async function updateParentWithJob(currentState, res) {
+async function updateParentWithJob(currentState) {
     // HTTP POST to orchestrator with URL /jobs/:id/stop and BODY=result
     const uri = `http://${currentState.parent_base_url}/jobs/${currentState.job_id}/update`;
     const body = {
         job_id: currentState.job_id,
+        executor_port: currentState.port,
+        executor_pid: currentState.pid,
         job_status: currentState.job_status,
+        vchain: currentState.vchain,
         live_clients: currentState.live_clients,
-        runtime: currentState.job_runtime,
+        runtime: currentState.job_runtime_millis,
         duration_sec: currentState.duration_sec,
         tpm: currentState.tpm,
-        results: res || {},
+        summary: currentState.summary || {},
+        start_time: currentState.start_time,
+        end_time: currentState.end_time,
     };
     const options = {
         method: 'POST',
@@ -117,17 +118,24 @@ async function updateParentWithJob(currentState, res) {
         body: body,
         json: true,
     };
-    info(`HTTP POST to ${uri} with body: ${JSON.stringify(body)}`);
+    debug(`HTTP POST to ${uri} with body: ${JSON.stringify(body)}`);
     return rp(options)
+        .then(res => {
+            debug(`Sent update to orchestrator`);
+        })
         .catch(err => {
             info(`Error sending to orchestrator, ignoring: ${err}`);
         });
-
 }
 
 function calculateSteps(state) {
-    info(`calculateSteps(): tpm=${state.tpm}, duration_sec=${state.duration_sec}`);
-    return defaultLoadSteps;
+    debug(`calculateSteps(): tpm=${state.tpm}, duration_sec=${state.duration_sec}`);
+    return [{
+        display_name: `${state.tpm} tpm`,
+        tpm: state.tpm,
+        instances: 1,
+    }];
+    // return defaultLoadSteps;
 }
 
 

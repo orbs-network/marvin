@@ -15,12 +15,12 @@ router.post('/start', (req, res, next) => {
     }
 
     const jobProps = req.body;
-    if (!jobProps || !jobProps.job_id || !jobProps.tpm || !jobProps.duration_sec) {
+    if (!jobProps || !jobProps.job_id || !jobProps.vchain || (jobProps.target_ips||[]).length===0 || !jobProps.tpm || !jobProps.duration_sec) {
         res.send(
             {
                 timestamp: new Date().toISOString(),
                 status: 'ERROR',
-                message: 'Missing at least one of job_id, tpm, duration_sec',
+                message: 'Missing at least one of job_id, vchain, target_ips, tpm, duration_sec',
             }
         );
         return;
@@ -37,7 +37,9 @@ router.post('/start', (req, res, next) => {
     );
     state.job_status = 'STARTING';
     state.job_id = jobProps.job_id; // This assumes a single job
-    state.client_timeout_sec = jobProps.client_timeout_sec || 3;
+    state.vchain = jobProps.vchain; // This assumes a single job
+    state.target_ips = jobProps.target_ips;
+    state.client_timeout_sec = jobProps.client_timeout_sec || 10;
     state.duration_sec = jobProps.duration_sec;
     state.tpm = jobProps.tpm;
     startJob(state);

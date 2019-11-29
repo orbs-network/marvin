@@ -13,43 +13,85 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: ["localhost:9090"]
-  - job_name: node1
+  - job_name: node1_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["35.161.123.97"]
         labels:
           machine: "node1"
-          vchain: 2013
-  - job_name: node2
+          vcid: 2013
+  - job_name: node2_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["35.167.243.123"]
         labels:
           machine: "node2"
-          vchain: 2013
-  - job_name: node3
+          vcid: 2013
+  - job_name: node3_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["52.35.218.240"]
         labels:
           machine: "node3"
-          vchain: 2013
-  - job_name: node4
+          vcid: 2013
+  - job_name: node4_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["52.42.4.94"]
         labels:
           machine: "node4"
-          vchain: 2013
-  - job_name: node5
+          vcid: 2013
+  - job_name: node5_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
     static_configs:
       - targets: ["54.149.67.22"]
         labels:
           machine: "node5"
-          vchain: 2013
+          vcid: 2013
+
+  - job_name: node1_3016
+    metrics_path: "/vchains/3016/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["35.161.123.97"]
+        labels:
+          machine: "node1_3016"
+          vcid: 3016
+  - job_name: node2_3016
+    metrics_path: "/vchains/3016/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["35.167.243.123"]
+        labels:
+          machine: "node2_3016"
+          vcid: 3016
+  - job_name: node3_3016
+    metrics_path: "/vchains/3016/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["52.35.218.240"]
+        labels:
+          machine: "node3_3016"
+          vcid: 3016
+  - job_name: node4_3016
+    metrics_path: "/vchains/3016/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["52.42.4.94"]
+        labels:
+          machine: "node4_3016"
+          vcid: 3016
+  - job_name: node5_3016
+    metrics_path: "/vchains/3016/metrics.prometheus"
+    scheme: http
+    static_configs:
+      - targets: ["54.149.67.22"]
+        labels:
+          machine: "node5_3016"
+          vcid: 3016
+

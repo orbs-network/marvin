@@ -4,11 +4,13 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const http = require('http');
+const hdr = require('hdr-histogram-js/dist/hdrhistogram');
 
-const {info} = require('./util');
-const indexRouter = require('./routes/index');
-const jobRouter = require('./routes/job');
-const statusRouter = require('./routes/executor-status');
+const {debug, info} = require('./util');
+const {all_tx} = require('./executor-state');
+const indexRouter = require('./routes/index-route');
+const jobRouter = require('./routes/job-route');
+const statusRouter = require('./routes/executor-status-route');
 
 const DEFAULT_PARENT_HOST = '127.0.0.1';
 const DEFAULT_PARENT_PORT = 4567;
@@ -33,9 +35,8 @@ const server = http.createServer(app);
 app.server = server; // for shutdown in testing
 
 
-
 async function bootstrap(props, state) {
-    info('bootstrap()');
+    debug('bootstrap() starts');
     if (isUp) {
         return;
     }
@@ -47,8 +48,21 @@ async function bootstrap(props, state) {
     state.parent_base_url = `${parentHost}:${parentPort}`;
     // state.client_config = props.client_config; // Given in /job/start
     // state.job_id = props.job_id;
+    hdrSetup();
     await app.server.listen(port);
-    info(`Listening on port ${port}`);
+    debug(`Listening on port ${port}`);
+}
+
+function hdrSetup() {
+    all_tx.hdr = hdr.build(
+        {
+            bitBucketSize: 32,                // may be 8, 16, 32 or 64
+            autoResize: true,                 // default value is true
+            lowestDiscernibleValue: 1,        // default value is also 1
+            highestTrackableValue: 2,         // can increase up to Number.MAX_SAFE_INTEGER
+            numberOfSignificantValueDigits: 3 // Number between 1 and 5 (inclusive)
+        }
+    );
 }
 
 async function executorStopServer() {
@@ -58,8 +72,7 @@ async function executorStopServer() {
             if (!err) {
                 info('Server closed');
                 res();
-            }
-            else {
+            } else {
                 rej(err);
                 info('Server not closed');
             }

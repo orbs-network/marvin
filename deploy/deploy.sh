@@ -8,10 +8,12 @@ echo "Using Node: "
 node -v
 npm -v
 
+cd job-executor
+npm install
+cd ..
+
 cd orchestrator
 npm install
 pm2 restart 0
-cd ..
 
-cd job-executor
-npm install
+

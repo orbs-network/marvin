@@ -11,6 +11,8 @@
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
+    "hdr-histogram-js": "^1.1.4",
+    "lodash": "^4.17.15",
     "morgan": "~1.9.1",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7"
