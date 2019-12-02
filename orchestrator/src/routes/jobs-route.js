@@ -9,16 +9,16 @@ const { validateJobStart, updateStateFromPrometheus } = require('../controller/j
 const { notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError } = require('../slack');
 const { state } = require('../orch-state');
 
-const availableJobs = require('./../jobs');
+const availableTasks = require('./../tasks');
 const { JobsService } = require('./../services/jobs');
 const { PersistenceService } = require('./../services/persistence');
 const connector = require('./../connection');
 
 const db = new PersistenceService({ connector });
-const s = new JobsService({ availableJobs, db });
+const s = new JobsService({ availableTasks, db });
 
-router.get('/', (_, res) => {
-    res.json(s.listAvailableJobs()).end();
+router.get('/list/tasks', (_, res) => {
+    res.json(s.listAvailableTasks()).end();
 });
 
 /**
@@ -33,17 +33,24 @@ router.get('/', (_, res) => {
     }
  * 
  */
-router.post('/start/:jobId', async (req, res, next) => {
-    const jobProps = req.body;
+router.post('/start/:taskId', async (req, res, next) => {
+    const meta = req.body;
 
-    if (!req.params.jobId) {
-        res.status(400).send('Missing job id in path (Example: /jobs/start/helloWorld)').end();
+    if (!req.params.taskId) {
+        res.status(400).send('Missing taskId in path (Example: /jobs/start/helloWorld)').end();
     }
 
-    // Let's skip validations for now as we're re-wiring
+    const err = validateJobStart(jobProps);
+
+    // Let's skip validations for now as we're re-wiring for mongodb
     const result = await s.start({
-        jobId: req.params.jobId
+        taskId: req.params.taskId,
+        meta,
     });
+
+    if (result.status) {
+        res.status(result.status);
+    }
 
     res.json(result).end();
 
@@ -51,41 +58,27 @@ router.post('/start/:jobId', async (req, res, next) => {
 
     // TODO Create job entry entry in MySQL and get an ID from an incrementing sequence
 
-    const err = validateJobStart(jobProps);
+
     if (err) {
         notifySlack(createSlackMessageJobError(jobProps));
         res.send(jobProps).status(400);
     } else {
         try {
-            jobProps.job_id = await insertJobToDb(jobProps);
-            info(`SENDING JOB TO EXECUTOR [ID=${jobProps.job_id} VCHAIN=${jobProps.vchain}]: ${JSON.stringify(jobProps)}`);
-
-            const sendJobResponse = await sendJob(jobProps);
-
-            if (sendJobResponse.status === 'ERROR') {
-                const err = `Error in job executor: ${sendJobResponse.error}`;
-                jobProps.job_status = 'ERROR';
-                jobProps.error = err;
-                await updateJobInDb(jobProps);
-                res.send(err).status(500);
-            } else {
-                res.send(sendJobResponse);
-            }
+            
         } catch (ex) {
             res.send(ex).status(500);
         }
     }
 });
 
-router.get('/list/active/:jobId', async (req, res) => {
-    const { jobId } = req.params;
-    const { result } = await db.getActiveJobs({ jobId });
+router.get('/list/active/:taskId', async (req, res) => {
+    const { taskId } = req.params;
+    const { result } = await db.getActiveJobs({ taskId });
     res.json({ data: result }).end();
 });
 
 /* GET users listing */
 router.get('/list', async (req, res, next) => {
-
     try {
         const list = await listJobsFromDb();
         res.json(list);

@@ -1,7 +1,5 @@
 'use strict';
 
-const {generateJobId, info} = require('./util');
-
 const knex = require('knex')({
     client: 'mysql2',
     version: '5.7',
@@ -13,7 +11,6 @@ const knex = require('knex')({
     },
     pool: {min: 0}, // See https://github.com/Vincit/objection.js/issues/534#issuecomment-343683129
 });
-
 
 async function insertJobToDb(jobProps) {
     const jobId = generateJobId();

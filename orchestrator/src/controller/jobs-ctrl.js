@@ -2,47 +2,8 @@
 
 const moment = require('moment');
 const _ = require('lodash');
-const {readPrometheus} = require('../prometheus');
-const {info} = require('../util');
-
-function validateJobStart(jobUpdate) {
-    if (!jobUpdate) {
-        return {
-            error: 'Missing jobUpdate body'
-        };
-    }
-
-    if (!jobUpdate.tpm) {
-        jobUpdate.error = "Missing or zero tpm property";
-        return jobUpdate;
-    }
-
-    if (!jobUpdate.vchain) {
-        jobUpdate.error = "Missing vchain property";
-        return jobUpdate;
-    }
-
-    if (!jobUpdate.target_ips) {
-        jobUpdate.error = "Missing target_ips property";
-        return jobUpdate;
-    }
-
-    // Limit to 300 tpm (5 tps) because of client limitations.
-    // Once launching more than one client, can remove this limitation.
-    // if (jobUpdate.tpm < 1 || jobUpdate.tpm > 300) {
-    //     jobUpdate.error = "Supported tpm values are between 1 to 300";
-    //     return jobUpdate;
-    // }
-
-    if (!jobUpdate.duration_sec) {
-        jobUpdate.error = "Missing or zero duration_sec property";
-        return jobUpdate;
-    }
-
-    jobUpdate.vchain = jobUpdate.vchain || '2013'; // default testnet vchain as of Nov 2019
-
-    return null;
-}
+const { readPrometheus } = require('../prometheus');
+const { info } = require('../util');
 
 async function updateStateFromPrometheus(job, state) {
     try {
@@ -77,14 +38,14 @@ async function updateStateFromPrometheus(job, state) {
 
 function maxOverAllNodes(prometheusResponse) {
     const maxPerNode = _.map(prometheusResponse.data.result, resultPerNode => {
-        const values = _.map(resultPerNode.values, pair => {return pair[1];});
+        const values = _.map(resultPerNode.values, pair => { return pair[1]; });
         return Math.max(...values);
     });
     return Math.max(...maxPerNode);
 }
 
 function toUtcISO(time) {
-    return moment(time||new Date()).utc().format();
+    return moment(time || new Date()).utc().format();
 }
 
 function updateStateWithPrometheusResults(job, state, raw) {

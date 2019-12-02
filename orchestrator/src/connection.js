@@ -27,18 +27,24 @@ async function connectToMongoDB() {
     console.log('using connection string:', url);
     const connection = await promisify(MongoClient.connect)(url, { useUnifiedTopology: true });
     console.log('Connected correctly to server');
-    return connection.db(db);
+    return { db: connection.db(db), connection };
 }
 
 // private property
 let connection;
+let bareConnection;
 
 const connector = {
     async getConnection() {
         if (!connection) {
-            connection = await connectToMongoDB();
+            const { db, connection: conn } = await connectToMongoDB();
+            bareConnection = conn;
+            connection = db;
         }
         return connection;
+    },
+    close() {
+        return bareConnection.close();
     }
 };
 

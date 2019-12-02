@@ -6,25 +6,30 @@ const { expect } = require('chai');
 chai.use(require('chai-http'));
 chai.use(require('chai-like'));
 
-const nock = require('nock');
-
 const pathToCompose = path.join(__dirname, 'docker-compose.yml');
-let app;
+let app, close;
 
 const envName = dockerComposeTool(before, after, pathToCompose, {});
 
 // Should fail at the moment. will be worked on soon.
 describe('job executor jobs endpoint suite', () => {
+    after(() => {
+        console.log('closing http server..');
+        return close();
+    });
+
     before((done) => {
         getAddressForService(envName, pathToCompose, 'db', 27017)
             .then((result) => {
                 console.log('db is up at ', result); // => '0.0.0.0:36589'
                 process.env.DB_PORT = result.split(':')[1];
                 console.log('starting the orchestrator process');
-                app = require('./../../orchestrator');
+                const bootstrap = require('./../../orchestrator');
+                app = bootstrap.app;
+                close = bootstrap.close;
                 done();
             });
-    })
+    });
 
     it('should reply back with general status', () => {
         return chai.request(app)
@@ -36,14 +41,14 @@ describe('job executor jobs endpoint suite', () => {
             });
     });
 
-    it('should list the available jobs', async () => {
+    it('should list the available ta', async () => {
         const result = await chai.request(app)
-            .get('/jobs');
+            .get('/jobs/list/tasks');
 
         expect(result.body.length).to.be.greaterThan(0);
     });
 
-    it.only('should start the hello-world job', async () => {
+    it('should start the hello-world job', async () => {
         const res = await chai.request(app).post('/jobs/start/helloWorld');
 
         expect(res.body).to.eql({
@@ -51,17 +56,15 @@ describe('job executor jobs endpoint suite', () => {
             status: 'PENDING'
         });
 
-        const resList = await chai.request(app).get('/jobs/list/active/:jobId');
-        console.log(resList.body);
-        expect(resList.body.length).to.be.greaterThan(0);
+        const resList = await chai.request(app).get('/jobs/list/active/helloWorld');
+        expect(resList.body.data.length).to.be.greaterThan(0);
     });
 
-    it('should reply with status of stopping the job /jobs/:id/stop', async () => {
+    it.only('should reply with status of stopping the job /jobs/:id/stop', async () => {
         return chai.request(app)
-            .post('/jobs/1/stop') // TODO add body
+            .post('/jobs/1/stop')
             // .send({...})
             .then(res => {
-
                 expect(res.body.status).to.equal('STOPPING');
                 expect(res.body.job_id).to.equal('1');
             });
@@ -92,14 +95,5 @@ describe('job executor jobs endpoint suite', () => {
                 expect(res.body.runtime).to.equal(jobUpdate.runtime);
                 expect(res.body.status).to.equal('DONE');
             });
-
-    });
-
-    afterEach(() => {
-        nock.cleanAll();
-    });
-
-    after(async () => {
-        app.server.close();
     });
 });
