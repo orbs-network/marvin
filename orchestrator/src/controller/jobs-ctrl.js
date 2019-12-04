@@ -107,7 +107,7 @@ function jobToEvent(job) {
         semantic_version: job.summary ? job.summary.semantic_version : 'NA',
         commit_hash: job.summary ? job.summary.commit_hash : 'NA',
     };
-    debug(`Converted ${JSON.stringify(job)} to event: ${JSON.stringify(newEvent)}`);
+    // debug(`Converted ${JSON.stringify(job)} to event: ${JSON.stringify(newEvent)}`);
     return newEvent;
 }
 

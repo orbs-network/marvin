@@ -35,13 +35,19 @@ async function insertJobToDb(jobProps) {
         const jobId = generateJobId();
         stmt = `
 INSERT INTO jobs 
-(name, vchain, branch, status, running, job_start, job_end, total_tx_count, err_tx_count, 
-tx_per_minute, expected_duration_sec, 
-tx_response_max, tx_response_p99, tx_response_p95, tx_response_p90, tx_response_median, tx_response_avg, tx_response_stddev, 
-semantic_version, commit_hash, error, comment)
+(name, vchain, branch, status, running, job_start, job_end, 
+expected_duration_sec, tx_per_minute, total_tx_count, err_tx_count, 
+semantic_version, commit_hash, error, comment, results)
 VALUES 
-('${jobId}', '${jobProps.vchain}', NULL, 'NOT_STARTED', 0, '${sqlDateTime(new Date())}', NULL, 
-    0, 0, ${jobProps.tpm}, ${jobProps.duration_sec}, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL)
+('${jobId}', 
+'${jobProps.vchain}', 
+NULL, 
+'NOT_STARTED', 
+0, 
+'${sqlDateTime(new Date())}', 
+NULL, 
+${jobProps.duration_sec}, ${jobProps.tpm}, 
+0, 0, NULL, NULL, NULL, NULL, NULL)
 `;
         const res = await connection.execute(stmt);
         info(`[SQL] Returned from insert job. JobId=${jobId}. Res=${JSON.stringify(res)}`);
@@ -95,6 +101,8 @@ VALUES ('${sqlDateTime(event.event_start)}', '${sqlDateTime(event.event_end)}', 
 
 async function updateJobInDb(jobUpdate) {
 
+    jobUpdate.summary = jobUpdate.summary || {};
+
     let stmt;
     try {
         const connection = await getConnection();
@@ -104,19 +112,14 @@ SET
     status = '${jobUpdate.job_status}',
     error = '${jobUpdate.error}',
     running = ${jobUpdate.running ? 1 : 0},
-    total_tx_count = ${jobUpdate.summary.total_tx_count},
-    err_tx_count = ${jobUpdate.summary.err_tx_count},
-    tx_per_minute = ${jobUpdate.tpm || 0.0},
     expected_duration_sec = ${jobUpdate.duration_sec || 0},
-    tx_response_stddev = ${jobUpdate.summary.stddev_service_time_ms || 0},
-    tx_response_max = ${jobUpdate.summary.max_service_time_ms || 0},
-    tx_response_p99 = ${jobUpdate.summary.p99_service_time_ms || 0},
-    tx_response_p95 = ${jobUpdate.summary.p95_service_time_ms || 0},
-    tx_response_p90 = ${jobUpdate.summary.p90_service_time_ms || 0},
-    tx_response_median = ${jobUpdate.summary.median_service_time_ms || 0},
-    tx_response_avg = ${jobUpdate.summary.avg_service_time_ms || 0},
-    semantic_version = '${jobUpdate.summary.semantic_version}',
-    commit_hash = '${jobUpdate.summary.commit_hash}'
+    tx_per_minute = ${jobUpdate.tpm || 0.0},
+    total_tx_count = ${jobUpdate.summary.total_tx_count || -1},
+    err_tx_count = ${jobUpdate.summary.err_tx_count || -1},
+    semantic_version = '${jobUpdate.summary.semantic_version || 'NA'}',
+    commit_hash = '${jobUpdate.summary.commit_hash || 'NA'}',
+    error = NULL,
+    results = '${JSON.stringify(jobUpdate.summary)}'
 WHERE
     name = '${jobUpdate.job_id}';
 `;
@@ -155,8 +158,9 @@ async function listJobsFromDb() {
 SELECT * FROM jobs;
 `;
         const res = await connection.execute(stmt);
-        info(`[SQL] Returned from list jobs. Res=${JSON.stringify(res)}`);
-        return res;
+        const jobsList = res[0]||[];
+        info(`[SQL] Returned from list jobs. Found ${jobsList.length} jobs`);
+        return jobsList;
     } catch (ex) {
         info(`[SQL] Error (listJobsFromDb): ${ex}`);
         return null;
