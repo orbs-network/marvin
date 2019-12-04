@@ -3,7 +3,7 @@
 const mysql = require('mysql2/promise');
 const moment = require('moment');
 const {state} = require('../src/orch-state');
-const {generateJobId, info, isoToDate} = require('./util');
+const {generateJobId, info, debug} = require('./util');
 
 async function getConnection() {
 
@@ -106,10 +106,12 @@ async function updateJobInDb(jobUpdate) {
     let stmt;
     try {
         const connection = await getConnection();
+        const jobEndLine = jobUpdate.end_time ? `job_end = '${sqlDateTime(jobUpdate.end_time)}',` : '';
         stmt = `
 UPDATE jobs
 SET
     status = '${jobUpdate.job_status}',
+    ${jobEndLine}
     error = '${jobUpdate.error}',
     running = ${jobUpdate.running ? 1 : 0},
     expected_duration_sec = ${jobUpdate.duration_sec || 0},
@@ -124,7 +126,7 @@ WHERE
     name = '${jobUpdate.job_id}';
 `;
         const res = await connection.execute(stmt);
-        info(`[SQL] Returned from update job. Res=${JSON.stringify(res)}`);
+        debug(`[SQL] Returned from update job. Res=${JSON.stringify(res)}. Stmt=${stmt}`);
     } catch (ex) {
         info(`[SQL] Error (updateJobInDb): ${ex}. Stmt=${stmt}`);
         throw ex;
@@ -158,7 +160,7 @@ async function listJobsFromDb() {
 SELECT * FROM jobs;
 `;
         const res = await connection.execute(stmt);
-        const jobsList = res[0]||[];
+        const jobsList = res[0] || [];
         info(`[SQL] Returned from list jobs. Found ${jobsList.length} jobs`);
         return jobsList;
     } catch (ex) {
