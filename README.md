@@ -120,6 +120,7 @@ It is all part of a docker-compose, so it can be run locally as follows:
 
 `cd docker && docker-compose up -d`
 
+It will take 10-20 seconds for the MySQL server to open for connections.
 You can then run the Orchestrator locally, and interact with it using REST API calls 
 (using Postman, for example).
 
