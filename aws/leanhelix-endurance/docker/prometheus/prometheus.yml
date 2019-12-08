@@ -41,8 +41,16 @@ scrape_configs:
         regex: Processor.Native.*
         action: drop
       - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'KEEP_PublicApi.TotalTransactionsFromClients.Count'
+      - source_labels: ['__name__']
         regex: PublicApi.*
         action: drop
+      - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: KEEP_PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'PublicApi.TotalTransactionsFromClients.Count'
   - job_name: node2_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
@@ -71,8 +79,16 @@ scrape_configs:
         regex: Processor.Native.*
         action: drop
       - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'KEEP_PublicApi.TotalTransactionsFromClients.Count'
+      - source_labels: ['__name__']
         regex: PublicApi.*
         action: drop
+      - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: KEEP_PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'PublicApi.TotalTransactionsFromClients.Count'
   - job_name: node3_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
@@ -101,8 +117,16 @@ scrape_configs:
         regex: Processor.Native.*
         action: drop
       - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'KEEP_PublicApi.TotalTransactionsFromClients.Count'
+      - source_labels: ['__name__']
         regex: PublicApi.*
         action: drop
+      - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: KEEP_PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'PublicApi.TotalTransactionsFromClients.Count'
   - job_name: node4_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
@@ -131,8 +155,16 @@ scrape_configs:
         regex: Processor.Native.*
         action: drop
       - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'KEEP_PublicApi.TotalTransactionsFromClients.Count'
+      - source_labels: ['__name__']
         regex: PublicApi.*
         action: drop
+      - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: KEEP_PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'PublicApi.TotalTransactionsFromClients.Count'
   - job_name: node5_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
@@ -161,8 +193,16 @@ scrape_configs:
         regex: Processor.Native.*
         action: drop
       - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'KEEP_PublicApi.TotalTransactionsFromClients.Count'
+      - source_labels: ['__name__']
         regex: PublicApi.*
         action: drop
+      - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: KEEP_PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'PublicApi.TotalTransactionsFromClients.Count'
   - job_name: node1_3016
     metrics_path: "/vchains/3016/metrics.prometheus"
     scheme: http
@@ -191,8 +231,16 @@ scrape_configs:
         regex: Processor.Native.*
         action: drop
       - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'KEEP_PublicApi.TotalTransactionsFromClients.Count'
+      - source_labels: ['__name__']
         regex: PublicApi.*
         action: drop
+      - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: KEEP_PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'PublicApi.TotalTransactionsFromClients.Count'
   - job_name: node2_3016
     metrics_path: "/vchains/3016/metrics.prometheus"
     scheme: http
@@ -221,8 +269,16 @@ scrape_configs:
         regex: Processor.Native.*
         action: drop
       - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'KEEP_PublicApi.TotalTransactionsFromClients.Count'
+      - source_labels: ['__name__']
         regex: PublicApi.*
         action: drop
+      - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: KEEP_PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'PublicApi.TotalTransactionsFromClients.Count'
   - job_name: node3_3016
     metrics_path: "/vchains/3016/metrics.prometheus"
     scheme: http
@@ -251,8 +307,16 @@ scrape_configs:
         regex: Processor.Native.*
         action: drop
       - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'KEEP_PublicApi.TotalTransactionsFromClients.Count'
+      - source_labels: ['__name__']
         regex: PublicApi.*
         action: drop
+      - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: KEEP_PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'PublicApi.TotalTransactionsFromClients.Count'
   - job_name: node4_3016
     metrics_path: "/vchains/3016/metrics.prometheus"
     scheme: http
@@ -281,8 +345,16 @@ scrape_configs:
         regex: Processor.Native.*
         action: drop
       - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'KEEP_PublicApi.TotalTransactionsFromClients.Count'
+      - source_labels: ['__name__']
         regex: PublicApi.*
         action: drop
+      - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: KEEP_PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'PublicApi.TotalTransactionsFromClients.Count'
   - job_name: node5_3016
     metrics_path: "/vchains/3016/metrics.prometheus"
     scheme: http
@@ -311,5 +383,13 @@ scrape_configs:
         regex: Processor.Native.*
         action: drop
       - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'KEEP_PublicApi.TotalTransactionsFromClients.Count'
+      - source_labels: ['__name__']
         regex: PublicApi.*
         action: drop
+      - source_labels: ['__name__']
+        target_label: '__name__'
+        regex: KEEP_PublicApi.TotalTransactionsFromClients.Count
+        replacement: 'PublicApi.TotalTransactionsFromClients.Count'
