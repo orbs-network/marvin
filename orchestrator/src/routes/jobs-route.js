@@ -57,7 +57,7 @@ router.post('/start', async (req, res, next) => {
 });
 
 /* GET users listing. */
-router.get('/list', async (req, res, next) => {
+router.get('/history', async (req, res, next) => {
 
     try {
         const list = await listJobsFromDb();
@@ -67,13 +67,22 @@ router.get('/list', async (req, res, next) => {
     }
 });
 
+router.get('/status', async (req, res, next) => {
+
+    try {
+        res.json(state.jobs || {});
+    } catch (ex) {
+        res.status(500).send(ex);
+    }
+});
 
 router.get('/:id/status', (req, res, next) => {
-    res.json({
-        job_id: req.params.id,
-        status: 'RUNNING',
-        pct_done: 86,
-    });
+    state.jobs = state.jobs || {};
+    try {
+        res.json(state.jobs[req.params.id] || {});
+    } catch (ex) {
+        res.status(500).send(ex);
+    }
 });
 
 router.post('/:id/update', async (req, res, next) => {
@@ -89,6 +98,7 @@ router.post('/:id/update', async (req, res, next) => {
     switch (jobUpdate.job_status) {
         case 'RUNNING':
             jobUpdate.running = true;
+            state.jobs[`${jobUpdate.job_id}`] = jobUpdate;
             await updateJobInDb(jobUpdate).catch(appendErr);
             await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
             msg = _.assign({}, jobUpdate, { summary: state.summary });
@@ -98,6 +108,7 @@ router.post('/:id/update', async (req, res, next) => {
 
         case 'DONE':
             jobUpdate.running = false;
+            state.jobs[`${jobUpdate.job_id}`] = jobUpdate;
             shutdownExecutor(jobUpdate);
             await updateJobInDb(jobUpdate).catch(appendErr);
             await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
@@ -114,6 +125,7 @@ router.post('/:id/update', async (req, res, next) => {
         case 'ERROR':
             info(`Received ERROR, shutting down executor`);
             jobUpdate.running = false;
+            state.jobs[`${jobUpdate.job_id}`] = jobUpdate;
             shutdownExecutor();
             await updateJobInDb(jobUpdate).catch(appendErr);
             msg = _.assign({}, jobUpdate, { summary: state.summary });

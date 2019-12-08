@@ -25,7 +25,7 @@ async function sendJob(jobProps) {
     jobProps.executor_port = jobExecutorPort;
     const jobExecutor = spawn('node', ['executor.js', `${jobExecutorPort}`], {cwd});
     state.live_jobs++;
-    state.jobs[`${jobExecutor.pid}`] = {
+    state.jobs[`${jobProps.job_id}`] = {
         timestamp: new Date().toISOString(),
     };
     // debug(`State after starting job: ${JSON.stringify(state)}`);

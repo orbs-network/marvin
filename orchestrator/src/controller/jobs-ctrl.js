@@ -95,10 +95,6 @@ function toUtcISO(time) {
 }
 
 
-function updateStateWithPrometheusResults(job, state, raw) {
-
-}
-
 function jobToEvent(job) {
     const newEvent = {
         // event_start: moment.utc(job.job_start).unix(),
