@@ -2,9 +2,10 @@
 
 const express = require('express');
 const router = express.Router();
+const _ = require('lodash');
 // const {listJobsFromDb, } = require('../mysql-knex');
 const {insertJobToDb, updateJobInDb, insertEventToDb, listJobsFromDb} = require('../mysql2');
-const {debug, info} = require('../util');
+const {debug, info, logJson} = require('../util');
 const {sendJob, shutdownExecutor} = require('../job-runner');
 const {validateJobStart, updateStateFromPrometheus, jobToEvent} = require('../controller/jobs-ctrl');
 const {notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError} = require('../slack');
@@ -29,6 +30,7 @@ router.post('/start', async (req, res, next) => {
     info(`RECEIVED /jobs/start props=${JSON.stringify(jobProps)}`);
     const err = validateJobStart(jobProps);
     if (err) {
+        logJson(jobProps);
         notifySlack(createSlackMessageJobError(jobProps));
         res.status(400).send(jobProps);
     } else {
@@ -83,11 +85,14 @@ router.post('/:id/update', async (req, res, next) => {
         jobUpdate.error += ` ${ex}`;
     };
 
+    let msg;
     switch (jobUpdate.job_status) {
         case 'RUNNING':
             jobUpdate.running = true;
             await updateJobInDb(jobUpdate).catch(appendErr);
             await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
+            msg = _.assign({}, jobUpdate, { summary: state.summary });
+            logJson(msg);
             notifySlack(createSlackMessageJobRunning(jobUpdate, state));
             break;
 
@@ -101,6 +106,8 @@ router.post('/:id/update', async (req, res, next) => {
             const event = jobToEvent(jobUpdate);
             info(`Will insert event: ${JSON.stringify(event)}`);
             await insertEventToDb(event).catch(appendErr);
+            msg = _.assign({}, jobUpdate, { summary: state.summary });
+            logJson(msg);
             notifySlack(await createSlackMessageJobDone(jobUpdate, state));
             break;
 
@@ -109,6 +116,8 @@ router.post('/:id/update', async (req, res, next) => {
             jobUpdate.running = false;
             shutdownExecutor();
             await updateJobInDb(jobUpdate).catch(appendErr);
+            msg = _.assign({}, jobUpdate, { summary: state.summary });
+            logJson(msg);
             notifySlack(createSlackMessageJobError(jobUpdate, state));
     }
 

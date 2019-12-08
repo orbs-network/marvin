@@ -29,6 +29,10 @@ function info(s) {
     }
 }
 
+function logJson(json) {
+    console.log(JSON.stringify(json));
+}
+
 function generateJobId() {
     const dateStr = moment.utc().format('YYYYMMDD_HHmmss');
     const randomSuffix = zeroPad(Math.floor(Math.random() * 100), 3);
@@ -48,6 +52,7 @@ module.exports = {
     debug: debug,
     init: init,
     info: info,
+    logJson: logJson,
     generateJobId: generateJobId,
     isoToDate: isoToDate,
 };

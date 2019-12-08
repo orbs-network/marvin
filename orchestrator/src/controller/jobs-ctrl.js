@@ -27,6 +27,11 @@ function validateJobStart(jobUpdate) {
         return jobUpdate;
     }
 
+    if (jobUpdate.target_ips.length < 1) {
+        jobUpdate.error = "target_ips property does not contain any IPs";
+        return jobUpdate;
+    }
+
     // Limit to 300 tpm (5 tps) because of client limitations.
     // Once launching more than one client, can remove this limitation.
     // if (jobUpdate.tpm < 1 || jobUpdate.tpm > 300) {
