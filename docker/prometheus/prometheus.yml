@@ -2,6 +2,29 @@ global:
   scrape_interval: 5s
   scrape_timeout: 5s
   evaluation_interval: 5s
+  metric_relabel_configs:
+    - source_labels: ['__name__']
+      regex: BlockSync.*
+      action: drop
+    - source_labels: ['__name__']
+      regex: ConsensusAlgo.Benchmark.*
+      action: drop
+    - source_labels: ['__name__']
+      regex: Ethereum.TimestampBlockFinder.*
+      action: drop
+    - source_labels: ['__name__']
+      regex: Gossip.OutgoingConnection.Queue.Usage.*
+      action: drop
+    - source_labels: ['__name__']
+      regex: Gossip.Topic.BenchmarkConsensus.*
+      action: drop
+    - source_labels: ['__name__']
+      regex: Processor.Native.*
+      action: drop
+    - source_labels: ['__name__']
+      regex: PublicApi.*
+      action: drop
+
 alerting:
   alertmanagers:
     - static_configs:
