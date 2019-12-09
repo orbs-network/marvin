@@ -4,47 +4,53 @@ const moment = require('moment');
 const _ = require('lodash');
 const {readPrometheus} = require('../prometheus');
 const {debug, info} = require('../util');
+const {profiles} = require('../orchestrator-config');
 
-function validateJobStart(jobUpdate) {
-    if (!jobUpdate) {
+function processJobProps(job) {
+    if (!job) {
         return {
-            error: 'Missing jobUpdate body'
+            error: 'Missing job body'
         };
     }
 
-    if (!jobUpdate.tpm) {
-        jobUpdate.error = "Missing or zero tpm property";
-        return jobUpdate;
+    // Profile overrides tpm and duration_sec
+    if (job.profile) {
+        if (!profiles[job.profile]) {
+            return {
+                error: `Job profile ${job.profile} not found in config`
+            };
+        }
+        job.tpm = profiles[job.profile].tpm;
+        job.duration_sec = profiles[job.profile].duration_sec;
     }
 
-    if (!jobUpdate.vchain) {
-        jobUpdate.error = "Missing vchain property";
-        return jobUpdate;
+    if (!job.tpm) {
+        job.error = "Missing or zero tpm property (perhaps missing 'profile' property)";
+        return job;
     }
 
-    if (!jobUpdate.target_ips) {
-        jobUpdate.error = "Missing target_ips property";
-        return jobUpdate;
+    if (!job.duration_sec) {
+        job.error = "Missing or zero duration_sec property (perhaps missing 'profile' property)";
+        return job;
     }
 
-    if (jobUpdate.target_ips.length < 1) {
-        jobUpdate.error = "target_ips property does not contain any IPs";
-        return jobUpdate;
+    if (!job.vchain) {
+        job.error = "Missing vchain property";
+        return job;
     }
 
-    // Limit to 300 tpm (5 tps) because of client limitations.
-    // Once launching more than one client, can remove this limitation.
-    // if (jobUpdate.tpm < 1 || jobUpdate.tpm > 300) {
-    //     jobUpdate.error = "Supported tpm values are between 1 to 300";
-    //     return jobUpdate;
-    // }
-
-    if (!jobUpdate.duration_sec) {
-        jobUpdate.error = "Missing or zero duration_sec property";
-        return jobUpdate;
+    if (!job.target_ips) {
+        job.error = "Missing target_ips property";
+        return job;
     }
 
-    jobUpdate.vchain = jobUpdate.vchain || '2013'; // default testnet vchain as of Nov 2019
+    if (job.target_ips.length < 1) {
+        job.error = "target_ips property does not contain any IPs";
+        return job;
+    }
+
+
+    job.vchain = job.vchain || '2013'; // default testnet vchain as of Nov 2019
 
     return null;
 }
@@ -113,7 +119,7 @@ function jobToEvent(job) {
 }
 
 module.exports = {
-    validateJobStart: validateJobStart,
+    processJobProps: processJobProps,
     updateStateFromPrometheus: updateStateFromPrometheus,
     jobToEvent: jobToEvent,
 };

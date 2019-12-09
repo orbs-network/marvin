@@ -7,7 +7,7 @@ const _ = require('lodash');
 const {insertJobToDb, updateJobInDb, insertEventToDb, listJobsFromDb} = require('../mysql2');
 const {debug, info, logJson} = require('../util');
 const {sendJob, shutdownExecutor} = require('../job-runner');
-const {validateJobStart, updateStateFromPrometheus, jobToEvent} = require('../controller/jobs-ctrl');
+const {processJobProps, updateStateFromPrometheus, jobToEvent} = require('../controller/jobs-ctrl');
 const {notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError} = require('../slack');
 const {state} = require('../orch-state');
 
@@ -28,31 +28,34 @@ router.post('/start', async (req, res, next) => {
     // TODO Create job entry entry in MySQL and get an ID from an incrementing sequence
 
     info(`RECEIVED /jobs/start props=${JSON.stringify(jobProps)}`);
-    const err = validateJobStart(jobProps);
+    const err = processJobProps(jobProps);
     if (err) {
+        jobProps.error = err;
         logJson(jobProps);
         notifySlack(createSlackMessageJobError(jobProps));
         res.status(400).send(jobProps);
-    } else {
-        try {
-            debug(`Calling insertJobToDb`);
-            jobProps.job_id = await insertJobToDb(jobProps);
-            debug(`Inserted job to DB, id=${jobProps.job_id}`);
-            const sendJobResponse = await sendJob(jobProps);
+        return;
+    }
+    try {
+        debug(`Calling insertJobToDb`);
+        jobProps.job_id = await insertJobToDb(jobProps);
+        debug(`Inserted job to DB, id=${jobProps.job_id}`);
+        const sendJobResponse = await sendJob(jobProps);
 
-            if (sendJobResponse.status === 'ERROR') {
-                const err = `Error in job executor: ${sendJobResponse.error}`;
-                jobProps.job_status = 'ERROR';
-                jobProps.error = err;
-                await updateJobInDb(jobProps);
-                res.status(500).send(err);
-            } else {
-                res.send(sendJobResponse);
-            }
-        } catch (ex) {
-            info(`Exception in /start: ${ex}`);
-            res.status(500).json(ex);
+        if (sendJobResponse.status === 'ERROR') {
+            const err = `Error in job executor: ${sendJobResponse.error}`;
+            jobProps.job_status = 'ERROR';
+            jobProps.error = err;
+            await updateJobInDb(jobProps);
+            res.status(500).send(err);
+            return;
         }
+
+        res.send(sendJobResponse);
+
+    } catch (ex) {
+        info(`Exception in /start: ${ex}`);
+        res.status(500).json(ex);
     }
 });
 
@@ -101,7 +104,7 @@ router.post('/:id/update', async (req, res, next) => {
             state.jobs[`${jobUpdate.job_id}`] = jobUpdate;
             await updateJobInDb(jobUpdate).catch(appendErr);
             await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
-            msg = _.assign({}, jobUpdate, { summary: state.summary });
+            msg = _.assign({}, jobUpdate, {summary: state.summary});
             logJson(msg);
             notifySlack(createSlackMessageJobRunning(jobUpdate, state));
             break;
@@ -117,7 +120,7 @@ router.post('/:id/update', async (req, res, next) => {
             const event = jobToEvent(jobUpdate);
             info(`Will insert event: ${JSON.stringify(event)}`);
             await insertEventToDb(event).catch(appendErr);
-            msg = _.assign({}, jobUpdate, { summary: state.summary });
+            msg = _.assign({}, jobUpdate, {summary: state.summary});
             logJson(msg);
             notifySlack(await createSlackMessageJobDone(jobUpdate, state));
             break;
@@ -128,7 +131,7 @@ router.post('/:id/update', async (req, res, next) => {
             state.jobs[`${jobUpdate.job_id}`] = jobUpdate;
             shutdownExecutor();
             await updateJobInDb(jobUpdate).catch(appendErr);
-            msg = _.assign({}, jobUpdate, { summary: state.summary });
+            msg = _.assign({}, jobUpdate, {summary: state.summary});
             logJson(msg);
             notifySlack(createSlackMessageJobError(jobUpdate, state));
     }
