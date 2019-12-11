@@ -15,12 +15,12 @@ router.post('/start', (req, res, next) => {
     }
 
     const jobProps = req.body;
-    if (!jobProps || !jobProps.job_id || !jobProps.vchain || (jobProps.target_ips||[]).length===0 || !jobProps.tpm || !jobProps.duration_sec) {
+    if (!jobProps || !jobProps.jobId || !jobProps.vchain || (jobProps.target_ips||[]).length===0 || !jobProps.tpm || !jobProps.duration_sec) {
         res.send(
             {
                 timestamp: new Date().toISOString(),
                 status: 'ERROR',
-                message: 'Missing at least one of job_id, vchain, target_ips, tpm, duration_sec',
+                message: 'Missing at least one of jobId, vchain, target_ips, tpm, duration_sec',
             }
         );
         return;
@@ -30,13 +30,13 @@ router.post('/start', (req, res, next) => {
         {
             timestamp: new Date().toISOString(),
             status: 'STARTING',
-            job_id: jobProps.job_id,
+            jobId: jobProps.jobId,
             duration_sec: jobProps.duration_sec,
             tpm: jobProps.tpm,
         }
     );
     state.job_status = 'STARTING';
-    state.job_id = jobProps.job_id; // This assumes a single job
+    state.jobId = jobProps.jobId; // This assumes a single job
     state.vchain = jobProps.vchain; // This assumes a single job
     state.target_ips = jobProps.target_ips;
     state.client_timeout_sec = jobProps.client_timeout_sec || 10;
@@ -59,7 +59,7 @@ router.get('/status', (req, res, next) => {
 
     res.json({
         timestamp: new Date().toISOString(),
-        job_id: state.job_id,
+        jobId: state.jobId,
         status: state.job_status,
         pct_done: state.pct_done
     }).end();

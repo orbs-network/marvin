@@ -1,6 +1,6 @@
 module.exports = {
     state: {
-        job_id: '0',
+        jobId: '0',
         port: 0,
         pid: process.pid,
         vchain: '',

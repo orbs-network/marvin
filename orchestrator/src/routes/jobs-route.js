@@ -3,10 +3,6 @@
 const express = require('express');
 const router = express.Router();
 const { info } = require('../util');
-const { sendJob, shutdownExecutor } = require('../job-runner');
-const { validateJobStart, updateStateFromPrometheus } = require('../controller/jobs-ctrl');
-const { notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError } = require('../slack');
-const { state } = require('../orch-state');
 
 const availableProfiles = require('./../profiles');
 const { JobsService } = require('./../services/jobs');
@@ -52,6 +48,7 @@ router.post('/start/:profile', async (req, res) => {
 
         res.json(result).end();
     } catch (err) {
+        console.log(err);
         res.status(500).json(err).end();
     }
 
@@ -101,44 +98,6 @@ router.post('/:id/update', async (req, res) => {
         console.log(err);
         res.status(500).json(err).end();
     }
-
-    return;
-
-    const appendErr = (ex) => {
-        jobUpdate.error = jobUpdate.error || '';
-        jobUpdate.error += ` ${ex}`;
-    };
-
-    switch (jobUpdate.job_status) {
-        case 'RUNNING':
-            jobUpdate.running = true;
-            await updateJobInDb(jobUpdate).catch(appendErr);
-            await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
-            notifySlack(createSlackMessageJobRunning(jobUpdate, state));
-            break;
-
-        case 'DONE':
-            jobUpdate.running = false;
-            shutdownExecutor(jobUpdate);
-            await updateJobInDb(jobUpdate).catch(appendErr);
-            await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
-            notifySlack(await createSlackMessageJobDone(jobUpdate, state));
-            break;
-
-        case 'ERROR':
-            info(`Received ERROR, shutting down executor`);
-            jobUpdate.running = false;
-            shutdownExecutor();
-            await updateJobInDb(jobUpdate).catch(appendErr);
-            notifySlack(createSlackMessageJobError(jobUpdate, state));
-    }
-
-    res.json({
-        job_id: req.params.id,
-        error: jobUpdate.error,
-        status: jobUpdate.job_status,
-        runtime: jobUpdate.runtime
-    });
 });
 
 

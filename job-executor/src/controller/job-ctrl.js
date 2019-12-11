@@ -1,8 +1,8 @@
 'use strict';
 
 const rp = require('request-promise-native');
-const {startClientContainers} = require('../client-runner');
-const {info, sleep} = require('../util');
+const { startClientContainers } = require('../client-runner');
+const { info, sleep } = require('../util');
 
 async function startJob(state) {
     return runJobAndWaitForCompletion(state);
@@ -93,15 +93,14 @@ async function waitForAllClientsCompletion(state, pollingIntervalMs) {
     }
 }
 
-
 async function updateParentWithJob(currentState) {
     // HTTP POST to orchestrator with URL /jobs/:id/stop and BODY=result
-    const uri = `http://${currentState.parent_base_url}/jobs/${currentState.job_id}/update`;
+    const uri = `http://${currentState.parent_base_url}/jobs/${currentState.jobId}/update`;
     const body = {
-        job_id: currentState.job_id,
+        jobId: currentState.jobId,
         executor_port: currentState.port,
         executor_pid: currentState.pid,
-        job_status: currentState.job_status,
+        status: currentState.job_status,
         vchain: currentState.vchain,
         live_clients: currentState.live_clients,
         runtime: currentState.job_runtime_millis,

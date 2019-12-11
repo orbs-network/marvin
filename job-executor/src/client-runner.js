@@ -11,7 +11,7 @@ async function startClientContainers(step, state) {
     const clients = [];
     for (let i = 0; i < step.instances; i++) {
         clients.push({
-            id: `${state.job_id}_${state.instance_counter++}`,
+            id: `${state.jobId}_${state.instance_counter++}`,
         });
     }
 

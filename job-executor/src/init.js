@@ -47,7 +47,7 @@ async function bootstrap(props, state) {
     state.port = port;
     state.parent_base_url = `${parentHost}:${parentPort}`;
     // state.client_config = props.client_config; // Given in /job/start
-    // state.job_id = props.job_id;
+    // state.jobId = props.jobId;
     hdrSetup();
     await app.server.listen(port);
     info(`Listening on port ${port}`);

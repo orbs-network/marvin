@@ -1,5 +1,7 @@
-const { info } = require('../../src/util');
-const { sendJob, shutdownExecutor } = require('../../src/job-runner');
+const { info } = require('../util');
+const { sendJob, shutdownExecutor } = require('../job-runner');
+const { notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError } = require('../slack');
+const { state } = require('../orch-state');
 
 const transferFrenzy = {
     meta: {
@@ -9,49 +11,82 @@ const transferFrenzy = {
         let errors = [], ok = true;
 
         if (!data) {
-            errors.push(new Error('Missing JSON body'));
+            errors.push('Missing JSON body');
         }
 
         if (!data.tpm) {
-            errors.push(new Error("Missing or zero tpm property"));
+            errors.push("Missing or zero tpm property");
         }
 
         if (!data.vchain) {
-            errors.push(new Error("Missing vchain property"));
+            errors.push("Missing vchain property");
         }
 
         if (!data.target_ips) {
-            errors.push(new Error("Missing target_ips property"));
+            errors.push("Missing target_ips property");
         }
 
         if (!data.duration_sec) {
-            errors.push(new Error("Missing or zero duration_sec property"));
+            errors.push("Missing or zero duration_sec property");
         }
 
         if (errors.length > 0) {
             ok = false;
         }
 
-        return { ok, errors, status: 400 };
+        return { ok, errors };
     },
     async start(data, jobId) {
+        const response = Object.assign({}, data);
+
         const validationResult = this.validate(data);
         if (!validationResult.ok) {
-            return validationResult;
+            throw validationResult;
         }
 
         info(`SENDING JOB TO EXECUTOR [ID=${jobId} VCHAIN=${data.vchain}]: ${JSON.stringify(data)}`);
-        const sendJobResponse = await sendJob(data);
+
+        const sendJobResponse = await sendJob(Object.assign({}, data, { jobId }));
 
         if (sendJobResponse.status === 'ERROR') {
             const err = `Error in job executor: ${sendJobResponse.error}`;
-            jobProps.job_status = 'ERROR';
-            jobProps.error = err;
-            //await updateJobInDb(jobProps);
-            res.send(err).status(500);
+            response.status = 'ERROR';
+            response.error = err;
         } else {
-            res.send(sendJobResponse);
+            response.executor = sendJobResponse;
+            response.status = 'RUNNING';
         }
+
+        return response;
+    },
+    async update(data) {
+        // const appendErr = (ex) => {
+        //     jobUpdate.error = jobUpdate.error || '';
+        //     jobUpdate.error += ` ${ex}`;
+        // };
+
+        switch (data.status) {
+            case 'RUNNING':
+                //await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
+                notifySlack(createSlackMessageJobRunning(data, state));
+                break;
+
+            case 'DONE':
+                shutdownExecutor(data);
+
+                //await updateStateFromPrometheus(data, state).catch(appendErr);
+                notifySlack(await createSlackMessageJobDone(data, state));
+                break;
+
+            case 'ERROR':
+                info(`Received ERROR, shutting down executor`);
+                shutdownExecutor();
+                notifySlack(createSlackMessageJobError(data, state));
+        }
+
+        return {
+            ok: true
+        };
     }
 };
 

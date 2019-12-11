@@ -39,15 +39,13 @@ async function sendJob(jobProps) {
     await new Promise((resolve) => {
         setTimeout(resolve, 1000);
     });
-    sendJobStartToExecutor(jobProps);
+
+    await sendJobStartToExecutor(jobProps);
 
     info(`JobExecutor with pid ${jobExecutor.pid} started on port ${jobExecutorPort}.`);
 
-    // TODO Call executor with /job/start
-
     return {
         status: 'PENDING',
-        job_id: jobProps.job_id,
         executor_port: jobExecutorPort,
         executor_pid: jobExecutor.pid,
         props: jobProps,
@@ -55,7 +53,6 @@ async function sendJob(jobProps) {
 }
 
 function sendJobStartToExecutor(jobProps) {
-
     const uri = `http://${config.executor_host}:${jobProps.executor_port}/job/start`;
 
     const options = {

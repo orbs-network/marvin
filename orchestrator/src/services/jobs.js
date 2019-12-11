@@ -21,7 +21,6 @@ class JobsService {
         const profiles = this.getProfiles();
         
         if (name in profiles) {
-            console.log('returning profile', name, profiles[name]);
             return profiles[name];
         }
         return false;
@@ -38,14 +37,14 @@ class JobsService {
      */
     async start({ profile, meta = {} }) {
         const p = this.getProfileByName(profile);
-        if (p === false) {
+        if (!p) {
             return new Error(`Could not find a profile with name: '${profile}'`);
         }
 
         // Document the job start into our persistence layer
-        const { err, result: mongoResult, jobId } = await this.db.insertJob({ profile, meta });
+        const { err, jobId } = await this.db.insertJob({ profile, meta });
 
-        if (err !== null && err !== undefined) {
+        if (err) {
             return Promise.reject(err);
         }
 
@@ -59,7 +58,6 @@ class JobsService {
 
     async getProfileByJobId(jobId) {
         const result = await this.db.getJobById({ jobId });
-        console.log('job id returned the following', result);
         return this.getProfileByName(result.profile);
     }
 
