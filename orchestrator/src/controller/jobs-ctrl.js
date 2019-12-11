@@ -53,6 +53,5 @@ function updateStateWithPrometheusResults(job, state, raw) {
 }
 
 module.exports = {
-    validateJobStart: validateJobStart,
     updateStateFromPrometheus: updateStateFromPrometheus,
 };

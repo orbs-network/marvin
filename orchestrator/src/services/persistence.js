@@ -1,29 +1,31 @@
 const JOBS_COLLECTION_NAME = 'jobs';
 const { generateJobId, info } = require('./../util');
 const moment = require('moment');
+const { ObjectID } = require('mongodb');
 
 class PersistenceService {
     constructor({ connector = null }) {
         this.connector = connector;
     }
 
-    async insertJob({ taskId, meta }) {
+    async insertJob({ profile, meta }) {
         const db = await this.connector.getConnection();
         const collection = db.collection(JOBS_COLLECTION_NAME);
         const jobId = generateJobId();
 
         // tpm and duration sit within the meta data of the build
-        // the fact it's like that is because we have other kind of tasks which don't deal with tpm nor have a time constraint.
-        let result, err;
+        // the fact it's like that is because we have other kind of profiles which don't deal with tpm nor have a time constraint.
+        let result, err = null;
 
         try {
             result = await collection.insertOne({
                 jobId,
-                taskId,
+                profile,
                 status: 'NOT_STARTED',
                 job_start: moment().format(),
                 running: 0,
                 meta,
+                updates: [],
                 results: {
                     actual_tpm: 0,
                     actual_duration_sec: 0,
@@ -48,11 +50,48 @@ class PersistenceService {
         };
     }
 
-    async getActiveJobs({ taskId }) {
+    async updateJob({ jobId, data }) {
         const db = await this.connector.getConnection();
         const collection = db.collection(JOBS_COLLECTION_NAME);
 
-        const result = await collection.find({ taskId }).sort({}).toArray();
+        let result, err = null;
+
+        try {
+            const job = await this.getJobById({ jobId });
+            const { updates = [] } = job;
+            const newUpdates = updates.concat(data);
+
+            result = await collection.updateOne({ _id: new ObjectID(job._id) }, {
+                $set: {
+                    updates: newUpdates,
+                    status: data.status,
+                }
+            });
+        } catch (e) {
+            err = e;
+        };
+
+        return {
+            result,
+            err,
+            jobId,
+        };
+    }
+
+    async getJobById({ jobId }) {
+        const db = await this.connector.getConnection();
+        const collection = db.collection(JOBS_COLLECTION_NAME);
+
+        const result = await collection.find({ jobId }).sort({}).toArray();
+
+        return (result.length === 1) ? result[0] : {};
+    }
+
+    async getActiveJobs(query) {
+        const db = await this.connector.getConnection();
+        const collection = db.collection(JOBS_COLLECTION_NAME);
+
+        const result = await collection.find(query).sort({}).toArray();
 
         return { result };
     }

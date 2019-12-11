@@ -2,23 +2,22 @@
 
 const express = require('express');
 const router = express.Router();
-const { listJobsFromDb, insertJobToDb, updateJobInDb } = require('../mysql');
 const { info } = require('../util');
 const { sendJob, shutdownExecutor } = require('../job-runner');
 const { validateJobStart, updateStateFromPrometheus } = require('../controller/jobs-ctrl');
 const { notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError } = require('../slack');
 const { state } = require('../orch-state');
 
-const availableTasks = require('./../tasks');
+const availableProfiles = require('./../profiles');
 const { JobsService } = require('./../services/jobs');
 const { PersistenceService } = require('./../services/persistence');
 const connector = require('./../connection');
 
 const db = new PersistenceService({ connector });
-const s = new JobsService({ availableTasks, db });
+const s = new JobsService({ availableProfiles, db });
 
-router.get('/list/tasks', (_, res) => {
-    res.json(s.listAvailableTasks()).end();
+router.get('/list/profiles', (_, res) => {
+    res.json(s.listAvailableProfiles()).end();
 });
 
 /**
@@ -33,72 +32,77 @@ router.get('/list/tasks', (_, res) => {
     }
  * 
  */
-router.post('/start/:taskId', async (req, res, next) => {
+router.post('/start/:profile', async (req, res) => {
     const meta = req.body;
+    let result;
 
-    if (!req.params.taskId) {
-        res.status(400).send('Missing taskId in path (Example: /jobs/start/helloWorld)').end();
+    if (!req.params.profile) {
+        res
+            .status(400)
+            .send('Missing profile name in path (Example: /jobs/start/helloWorld)')
+            .end();
+        return;
     }
 
-    const err = validateJobStart(jobProps);
+    try {
+        result = await s.start({
+            profile: req.params.profile,
+            meta,
+        });
 
-    // Let's skip validations for now as we're re-wiring for mongodb
-    const result = await s.start({
-        taskId: req.params.taskId,
-        meta,
-    });
-
-    if (result.status) {
-        res.status(result.status);
+        res.json(result).end();
+    } catch (err) {
+        res.status(500).json(err).end();
     }
-
-    res.json(result).end();
 
     return;
-
-    // TODO Create job entry entry in MySQL and get an ID from an incrementing sequence
-
-
-    if (err) {
-        notifySlack(createSlackMessageJobError(jobProps));
-        res.send(jobProps).status(400);
-    } else {
-        try {
-            
-        } catch (ex) {
-            res.send(ex).status(500);
-        }
-    }
 });
 
-router.get('/list/active/:taskId', async (req, res) => {
-    const { taskId } = req.params;
-    const { result } = await db.getActiveJobs({ taskId });
+router.get('/list/active/:profile', async (req, res) => {
+    const { profile } = req.params;
+    const { result } = await db.getActiveJobs({ profile });
     res.json({ data: result }).end();
 });
 
-/* GET users listing */
-router.get('/list', async (req, res, next) => {
-    try {
-        const list = await listJobsFromDb();
-        res.json(list);
-    } catch (ex) {
-        res.send(ex).status(500);
+/* get all jobs from all profiles types and with all statuses */
+router.get('/list', async (_, res) => {
+    const { result } = await db.getActiveJobs({});
+    res.json({ data: result }).end();
+});
+
+router.get('/:id/status', async (req, res) => {
+    const result = await db.getJobById({ jobId: req.params.id });
+    res.json(result).end();
+});
+
+router.post('/:id/update', async (req, res) => {
+    const { id: jobId } = req.params;
+    const data = req.body;
+
+    if (!jobId) {
+        res
+            .status(400)
+            .send('Missing jobId in path (Example: /jobs/123/update)')
+            .end();
+        return;
     }
-});
 
+    info(`RECEIVED /jobs/${req.params.id}/update: status: ${data.status} ${JSON.stringify(data)}`);
+    let result;
 
-router.get('/:id/status', (req, res, next) => {
-    res.json({
-        job_id: req.params.id,
-        status: 'RUNNING',
-        pct_done: 86,
-    });
-});
+    try {
+        result = await s.update({
+            jobId,
+            data,
+        });
 
-router.post('/:id/update', async (req, res, next) => {
-    const jobUpdate = req.body;
-    info(`RECEIVED /jobs/${req.params.id}/update: status: ${jobUpdate.job_status} ${JSON.stringify(jobUpdate)}`);
+        res.json(result).end();
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err).end();
+    }
+
+    return;
 
     const appendErr = (ex) => {
         jobUpdate.error = jobUpdate.error || '';
@@ -135,8 +139,6 @@ router.post('/:id/update', async (req, res, next) => {
         status: jobUpdate.job_status,
         runtime: jobUpdate.runtime
     });
-
-    // TODO Update this in MySQL
 });
 
 

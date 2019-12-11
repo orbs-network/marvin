@@ -11,6 +11,7 @@
   "author": "Ido Zilberberg, Itamar Arjuan",
   "license": "ISC",
   "dependencies": {
+    "add": "^2.0.6",
     "body-parser": "^1.19.0",
     "child-process-promise": "^2.2.1",
     "express": "^4.17.1",
@@ -19,6 +20,7 @@
     "mongodb": "^3.3.4",
     "mysql2": "^1.7.0",
     "nock": "^11.7.0",
+    "node-fetch": "^2.6.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "ssh2": "^0.8.5"

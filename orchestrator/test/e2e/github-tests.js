@@ -20,6 +20,6 @@ describe('github common functions', () => {
     });
 
     it('should provide a correct mention username for slack for orbs core members', () => {
-        expect(getSlackUsernameForGithubUser('itamararjuan')).to.equal('Itamar');
+        expect(getSlackUsernameForGithubUser('itamararjuan')).to.equal('UC41FJ8LX');
     });
 });

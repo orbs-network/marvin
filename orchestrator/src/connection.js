@@ -44,7 +44,9 @@ const connector = {
         return connection;
     },
     close() {
-        return bareConnection.close();
+        if (bareConnection) {
+            return bareConnection.close();
+        }
     }
 };
 

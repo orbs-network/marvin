@@ -1,54 +1,97 @@
 class JobsService {
-    constructor({ availableTasks = {}, db = {} }) {
-        this.availableTasks = availableTasks;
+    constructor({ availableProfiles = {}, db = {} }) {
+        this.availableProfiles = availableProfiles;
         this.db = db;
     }
 
-    getTasks() {
-        return this.availableTasks;
+    getProfiles() {
+        return this.availableProfiles;
     }
 
-    listAvailableTasks() {
+    listAvailableProfiles() {
         const _this = this;
         return Object
-            .keys(this.availableTasks)
+            .keys(this.availableProfiles)
             .map(k => {
-                return Object.assign({ id: k }, _this.availableTasks[k].meta);
+                return Object.assign({ id: k }, _this.availableProfiles[k].meta);
             });
     }
 
-    getTaskById(id) {
-        const tasks = this.getTasks();
-        if (id in tasks) {
-            return tasks[id];
+    getProfileByName(name) {
+        const profiles = this.getProfiles();
+        
+        if (name in profiles) {
+            console.log('returning profile', name, profiles[name]);
+            return profiles[name];
         }
         return false;
     }
 
     /**
      * 
-     * @param taskId string
-     * The identifier by which we can fire the relevant task starting mechanism.
+     * @param profile string
+     * The identifier by which we can fire the relevant profile starting mechanism.
      * 
      * @param metadata object
      * 
      * The metadata can include stuff like: tpm, durationInSeconds, clientMaxTimeout, ip, etc..
      */
-    async start({ taskId, meta = {} }) {
-        const task = this.getTaskById(taskId);
-        if (task === false) {
-            return new Error(`Could not find a task with Id: '${taskId}'`);
+    async start({ profile, meta = {} }) {
+        const p = this.getProfileByName(profile);
+        if (p === false) {
+            return new Error(`Could not find a profile with name: '${profile}'`);
         }
 
         // Document the job start into our persistence layer
-        const { err, jobId } = this.db.insertJob({ taskId, meta });
+        const { err, result: mongoResult, jobId } = await this.db.insertJob({ profile, meta });
 
-        if (err !== null) {
+        if (err !== null && err !== undefined) {
             return Promise.reject(err);
         }
 
-        const result = await task.start(meta, jobId);
-        return result;
+        const result = await p.start(meta, jobId);
+
+        return {
+            jobId,
+            result,
+        };
+    }
+
+    async getProfileByJobId(jobId) {
+        const result = await this.db.getJobById({ jobId });
+        console.log('job id returned the following', result);
+        return this.getProfileByName(result.profile);
+    }
+
+    /**
+     * 
+     * @param jobId string
+     * The identifier by which we can fire the relevant profile update mechanism.
+     * 
+     * @param metadata object
+     * 
+     * The metadata can include stuff like: tpm, durationInSeconds, clientMaxTimeout, ip, etc..
+     */
+    async update({ jobId, data = {} }) {
+        console.log('inside update!', jobId);
+        const p = await this.getProfileByJobId(jobId);
+        if (!p) {
+            return new Error(`Could not find a profile from jobId: '${jobId}'`);
+        }
+
+        // Document the job update into our persistence layer
+        const { err } = await this.db.updateJob({ jobId, data });
+
+        if (err) {
+            return Promise.reject(err);
+        }
+
+        const result = await p.update(data, jobId);
+
+        return {
+            jobId,
+            result,
+        };
     }
 }
 
