@@ -2,29 +2,6 @@ global:
   scrape_interval: 5s
   scrape_timeout: 5s
   evaluation_interval: 5s
-  metric_relabel_configs:
-    - source_labels: ['__name__']
-      regex: BlockSync.*
-      action: drop
-    - source_labels: ['__name__']
-      regex: ConsensusAlgo.Benchmark.*
-      action: drop
-    - source_labels: ['__name__']
-      regex: Ethereum.TimestampBlockFinder.*
-      action: drop
-    - source_labels: ['__name__']
-      regex: Gossip.OutgoingConnection.Queue.Usage.*
-      action: drop
-    - source_labels: ['__name__']
-      regex: Gossip.Topic.BenchmarkConsensus.*
-      action: drop
-    - source_labels: ['__name__']
-      regex: Processor.Native.*
-      action: drop
-    - source_labels: ['__name__']
-      regex: PublicApi.*
-      action: drop
-
 alerting:
   alertmanagers:
     - static_configs:
@@ -36,6 +13,11 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: ["localhost:9090"]
+  - job_name: orbs-statsd-exporter
+    metrics_path: "/metrics"
+    scheme: http
+    static_configs:
+      - targets: ["statsd-exporter:9102"]
   - job_name: node1
     metrics_path: "/metrics.prometheus"
     scheme: http

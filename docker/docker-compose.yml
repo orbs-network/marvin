@@ -26,6 +26,18 @@ services:
     environment:
       MYSQL_DATABASE: marvin
       MYSQL_ROOT_PASSWORD: $MYSQL_PASSWORD
+  statsd-exporter:
+    image: prom/statsd-exporter
+    command: "--statsd.listen-udp=:8125 --web.listen-address=:9102"
+    ports:
+      - 9124:9102
+      - 8125:8125/udp
+    volumes:
+      - "./statsd-exporter/statsd_mapping.conf:/tmp/statsd_mapping.conf"
+    networks:
+      orbs:
+        ipv4_address: 192.168.199.55
+
   ganache:
     image: trufflesuite/ganache-cli
     command: ganache-cli --gasLimit 90000000000 --gasPrice 1 -a 10 -m "vanish junk genuine web seminar cook absurd royal ability series taste method identify elevator liquid"
