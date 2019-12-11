@@ -13,6 +13,11 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: ["localhost:9090"]
+  - job_name: orbs-statsd-exporter
+    metrics_path: "/metrics"
+    scheme: http
+    static_configs:
+      - targets: ["statsd-exporter:9102"]
   - job_name: node1
     metrics_path: "/metrics.prometheus"
     scheme: http

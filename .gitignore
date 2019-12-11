@@ -1,6 +1,6 @@
 docker/_logs
 docker/_tmp
 .idea
-docker/prometheus/prometheus-volume
+docker/prometheus/prometheus-volume-OLD
 docker/grafana/grafana-volume
 docker/mysql/mysql-volume
