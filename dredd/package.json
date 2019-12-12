@@ -1,0 +1,25 @@
+{
+  "name": "dredd",
+  "version": "0.0.1",
+  "description": "Judge if a test's results are either PASS or FAIL. Named after Judge Dredd.",
+  "main": "dredd.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/orbs-network/marvin/tree/master/dredd"
+  },
+  "keywords": [
+    "dredd"
+  ],
+  "author": "Ido Zilberberg",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2"
+  }
+}
