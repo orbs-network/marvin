@@ -1,8 +1,8 @@
 'use strict';
 
 const rp = require('request-promise-native');
-const {startClientContainers} = require('../client-runner');
-const {debug, info, sleep} = require('../util');
+const { startClientContainers } = require('../client-runner');
+const { info, sleep } = require('../util');
 
 async function startJob(state) {
     return runJobAndWaitForCompletion(state);
@@ -43,9 +43,7 @@ async function runJobAndWaitForCompletion(state) {
     state.start_time = new Date();
     await updateParentWithJob(state);
     const steps = calculateSteps(state);
-    info(`runJob() Started: setting job duration to ${state.duration_sec * 1000} ms.`);
-    debug(`STATE=${JSON.stringify(state)}`);
-
+    info(`runJob() Started: setting job duration to ${state.duration_sec * 1000} ms. State=${JSON.stringify(state)}`);
 
     let iteration = 0;
     while (!state.should_stop) {
@@ -60,6 +58,7 @@ async function runJobAndWaitForCompletion(state) {
 
         info(`[Iteration ${iteration}]: started ${totalClients} clients, now waiting for their completion`);
         await waitForAllClientsCompletion(state, 200);
+        info(`[Iteration ${iteration}]: clients completed.`);
         const now = new Date();
         if (now - state.start_time > state.duration_sec * 1000) {
             info(`[Iteration ${iteration}]: THIS WAS THE LAST ITERATION`);
@@ -77,32 +76,31 @@ async function runJobAndWaitForCompletion(state) {
     const endTime = new Date();
 
     await waitForAllClientsCompletion(state, 200);
-    debug(`All clients finished in ${endTime - state.start_time} ms`);
+    info(`--- All clients finished in ${endTime - state.start_time} ms`);
     state.job_status = 'DONE';
     state.job_runtime_millis = endTime - state.start_time;
     state.end_time = endTime;
+    info(`Summary: ${JSON.stringify(state.summary)}`);
     await updateParentWithJob(state);
-    info(`Final Summary: ${JSON.stringify(state.summary)}`);
-    info(`Job complete. Call /shutdown route to shutdown this executor.`);
+    info(`Sent update to orchestrator`);
     // await updateParentWithJob(state, aggregatedResults);
 }
 
 async function waitForAllClientsCompletion(state, pollingIntervalMs) {
     while (state.live_clients > 0) {
-        debug(`Sleeping because #live=${state.live_clients}`);
+        info(`Sleeping because #live=${state.live_clients}`);
         await sleep(pollingIntervalMs);
     }
 }
 
-
 async function updateParentWithJob(currentState) {
     // HTTP POST to orchestrator with URL /jobs/:id/stop and BODY=result
-    const uri = `http://${currentState.parent_base_url}/jobs/${currentState.job_id}/update`;
+    const uri = `http://${currentState.parent_base_url}/jobs/${currentState.jobId}/update`;
     const body = {
-        job_id: currentState.job_id,
+        jobId: currentState.jobId,
         executor_port: currentState.port,
         executor_pid: currentState.pid,
-        job_status: currentState.job_status,
+        status: currentState.job_status,
         vchain: currentState.vchain,
         live_clients: currentState.live_clients,
         runtime: currentState.job_runtime_millis,
@@ -118,18 +116,15 @@ async function updateParentWithJob(currentState) {
         body: body,
         json: true,
     };
-    debug(`HTTP POST to ${uri} with body: ${JSON.stringify(body)}`);
+    info(`HTTP POST to ${uri} with body: ${JSON.stringify(body)}`);
     return rp(options)
-        .then(res => {
-            debug(`Sent update to orchestrator`);
-        })
         .catch(err => {
             info(`Error sending to orchestrator, ignoring: ${err}`);
         });
 }
 
 function calculateSteps(state) {
-    debug(`calculateSteps(): tpm=${state.tpm}, duration_sec=${state.duration_sec}`);
+    info(`calculateSteps(): tpm=${state.tpm}, duration_sec=${state.duration_sec}`);
     return [{
         display_name: `${state.tpm} tpm`,
         tpm: state.tpm,

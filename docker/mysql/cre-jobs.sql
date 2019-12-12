@@ -23,8 +23,7 @@ CREATE TABLE `jobs`
     `commit_hash`           varchar(50)               DEFAULT NULL,
     `error`                 varchar(100)              DEFAULT NULL,
     `comment`               varchar(100)              DEFAULT NULL,
-    `results`               text,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 60
+  AUTO_INCREMENT = 1
   DEFAULT CHARSET = latin1;

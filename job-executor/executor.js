@@ -3,10 +3,9 @@
 
 const {state} = require('./src/executor-state');
 const init = require('./src/init');
-const {debug} = require('./src/util');
 
 function parseCommandLineArgs(args) {
-    debug(`args: ${args}`);
+    console.log(`args: ${args}`);
     if (args.length < 1) {
         console.log('Usage: {LISTENER_PORT}');
         process.exit(1);

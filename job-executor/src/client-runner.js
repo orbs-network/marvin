@@ -1,17 +1,17 @@
 'use strict';
 
 const {exec} = require('child_process');
-const {debug, info} = require('./util');
+const {info} = require('./util');
 const {all_tx} = require('./executor-state');
 const _ = require('lodash');
 
 async function startClientContainers(step, state) {
 
-    debug(`startClientContainers(): running step: ${step.display_name}`);
+    info(`startClientContainers(): running step: ${step.display_name}`);
     const clients = [];
     for (let i = 0; i < step.instances; i++) {
         clients.push({
-            id: `${state.job_id}_${state.instance_counter++}`,
+            id: `${state.jobId}_${state.instance_counter++}`,
         });
     }
 
@@ -23,7 +23,6 @@ async function startClientContainers(step, state) {
 
     await Promise.all(clients.map(async (client) => {
         try {
-
             let cmd;
             if (state.use_mock_client) {
                 cmd = `./src/mock-client.sh ${client.id} ${remainingDurationSec} ${state.vchain} 10 2`;
@@ -46,8 +45,6 @@ async function startClientContainers(step, state) {
                     processClientOutput(JSON.parse(data || {}), state);
                 } catch (ex) {
                     info(`Error parsing data from client, skipping. Ex=${ex}. Data=${data}`);
-                    state.job_status = 'ERROR';
-                    state.job_errors.push(ex);
                 }
 
             });
@@ -70,7 +67,7 @@ function calcClientTimeout(durationSec, clientTimeoutSec, startTime) {
     const now = new Date();
     const remainingDuration = Math.floor((durationSec*1000 - (now-startTime))/1000);
     const clientTimeout = Math.min(remainingDuration, clientTimeoutSec);
-    debug(`calcClientTimeout(): duration_sec=${durationSec} start_time=${startTime}, client_timeout=${clientTimeout}`);
+    info(`calcClientTimeout(): duration_sec=${durationSec} start_time=${startTime}, client_timeout=${clientTimeout}`);
     return clientTimeout;
 }
 

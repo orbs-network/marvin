@@ -2,18 +2,24 @@
 
 const express = require('express');
 const router = express.Router();
+const { info, logJson } = require('../util');
 const _ = require('lodash');
-// const {listJobsFromDb, } = require('../mysql-knex');
-const {insertJobToDb, updateJobInDb, insertEventToDb, listJobsFromDb} = require('../mysql2');
-const {debug, info, logJson} = require('../util');
-const {sendJob, shutdownExecutor} = require('../job-runner');
-const {processJobProps, updateStateFromPrometheus, jobToEvent} = require('../controller/jobs-ctrl');
-const {notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError} = require('../slack');
-const {state} = require('../orch-state');
+
+const availableProfiles = require('./../profiles');
+const { JobsService } = require('./../services/jobs');
+const { PersistenceService } = require('./../services/persistence');
+const connector = require('./../connection');
+
+const db = new PersistenceService({ connector });
+const s = new JobsService({ availableProfiles, db });
+
+router.get('/list/profiles', (_, res) => {
+    res.json(s.listAvailableProfiles()).end();
+});
 
 /**
  * To start a job the following params at the moment are:
- *
+ * 
  * {
 	"vchain": 3016,
 	"tpm": 60,
@@ -21,129 +27,81 @@ const {state} = require('../orch-state');
 	"client_timeout_sec": 120,
 	"target_ips": ["35.161.123.97"]
     }
- *
+ * 
  */
-router.post('/start', async (req, res, next) => {
-    const jobProps = req.body;
-    // TODO Create job entry entry in MySQL and get an ID from an incrementing sequence
+router.post('/start/:profile', async (req, res) => {
+    const meta = req.body;
+    let result;
 
-    info(`RECEIVED /jobs/start props=${JSON.stringify(jobProps)}`);
-    const err = processJobProps(jobProps);
-    if (err) {
-        jobProps.error = err;
-        logJson(jobProps);
-        notifySlack(createSlackMessageJobError(jobProps));
-        res.status(400).send(jobProps);
+    if (!req.params.profile) {
+        res
+            .status(400)
+            .send('Missing profile name in path (Example: /jobs/start/helloWorld)')
+            .end();
         return;
     }
-    try {
-        debug(`Calling insertJobToDb`);
-        jobProps.job_id = await insertJobToDb(jobProps);
-        debug(`Inserted job to DB, id=${jobProps.job_id}`);
-        const sendJobResponse = await sendJob(jobProps);
-
-        if (sendJobResponse.status === 'ERROR') {
-            const err = `Error in job executor: ${sendJobResponse.error}`;
-            jobProps.job_status = 'ERROR';
-            jobProps.error = err;
-            await updateJobInDb(jobProps);
-            res.status(500).send(err);
-            return;
-        }
-
-        res.send(sendJobResponse);
-
-    } catch (ex) {
-        info(`Exception in /start: ${ex}`);
-        res.status(500).json(ex);
-    }
-});
-
-/* GET users listing. */
-router.get('/history', async (req, res, next) => {
 
     try {
-        const list = await listJobsFromDb();
-        res.json(list);
-    } catch (ex) {
-        res.status(500).send(ex);
+        result = await s.start({
+            profile: req.params.profile,
+            meta,
+        });
+
+        res.json(result).end();
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err).end();
     }
+
+    return;
 });
 
-router.get('/status', async (req, res, next) => {
+router.get('/list/active/:profile', async (req, res) => {
+    const { profile } = req.params;
+    const { result } = await db.getActiveJobs({ profile });
+    res.json({ data: result }).end();
+});
+
+/* get all jobs from all profiles types and with all statuses */
+router.get('/list', async (_, res) => {
+    const { result } = await db.getActiveJobs({});
+    res.json({ data: result }).end();
+});
+
+router.get('/:id/status', async (req, res) => {
+    const result = await db.getJobById({ jobId: req.params.id });
+    res.json(result).end();
+});
+
+router.post('/:id/update', async (req, res) => {
+    const { id: jobId } = req.params;
+    const data = req.body;
+
+    if (!jobId) {
+        res
+            .status(400)
+            .send('Missing jobId in path (Example: /jobs/123/update)')
+            .end();
+        return;
+    }
+
+    info(`RECEIVED /jobs/${req.params.id}/update: status: ${data.status} ${JSON.stringify(data)}`);
+    const msg = _.assign({}, data/*, { summary: state.summary }*/);
+    logJson(msg);
+
+    let result;
 
     try {
-        res.json(state.jobs || {});
-    } catch (ex) {
-        res.status(500).send(ex);
+        result = await s.update({
+            jobId,
+            data,
+        });
+
+        res.json(result).end();
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err).end();
     }
-});
-
-router.get('/:id/status', (req, res, next) => {
-    state.jobs = state.jobs || {};
-    try {
-        res.json(state.jobs[req.params.id] || {});
-    } catch (ex) {
-        res.status(500).send(ex);
-    }
-});
-
-router.post('/:id/update', async (req, res, next) => {
-    const jobUpdate = req.body;
-    info(`RECEIVED /jobs/${req.params.id}/update: status: ${jobUpdate.job_status} ${JSON.stringify(jobUpdate)}`);
-
-    const appendErr = (ex) => {
-        jobUpdate.error = jobUpdate.error || '';
-        jobUpdate.error += ` ${ex}`;
-    };
-
-    let msg;
-    switch (jobUpdate.job_status) {
-        case 'RUNNING':
-            jobUpdate.running = true;
-            state.jobs[`${jobUpdate.job_id}`] = jobUpdate;
-            await updateJobInDb(jobUpdate).catch(appendErr);
-            await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
-            msg = _.assign({}, jobUpdate, {summary: state.summary});
-            logJson(msg);
-            notifySlack(createSlackMessageJobRunning(jobUpdate, state));
-            break;
-
-        case 'DONE':
-            jobUpdate.running = false;
-            state.jobs[`${jobUpdate.job_id}`] = jobUpdate;
-            shutdownExecutor(jobUpdate);
-            await updateJobInDb(jobUpdate).catch(appendErr);
-            await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
-
-
-            const event = jobToEvent(jobUpdate);
-            info(`Will insert event: ${JSON.stringify(event)}`);
-            await insertEventToDb(event).catch(appendErr);
-            msg = _.assign({}, jobUpdate, {summary: state.summary});
-            logJson(msg);
-            notifySlack(await createSlackMessageJobDone(jobUpdate, state));
-            break;
-
-        case 'ERROR':
-            info(`Received ERROR, shutting down executor`);
-            jobUpdate.running = false;
-            state.jobs[`${jobUpdate.job_id}`] = jobUpdate;
-            shutdownExecutor();
-            await updateJobInDb(jobUpdate).catch(appendErr);
-            msg = _.assign({}, jobUpdate, {summary: state.summary});
-            logJson(msg);
-            notifySlack(createSlackMessageJobError(jobUpdate, state));
-    }
-
-    res.json({
-        job_id: req.params.id,
-        error: jobUpdate.error,
-        status: jobUpdate.job_status,
-        runtime: jobUpdate.runtime
-    });
-
-    // TODO Update this in MySQL
 });
 
 

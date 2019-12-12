@@ -6,17 +6,17 @@ const path = require('path');
 const {config} = require('./orchestrator-config');
 const {state} = require('./orch-state');
 
-const {debug, info} = require('./util');
-// const {insertTransaction} = require('./mysql');
+const {info} = require('./util');
+const {insertTransaction} = require('./mysql');
 
 async function storeBatchOutputs(dataAsString) {
     const data = JSON.parse(dataAsString);
     const tableName = 'transactions';
     // const tableName = config.outputTable || 'transactions';
 
-    // await Promise.all(data.transactions.map(tx => {
-    //     return insertTransaction(data, tableName, tx);
-    // }));
+    await Promise.all(data.transactions.map(tx => {
+        return insertTransaction(data, tableName, tx);
+    }));
 }
 
 async function sendJob(jobProps) {
@@ -25,10 +25,10 @@ async function sendJob(jobProps) {
     jobProps.executor_port = jobExecutorPort;
     const jobExecutor = spawn('node', ['executor.js', `${jobExecutorPort}`], {cwd});
     state.live_jobs++;
-    state.jobs[`${jobProps.job_id}`] = {
+    state.jobs[`${jobExecutor.pid}`] = {
         timestamp: new Date().toISOString(),
     };
-    // debug(`State after starting job: ${JSON.stringify(state)}`);
+    info(`State after starting job: ${JSON.stringify(state)}`);
 
     jobExecutor.on('exit', (code, signal) => {
         state.live_jobs--;
@@ -39,15 +39,13 @@ async function sendJob(jobProps) {
     await new Promise((resolve) => {
         setTimeout(resolve, 1000);
     });
-    sendJobStartToExecutor(jobProps);
+
+    await sendJobStartToExecutor(jobProps);
 
     info(`JobExecutor with pid ${jobExecutor.pid} started on port ${jobExecutorPort}.`);
 
-    // TODO Call executor with /job/start
-
     return {
         status: 'PENDING',
-        job_id: jobProps.job_id,
         executor_port: jobExecutorPort,
         executor_pid: jobExecutor.pid,
         props: jobProps,
@@ -55,7 +53,6 @@ async function sendJob(jobProps) {
 }
 
 function sendJobStartToExecutor(jobProps) {
-
     const uri = `http://${config.executor_host}:${jobProps.executor_port}/job/start`;
 
     const options = {
@@ -64,7 +61,6 @@ function sendJobStartToExecutor(jobProps) {
         body: jobProps,
         json: true,
     };
-    info(`SENDING JOB TO EXECUTOR: HTTP POST ${uri} BODY=${JSON.stringify(jobProps)}`);
 
     return rp(options)
         .then(res => {
