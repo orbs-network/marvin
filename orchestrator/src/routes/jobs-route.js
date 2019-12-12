@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { info } = require('../util');
+const { info, logJson } = require('../util');
 
 const availableProfiles = require('./../profiles');
 const { JobsService } = require('./../services/jobs');
@@ -85,6 +85,9 @@ router.post('/:id/update', async (req, res) => {
     }
 
     info(`RECEIVED /jobs/${req.params.id}/update: status: ${data.status} ${JSON.stringify(data)}`);
+    const msg = _.assign({}, data/*, { summary: state.summary }*/);
+    logJson(msg);
+
     let result;
 
     try {

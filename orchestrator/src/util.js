@@ -10,6 +10,10 @@ function info() {
     }
 }
 
+function logJson(json) {
+    console.log(JSON.stringify(json));
+}
+
 function generateJobId() {
     const dateStr = moment().format('YYYYMMDD_HHmmss');
     const randomSuffix = zeroPad(Math.floor(Math.random() * 100), 3);
@@ -22,5 +26,6 @@ function zeroPad(num, places) {
 
 module.exports = {
     info,
+    logJson,
     generateJobId,
 };

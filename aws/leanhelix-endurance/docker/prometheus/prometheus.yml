@@ -21,6 +21,25 @@ scrape_configs:
         labels:
           machine: "node1"
           vcid: 2013
+    metric_relabel_configs:
+      - source_labels: ['__name__']
+        regex: BlockSync.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: ConsensusAlgo.Benchmark.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Ethereum.TimestampBlockFinder.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.OutgoingConnection.Queue.Usage.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.Topic.BenchmarkConsensus.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Processor.Native.*
+        action: drop
   - job_name: node2_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
@@ -29,6 +48,25 @@ scrape_configs:
         labels:
           machine: "node2"
           vcid: 2013
+    metric_relabel_configs:
+      - source_labels: ['__name__']
+        regex: BlockSync.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: ConsensusAlgo.Benchmark.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Ethereum.TimestampBlockFinder.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.OutgoingConnection.Queue.Usage.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.Topic.BenchmarkConsensus.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Processor.Native.*
+        action: drop
   - job_name: node3_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
@@ -37,6 +75,25 @@ scrape_configs:
         labels:
           machine: "node3"
           vcid: 2013
+    metric_relabel_configs:
+      - source_labels: ['__name__']
+        regex: BlockSync.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: ConsensusAlgo.Benchmark.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Ethereum.TimestampBlockFinder.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.OutgoingConnection.Queue.Usage.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.Topic.BenchmarkConsensus.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Processor.Native.*
+        action: drop
   - job_name: node4_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
@@ -45,6 +102,25 @@ scrape_configs:
         labels:
           machine: "node4"
           vcid: 2013
+    metric_relabel_configs:
+      - source_labels: ['__name__']
+        regex: BlockSync.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: ConsensusAlgo.Benchmark.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Ethereum.TimestampBlockFinder.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.OutgoingConnection.Queue.Usage.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.Topic.BenchmarkConsensus.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Processor.Native.*
+        action: drop
   - job_name: node5_2013
     metrics_path: "/vchains/2013/metrics.prometheus"
     scheme: http
@@ -53,7 +129,25 @@ scrape_configs:
         labels:
           machine: "node5"
           vcid: 2013
-
+    metric_relabel_configs:
+      - source_labels: ['__name__']
+        regex: BlockSync.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: ConsensusAlgo.Benchmark.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Ethereum.TimestampBlockFinder.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.OutgoingConnection.Queue.Usage.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.Topic.BenchmarkConsensus.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Processor.Native.*
+        action: drop
   - job_name: node1_3016
     metrics_path: "/vchains/3016/metrics.prometheus"
     scheme: http
@@ -62,6 +156,25 @@ scrape_configs:
         labels:
           machine: "node1_3016"
           vcid: 3016
+    metric_relabel_configs:
+      - source_labels: ['__name__']
+        regex: BlockSync.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: ConsensusAlgo.Benchmark.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Ethereum.TimestampBlockFinder.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.OutgoingConnection.Queue.Usage.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.Topic.BenchmarkConsensus.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Processor.Native.*
+        action: drop
   - job_name: node2_3016
     metrics_path: "/vchains/3016/metrics.prometheus"
     scheme: http
@@ -70,6 +183,25 @@ scrape_configs:
         labels:
           machine: "node2_3016"
           vcid: 3016
+    metric_relabel_configs:
+      - source_labels: ['__name__']
+        regex: BlockSync.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: ConsensusAlgo.Benchmark.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Ethereum.TimestampBlockFinder.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.OutgoingConnection.Queue.Usage.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.Topic.BenchmarkConsensus.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Processor.Native.*
+        action: drop
   - job_name: node3_3016
     metrics_path: "/vchains/3016/metrics.prometheus"
     scheme: http
@@ -78,6 +210,25 @@ scrape_configs:
         labels:
           machine: "node3_3016"
           vcid: 3016
+    metric_relabel_configs:
+      - source_labels: ['__name__']
+        regex: BlockSync.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: ConsensusAlgo.Benchmark.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Ethereum.TimestampBlockFinder.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.OutgoingConnection.Queue.Usage.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.Topic.BenchmarkConsensus.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Processor.Native.*
+        action: drop
   - job_name: node4_3016
     metrics_path: "/vchains/3016/metrics.prometheus"
     scheme: http
@@ -86,6 +237,25 @@ scrape_configs:
         labels:
           machine: "node4_3016"
           vcid: 3016
+    metric_relabel_configs:
+      - source_labels: ['__name__']
+        regex: BlockSync.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: ConsensusAlgo.Benchmark.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Ethereum.TimestampBlockFinder.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.OutgoingConnection.Queue.Usage.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.Topic.BenchmarkConsensus.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Processor.Native.*
+        action: drop
   - job_name: node5_3016
     metrics_path: "/vchains/3016/metrics.prometheus"
     scheme: http
@@ -94,4 +264,22 @@ scrape_configs:
         labels:
           machine: "node5_3016"
           vcid: 3016
-
+    metric_relabel_configs:
+      - source_labels: ['__name__']
+        regex: BlockSync.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: ConsensusAlgo.Benchmark.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Ethereum.TimestampBlockFinder.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.OutgoingConnection.Queue.Usage.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Gossip.Topic.BenchmarkConsensus.*
+        action: drop
+      - source_labels: ['__name__']
+        regex: Processor.Native.*
+        action: drop
