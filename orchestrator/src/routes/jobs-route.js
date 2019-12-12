@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const { info, logJson } = require('../util');
+const _ = require('lodash');
 
 const availableProfiles = require('./../profiles');
 const { JobsService } = require('./../services/jobs');
