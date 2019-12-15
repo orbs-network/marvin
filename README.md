@@ -50,7 +50,10 @@ This is the visualization app. It reads data from Prometheus and serves it in a 
 * AWS: [Detailed](http://ec2-34-222-245-15.us-west-2.compute.amazonaws.com:3000/d/Eqvddt3iz/detailed?refresh=10s&orgId=1&from=now-3h&to=now)
 * [Local](http://localhost:3000/d/yiCOQa5Wz/prometheus-2-0-stats?refresh=1m&orgId=1)
 
-## SQL
+## Mongo
+* AWS: use Mongo client to connect to host: `ec2-34-222-245-15.us-west-2.compute.amazonaws.com` port `27017`
+
+## SQL (phasing out)
 `Part of docker compose`
 
 This database holds all transaction results.
