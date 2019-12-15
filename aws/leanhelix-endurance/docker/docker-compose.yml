@@ -17,6 +17,12 @@ services:
       - /home/ubuntu/grafana:/var/lib/grafana
 
   db:
+    image: mongo:3.3
+    ports:
+      - 27017:27017
+      - /home/ubuntu/mongo:/data/db
+
+  mysql_db:
     image: percona:5.7
     ports:
       - 3306:3306
