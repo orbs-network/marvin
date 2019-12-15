@@ -20,6 +20,7 @@ services:
     image: mongo:3.3
     ports:
       - 27017:27017
+    volumes:
       - /home/ubuntu/mongo:/data/db
 
   mysql_db:
