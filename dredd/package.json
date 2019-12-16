@@ -1,7 +1,7 @@
 {
-  "name": "judge-dredd",
+  "name": "@orbs-network/marvin/dredd",
   "version": "0.0.1",
-  "description": "Judge if a test's results are either PASS or FAIL. Named after Judge Dredd.",
+  "description": "Judge whether a test's results are either PASS or FAIL. Named after Judge Dredd.",
   "main": "dredd.js",
   "directories": {
     "test": "test"
