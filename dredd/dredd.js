@@ -15,8 +15,6 @@ function passed(res) {
     };
 }
 
-run();
-
 async function run() {
 
     const marvinUrl = process.env.MARVIN_ORCHESTRATOR_URL || 'ec2-34-222-245-15.us-west-2.compute.amazonaws.com:4567';
