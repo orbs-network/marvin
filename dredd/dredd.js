@@ -53,4 +53,5 @@ async function readJobResults(jobId, marvinUrl) {
 
 module.exports = {
     passed: passed,
+    run: run,
 };
