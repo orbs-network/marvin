@@ -15,18 +15,10 @@ function passed(res) {
     };
 }
 
-async function run() {
+async function run(jobId) {
 
     const marvinUrl = process.env.MARVIN_ORCHESTRATOR_URL || 'ec2-34-222-245-15.us-west-2.compute.amazonaws.com:4567';
 
-    process.argv.splice(0, 2);
-    const jobId = process.argv[0];
-
-    if (!jobId) {
-        info("JobId not provided in command line.");
-        info("Usage: <JobId>");
-        process.exit(1);
-    }
     try {
         const res = await readJobResults(jobId, marvinUrl);
         const analysis = passed(res);
@@ -46,7 +38,7 @@ async function readJobResults(jobId, marvinUrl) {
     info(`Reading job status from URL: ${jobStatusUrl}`);
     return fetch(jobStatusUrl)
         .then(res => {
-            info(`Got result: ${res}`);
+            info(`Got result: ${JSON.stringify(res)}`);
             return res.json();
         });
 }
