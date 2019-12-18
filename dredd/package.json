@@ -1,10 +1,13 @@
 {
   "name": "@orbs-network/judge-dredd",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Judge whether a test's results are either PASS or FAIL. Named after Judge Dredd.",
   "main": "dredd.js",
   "directories": {
     "test": "test"
+  },
+  "bin": {
+    "dredd": "./bin/dredd.js"
   },
   "scripts": {
     "test": "jest"
@@ -24,6 +27,7 @@
     "mocha": "^6.2.2"
   },
   "dependencies": {
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "yargs": "^15.0.2"
   }
 }
