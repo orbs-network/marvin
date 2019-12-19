@@ -22,7 +22,7 @@ class PersistenceService {
                 jobId,
                 profile,
                 status: 'NOT_STARTED',
-                job_start: moment().format(),
+                job_start: new Date(),
                 running: 0,
                 meta,
                 updates: [],
@@ -51,6 +51,7 @@ class PersistenceService {
     }
 
     async updateJob({ jobId, data }) {
+        console.log(data);
         const db = await this.connector.getConnection();
         const collection = db.collection(JOBS_COLLECTION_NAME);
 
@@ -61,11 +62,16 @@ class PersistenceService {
             const { updates = [] } = job;
             const newUpdates = updates.concat(data);
 
+            const updateItems = {
+                updates: newUpdates,
+                status: data.status,
+            };
+            if (data.end_time) {
+                updateItems.job_end = moment(data.end_time).toDate();
+            }
+
             result = await collection.updateOne({ _id: new ObjectID(job._id) }, {
-                $set: {
-                    updates: newUpdates,
-                    status: data.status,
-                }
+                $set: updateItems
             });
         } catch (e) {
             err = e;

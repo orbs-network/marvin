@@ -5,13 +5,13 @@ let s;
 
 describe('jobs service', () => {
     before(() => {
-        const availableJobs = {
+        const availableProfiles = {
             simpleTest: {
                 meta: {
                     description: 'Some descriptive explanation'
                 },
                 start() {
-                    return Promise.resolve({ ok: true, started: true, id: 'simpleTest' });
+                    return Promise.resolve({ ok: true, started: true, id: 'simpleJob' });
                 }
             },
             yetAnotherTest: {
@@ -24,11 +24,11 @@ describe('jobs service', () => {
             }
         };
 
-        s = new JobsService({ availableJobs });
+        s = new JobsService({ availableProfiles });
     });
 
-    it('should list available jobs', () => {
-        const jobs = s.listAvailableJobs();
+    it('should list available profiles', () => {
+        const jobs = s.listAvailableProfiles();
         expect(typeof jobs).to.equal('object');
         expect(jobs).to.eql([
             {
@@ -43,9 +43,10 @@ describe('jobs service', () => {
     });
 
     it('should start a job', async () => {
-        const result = await s.start({ jobId: 'simpleTest' });
+        const p = s.getProfileByName('simpleTest');
+        const result = await p.start({ jobId: 'simpleJob' });
         expect(typeof result).to.equal('object');
         expect(result.ok).to.equal(true);
-        expect(result).to.eql({ ok: true, started: true, id: 'simpleTest' });
+        expect(result).to.eql({ ok: true, started: true, id: 'simpleJob' });
     });
 });

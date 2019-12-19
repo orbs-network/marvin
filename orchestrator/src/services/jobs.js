@@ -74,8 +74,8 @@ class JobsService {
      */
     async update({ jobId, data = {} }) {
         console.log('inside update!', jobId);
-        const p = await this.getProfileByJobId(jobId);
-        if (!p) {
+        const profile = await this.getProfileByJobId(jobId);
+        if (!profile) {
             return new Error(`Could not find a profile from jobId: '${jobId}'`);
         }
 
@@ -86,7 +86,7 @@ class JobsService {
             return Promise.reject(err);
         }
 
-        const result = await p.update(data, jobId);
+        const result = await profile.update(data, jobId);
 
         return {
             jobId,
