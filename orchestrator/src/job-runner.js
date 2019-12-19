@@ -53,6 +53,7 @@ async function sendJob(jobProps) {
 }
 
 function sendJobStartToExecutor(jobProps) {
+    info(`Received JobProps: ${jobProps}`);
     const uri = `http://${config.executor_host}:${jobProps.executor_port}/job/start`;
 
     const options = {

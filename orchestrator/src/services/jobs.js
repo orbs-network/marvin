@@ -1,3 +1,5 @@
+const {info} = require('../util');
+
 class JobsService {
     constructor({ availableProfiles = {}, db = {} }) {
         this.availableProfiles = availableProfiles;
@@ -38,7 +40,7 @@ class JobsService {
     async start({ profile, meta = {} }) {
         const p = this.getProfileByName(profile);
         if (!p) {
-            return new Error(`Could not find a profile with name: '${profile}'`);
+            throw `Could not find a profile with name: '${profile}'`;
         }
 
         // Document the job start into our persistence layer

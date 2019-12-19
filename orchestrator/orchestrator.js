@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const jobsRouter = require('./src/routes/jobs-route');
 const statusRouter = require('./src/routes/status-route');
+const profilesRouter = require('./src/routes/profiles-route');
 const { config } = require('./src/orchestrator-config');
 const connector = require('./src/connection');
 
@@ -24,6 +25,7 @@ app.use(bodyParser.urlencoded({
 
 app.use('/jobs', jobsRouter);
 app.use('/status', statusRouter);
+app.use('/profiles', profilesRouter);
 app.use('/', (_, res) => res.status(404).send('Not found'));
 
 const server = app.listen(port, () => console.log(`Orchestrator listening on port ${port}!`));

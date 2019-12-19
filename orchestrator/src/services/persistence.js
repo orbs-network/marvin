@@ -38,10 +38,10 @@ class PersistenceService {
                     tx_response_median: 0,
                     tx_response_avg: 0,
                 },
-            })
+            });
         } catch (e) {
             err = e;
-        };
+        }
 
         return {
             result,
@@ -98,5 +98,5 @@ class PersistenceService {
 }
 
 module.exports = {
-    PersistenceService,
+    PersistenceService: PersistenceService,
 };

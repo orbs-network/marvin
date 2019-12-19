@@ -1,11 +1,17 @@
-const { info } = require('../util');
-const { sendJob, shutdownExecutor } = require('../job-runner');
-const { notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError } = require('../slack');
-const { state } = require('../orch-state');
+'use strict';
+
+const {info} = require('../util');
+const {sendJob, shutdownExecutor} = require('../job-runner');
+const {notifySlack, createSlackMessageJobRunning, createSlackMessageJobDone, createSlackMessageJobError} = require('../slack');
+const {state} = require('../orch-state');
 
 const transferFrenzy = {
     meta: {
         description: "Transfer money using benchmark token to a range of accounts"
+    },
+    load_properties: {
+        tpm: 60,
+        duration_sec: 60,
     },
     validate(data) {
         let errors = [], ok = true;
@@ -34,9 +40,11 @@ const transferFrenzy = {
             ok = false;
         }
 
-        return { ok, errors };
+        return {ok, errors};
     },
     async start(data, jobId) {
+
+        Object.assign(data, this.load_properties);
         const response = Object.assign({}, data);
 
         const validationResult = this.validate(data);
@@ -46,7 +54,7 @@ const transferFrenzy = {
 
         info(`SENDING JOB TO EXECUTOR [ID=${jobId} VCHAIN=${data.vchain}]: ${JSON.stringify(data)}`);
 
-        const sendJobResponse = await sendJob(Object.assign({}, data, { jobId }));
+        const sendJobResponse = await sendJob(Object.assign({}, data, {jobId}));
 
         if (sendJobResponse.status === 'ERROR') {
             const err = `Error in job executor: ${sendJobResponse.error}`;

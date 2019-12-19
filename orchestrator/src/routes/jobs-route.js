@@ -9,13 +9,10 @@ const availableProfiles = require('./../profiles');
 const { JobsService } = require('./../services/jobs');
 const { PersistenceService } = require('./../services/persistence');
 const connector = require('./../connection');
-
 const db = new PersistenceService({ connector });
+
 const s = new JobsService({ availableProfiles, db });
 
-router.get('/list/profiles', (_, res) => {
-    res.json(s.listAvailableProfiles()).end();
-});
 
 /**
  * To start a job the following params at the moment are:
@@ -42,18 +39,17 @@ router.post('/start/:profile', async (req, res) => {
     }
 
     try {
+        info(`Running /start with profile ${req.params.profile}`);
         result = await s.start({
             profile: req.params.profile,
             meta,
         });
-
+        info(`Returned with result ${JSON.stringify(result)}`);
         res.json(result).end();
     } catch (err) {
         console.log(err);
         res.status(500).json(err).end();
     }
-
-    return;
 });
 
 router.get('/list/active/:profile', async (req, res) => {
