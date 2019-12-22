@@ -4,14 +4,26 @@ const {info} = require('./src/util');
 const fs = require('fs');
 
 function passed(res) {
-    info(`Passed(): res=${JSON.stringify(res)}`);
-    if (res && !res.error) {
+    if (!res) {
         return {
-            passed: true
+            passed: false,
+            reason: 'Empty results'
+        };
+    }
+    if (res.error && res.error.length > 0) {
+        return {
+            passed: false,
+            reason: `Returned with error: ${res.error}`
+        };
+    }
+    if (!res.updates || res.updates.length === 0) {
+        return {
+            passed: false,
+            reason: `No updates`
         };
     }
     return {
-        passed: false
+        passed: true
     };
 }
 
