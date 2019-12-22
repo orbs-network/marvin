@@ -1,6 +1,6 @@
 "use strict";
 
-const {passed} = require('../dredd');
+const {passed} = require('../dredd-run');
 
 
 test('should return PASS', () => {

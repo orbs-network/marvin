@@ -9,4 +9,6 @@ Dredd receives a job ID and asks [Marvin's](https://github.com/orbs-network/marv
 
 TBD examples
 
+* VERBOSE=true ./bin/dredd.js -j test/passing-stress-test.json
+
 Consider passing the full test results as a path to a filename that contains them.

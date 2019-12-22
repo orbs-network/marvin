@@ -1,7 +1,7 @@
 "use strict";
 
 const {info} = require('./src/util');
-const fetch = require('node-fetch');
+const fs = require('fs');
 
 function passed(res) {
     info(`Passed(): res=${JSON.stringify(res)}`);
@@ -15,32 +15,32 @@ function passed(res) {
     };
 }
 
-async function run(jobId) {
-
-    const marvinUrl = process.env.MARVIN_ORCHESTRATOR_URL || 'ec2-34-222-245-15.us-west-2.compute.amazonaws.com:4567';
-
+async function run(jobResultsFilePath) {
     try {
-        const res = await readJobResults(jobId, marvinUrl);
+        const res = await readJobResults(jobResultsFilePath);
         const analysis = passed(res);
         if (!analysis.passed) {
             info(`Test failed: ${JSON.stringify(analysis)}`);
             process.exit(10);
         }
-    } catch (ex) {
-        info(`Error: ${ex}`);
+    } catch (err) {
+        info(`Error: ${err}`);
         process.exit(2);
     }
     info(`Test passed`);
 }
 
-async function readJobResults(jobId, marvinUrl) {
-    const jobStatusUrl = `http://${marvinUrl}/jobs/${jobId}/status`;
-    info(`Reading job status from URL: ${jobStatusUrl}`);
-    return fetch(jobStatusUrl)
-        .then(res => {
-            info(`Got result: ${JSON.stringify(res)}`);
-            return res.json();
+async function readJobResults(jobResultsFilePath) {
+    info(`Reading job status from path: ${jobResultsFilePath}`);
+    return new Promise((resolve, reject) => {
+        fs.readFile(jobResultsFilePath, (err, contents) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(JSON.parse(contents));
         });
+    });
 }
 
 module.exports = {

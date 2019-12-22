@@ -26,18 +26,6 @@ class PersistenceService {
                 running: 0,
                 meta,
                 updates: [],
-                results: {
-                    actual_tpm: 0,
-                    actual_duration_sec: 0,
-                    total_tx_count: 0,
-                    err_tx_count: 0,
-                    tx_response_max: 0,
-                    tx_response_p99: 0,
-                    tx_response_p95: 0,
-                    tx_response_p90: 0,
-                    tx_response_median: 0,
-                    tx_response_avg: 0,
-                },
             });
         } catch (e) {
             err = e;
@@ -75,7 +63,7 @@ class PersistenceService {
             });
         } catch (e) {
             err = e;
-        };
+        }
 
         return {
             result,
@@ -90,7 +78,11 @@ class PersistenceService {
 
         const result = await collection.find({ jobId }).sort({}).toArray();
 
-        return (result.length === 1) ? result[0] : {};
+        if (result.length >= 1) {
+            return result[0];
+        }
+
+        throw `JobId ${jobId}} not found`;
     }
 
     async getActiveJobs(query) {

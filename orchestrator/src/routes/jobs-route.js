@@ -65,8 +65,12 @@ router.get('/list', async (_, res) => {
 });
 
 router.get('/:id/status', async (req, res) => {
-    const result = await db.getJobById({ jobId: req.params.id });
-    res.json(result).end();
+    try {
+        const result = await db.getJobById({jobId: req.params.id});
+        res.json(result).end();
+    } catch(err) {
+        res.status(404).send(err).end();
+    }
 });
 
 router.post('/:id/update', async (req, res) => {
