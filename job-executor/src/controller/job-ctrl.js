@@ -109,6 +109,7 @@ async function updateParentWithJob(currentState) {
         summary: currentState.summary || {},
         start_time: currentState.start_time,
         end_time: currentState.end_time,
+        client_cmd: currentState.client_cmd,
     };
     const options = {
         method: 'POST',

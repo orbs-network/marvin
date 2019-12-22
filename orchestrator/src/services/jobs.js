@@ -38,9 +38,10 @@ class JobsService {
      * The metadata can include stuff like: tpm, durationInSeconds, clientMaxTimeout, ip, etc..
      */
     async start({ profile, meta = {} }) {
+        info(`start(): will load profile=${profile}`);
         const p = this.getProfileByName(profile);
         if (!p) {
-            throw `Could not find a profile with name: '${profile}'`;
+            throw `start(): Could not find a profile with name: '${profile}'`;
         }
 
         // Document the job start into our persistence layer
@@ -50,6 +51,7 @@ class JobsService {
             return Promise.reject(err);
         }
 
+        info(`start(): calling profile.start() for profile=${profile}`);
         const result = await p.start(meta, jobId);
 
         return {
@@ -73,10 +75,10 @@ class JobsService {
      * The metadata can include stuff like: tpm, durationInSeconds, clientMaxTimeout, ip, etc..
      */
     async update({ jobId, data = {} }) {
-        console.log('inside update!', jobId);
+        console.log(`update(): jobId=${jobId}`);
         const profile = await this.getProfileByJobId(jobId);
         if (!profile) {
-            return new Error(`Could not find a profile from jobId: '${jobId}'`);
+            return new Error(`update(): Could not find a profile from jobId: '${jobId}'`);
         }
 
         // Document the job update into our persistence layer

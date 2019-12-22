@@ -52,8 +52,6 @@ const transferFrenzy = {
             throw validationResult;
         }
 
-        info(`SENDING JOB TO EXECUTOR [ID=${jobId} VCHAIN=${data.vchain}]: ${JSON.stringify(data)}`);
-
         const sendJobResponse = await sendJob(Object.assign({}, data, {jobId}));
 
         if (sendJobResponse.status === 'ERROR') {

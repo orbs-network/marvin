@@ -27,8 +27,10 @@ async function startClientContainers(step, state) {
             if (state.use_mock_client) {
                 cmd = `./src/mock-client.sh ${client.id} ${remainingDurationSec} ${state.vchain} 10 2`;
             } else {
-                cmd = `docker run -t --rm endurance:client ./client ${state.vchain},${targetIpsStr} ${client.id},${remainingDurationSec},${step.tpm}`;
+                const clientProps = `${state.vchain},${targetIpsStr} ${client.id},${remainingDurationSec},${step.tpm}`;
+                cmd = `docker run -t --rm endurance:client ./client ${clientProps}`;
             }
+            state.client_cmd = cmd;
 
 
             const clientProc = await exec(cmd, {cwd: '.', stdio: ['ignore', 'pipe', process.stderr]});
