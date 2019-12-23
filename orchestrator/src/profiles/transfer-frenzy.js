@@ -20,6 +20,9 @@ const transferFrenzy = {
             errors.push('Missing JSON body');
         }
 
+        data.duration_sec = data.duration_sec || this.load_properties.duration_sec;
+        data.tpm = data.tpm || this.load_properties.tpm;
+
         if (!data.tpm) {
             errors.push("Missing or zero tpm property");
         }
@@ -33,7 +36,7 @@ const transferFrenzy = {
         }
 
         if (!data.duration_sec) {
-            errors.push("Missing or zero duration_sec property");
+            errors.push("Missing duration_sec property");
         }
 
         if (errors.length > 0) {
