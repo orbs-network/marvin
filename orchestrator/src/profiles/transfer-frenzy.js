@@ -76,20 +76,20 @@ const transferFrenzy = {
         switch (data.status) {
             case 'RUNNING':
                 //await updateStateFromPrometheus(jobUpdate, state).catch(appendErr);
-                notifySlack(createSlackMessageJobRunning(data, state));
+                // notifySlack(createSlackMessageJobRunning(data, state));
                 break;
 
             case 'DONE':
                 shutdownExecutor(data);
 
                 //await updateStateFromPrometheus(data, state).catch(appendErr);
-                notifySlack(await createSlackMessageJobDone(data, state));
+                // notifySlack(await createSlackMessageJobDone(data, state));
                 break;
 
             case 'ERROR':
                 info(`Received ERROR, shutting down executor`);
                 shutdownExecutor();
-                notifySlack(createSlackMessageJobError(data, state));
+                // notifySlack(createSlackMessageJobError(data, state));
         }
 
         return {
