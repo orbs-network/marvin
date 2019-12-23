@@ -1,15 +1,17 @@
 'use strict';
 
 const rp = require('request-promise-native');
-const {info} = require('./util');
+const {debug} = require('./util');
 
 async function readPrometheus(state, startTimeISO, endTimeISO, metric, vchain) {
+
+    const STEP_SEC=10;
 
     if (!startTimeISO || !endTimeISO) {
         throw "readPrometheus(): startTime or endTime are empty";
     }
-    const queryUrl = `${state.prometheus_url}/api/v1/query_range?query=${metric}{vcid="${vchain}"}&start=${startTimeISO}&end=${endTimeISO}&step=15s`;
-    info(`PROMETHEUS calling URL: ${queryUrl}`);
+    const queryUrl = `${state.prometheus_url}/api/v1/query_range?query=${metric}{vcid="${vchain}"}&start=${startTimeISO}&end=${endTimeISO}&step=${STEP_SEC}s`;
+    debug(`PROMETHEUS calling URL: ${queryUrl}`);
 
     const options = {
         method: 'GET',

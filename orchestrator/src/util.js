@@ -3,12 +3,21 @@
 const moment = require('moment');
 
 const verbosity = process.env.VERBOSE === 'true';
+const verbosityDebug = process.env.VERBOSE_DEBUG === 'true';
+
 
 function info() {
-    if (verbosity) {
+    if (verbosity || verbosityDebug) {
         console.log.apply(this, arguments);
     }
 }
+
+function debug() {
+    if (verbosityDebug) {
+        console.log.apply(this, arguments);
+    }
+}
+
 
 function logJson(json) {
     console.log(JSON.stringify(json));
@@ -26,6 +35,7 @@ function zeroPad(num, places) {
 
 module.exports = {
     info,
+    debug,
     logJson,
     generateJobId,
 };

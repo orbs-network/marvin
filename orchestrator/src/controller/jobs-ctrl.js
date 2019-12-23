@@ -3,7 +3,7 @@
 const moment = require('moment');
 const _ = require('lodash');
 const { readPrometheus } = require('../prometheus');
-const { info } = require('../util');
+const { info, debug } = require('../util');
 
 async function updateStateFromPrometheus(job, state) {
     try {
@@ -16,19 +16,28 @@ async function updateStateFromPrometheus(job, state) {
 
         const [rawAllocMem, rawGoroutines] = await Promise.all([heapAllocPromise, goroutinePromise]);
 
-        info(`PROMETHEUS rawAllocMem=${JSON.stringify(rawAllocMem)}`);
-        info(`PROMETHEUS rawGoroutines=${JSON.stringify(rawGoroutines)}`);
+        const rawAllocMemRes = rawAllocMem.data.result;
+        const rawGoroutinesRes = rawGoroutines.data.result;
 
-        const maxAllocMem = maxOverAllNodes(rawAllocMem);
-        const maxGoroutines = maxOverAllNodes(rawGoroutines);
+        debug(`PROMETHEUS RAW_ALLOC_MEM=${JSON.stringify(rawAllocMemRes)}`);
+        debug(`PROMETHEUS RAW_GOROUTINES=${JSON.stringify(rawGoroutinesRes)}`);
 
-        info(`PROMETHEUS: MAX_ALLOC_MEM=${maxAllocMem}, RAW=${JSON.stringify(rawAllocMem.data.result)}`);
-        info(`PROMETHEUS: MAX_GOROUTINES=${maxGoroutines}, RAW=${JSON.stringify(rawGoroutines.data.result)}`);
+        debug(`PROMETHEUS RAW_ALLOC_MEM_NODE0=${JSON.stringify(rawAllocMemRes[0])}`);
 
-        state.summary.max_alloc_mem = maxAllocMem;
-        state.summary.max_goroutines = maxGoroutines;
+        const maxAllocMem = maxOverAllNodes(rawAllocMemRes);
+        const maxGoroutines = maxOverAllNodes(rawGoroutinesRes);
 
-        // updateStateWithPrometheusResults(job, state, raw);
+        const maxAllocMemNode0 = maxOverSpecificNode(rawAllocMemRes, 0);
+        const maxGoroutinesNode0 = maxOverSpecificNode(rawGoroutinesRes, 0);
+
+        info(`PROMETHEUS: MAX_ALLOC_MEM=${maxAllocMem}`);
+        info(`PROMETHEUS: MAX_GOROUTINES=${maxGoroutines}`);
+        info(`PROMETHEUS: MAX_ALLOC_MEM_NODE0=${maxAllocMemNode0}`);
+        info(`PROMETHEUS: MAX_GOROUTINES_NODE0=${maxGoroutinesNode0}`);
+
+        state.summary.max_alloc_mem = maxAllocMemNode0;
+        state.summary.max_goroutines = maxGoroutinesNode0;
+
     } catch (ex) {
         info(`PROMETHEUS exception: ${ex}`);
         throw ex;
@@ -37,19 +46,22 @@ async function updateStateFromPrometheus(job, state) {
 }
 
 function maxOverAllNodes(prometheusResponse) {
-    const maxPerNode = _.map(prometheusResponse.data.result, resultPerNode => {
+    const maxPerNode = _.map(prometheusResponse, resultPerNode => {
         const values = _.map(resultPerNode.values, pair => { return pair[1]; });
         return Math.max(...values);
     });
     return Math.max(...maxPerNode);
 }
 
-function toUtcISO(time) {
-    return moment(time || new Date()).utc().format();
+function maxOverSpecificNode(prometheusResponse, nodeIdx) {
+    const nodeResults = prometheusResponse[nodeIdx];
+    const values = _.map(nodeResults.values, pair => { return pair[1]; });
+    return Math.max(...values);
 }
 
-function updateStateWithPrometheusResults(job, state, raw) {
 
+function toUtcISO(time) {
+    return moment(time || new Date()).utc().format();
 }
 
 module.exports = {
