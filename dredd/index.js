@@ -1,5 +1,5 @@
-const {run} = require('./dredd-run');
+const {passed} = require('./dredd-run');
 
 module.exports = {
-    run: run,
+    passed: passed,
 };

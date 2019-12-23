@@ -5,7 +5,7 @@ const {passed} = require('../dredd-run');
 
 test('should return PASS when no/empty error property (REMOVE THIS TEST AFTER ADDING MORE SPECIFIC PASSING TESTS)', () => {
     const testResults = require('./pass');
-    const hasPassed = passed(testResults);
+    const hasPassed = passed(testResults, {});
     expect(hasPassed.passed).toEqual(true);
 });
 

@@ -3,20 +3,21 @@
 const {info} = require('./src/util');
 const fs = require('fs');
 
-function passed(res) {
-    if (!res) {
+// Config is optional - it will contain tolerated thresholds for passing a test, etc.
+function passed(jobResults, cfg = {}) {
+    if (!jobResults) {
         return {
             passed: false,
             reason: 'Empty results'
         };
     }
-    if (res.error && res.error.length > 0) {
+    if (jobResults.error && jobResults.error.length > 0) {
         return {
             passed: false,
-            reason: `Returned with error: ${res.error}`
+            reason: `Returned with error: ${jobResults.error}`
         };
     }
-    if (!res.updates || res.updates.length === 0) {
+    if (!jobResults.updates || jobResults.updates.length === 0) {
         return {
             passed: false,
             reason: `No updates`
