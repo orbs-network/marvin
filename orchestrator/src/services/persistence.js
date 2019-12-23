@@ -82,7 +82,7 @@ class PersistenceService {
             return result[0];
         }
 
-        throw `JobId ${jobId}} not found`;
+        throw `JobId ${jobId} not found`;
     }
 
     async getActiveJobs(query) {
