@@ -81,15 +81,14 @@ class JobsService {
             return new Error(`update(): Could not find a profile from jobId: '${jobId}'`);
         }
 
+        const result = await profile.update(data, jobId);
+
         // Document the job update into our persistence layer
         const { err } = await this.db.updateJob({ jobId, data });
 
         if (err) {
             return Promise.reject(err);
         }
-
-        const result = await profile.update(data, jobId);
-
         return {
             jobId,
             result,

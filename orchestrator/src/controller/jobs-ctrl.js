@@ -37,6 +37,8 @@ async function updateStateFromPrometheus(job, state) {
 
         state.summary.max_alloc_mem = maxAllocMemNode0;
         state.summary.max_goroutines = maxGoroutinesNode0;
+        job.summary.max_alloc_mem = maxAllocMemNode0;
+        job.summary.max_goroutines = maxGoroutinesNode0;
 
     } catch (ex) {
         info(`PROMETHEUS exception: ${ex}`);

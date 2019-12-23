@@ -15,7 +15,7 @@ async function readPrometheus(state, startTimeISO, endTimeISO, metric, vchain) {
 
     const options = {
         method: 'GET',
-        timeout: 5000,
+        timeout: 15000,
         uri: queryUrl,
         json: true,
     };
