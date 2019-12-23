@@ -7,25 +7,36 @@ const fs = require('fs');
 function passed(jobResults, cfg = {}) {
     if (!jobResults) {
         return {
-            passed: false,
-            reason: 'Empty results'
+            analysis: {
+                passed: false,
+                reason: 'Empty results'
+            }
         };
     }
     if (jobResults.error && jobResults.error.length > 0) {
-        return {
-            passed: false,
-            reason: `Returned with error: ${jobResults.error}`
-        };
+        const jobAnalysis = Object.assign({}, jobResults, {
+            analysis: {
+                passed: false,
+                reason: `Returned with error: ${jobResults.error}`
+            }
+        });
+        return jobAnalysis;
     }
     if (!jobResults.updates || jobResults.updates.length === 0) {
-        return {
-            passed: false,
-            reason: `No updates`
-        };
+        const jobAnalysis = Object.assign({}, jobResults, {
+            analysis: {
+                passed: false,
+                reason: `No updates`
+            }
+        });
+        return jobAnalysis;
     }
-    return {
-        passed: true
-    };
+    const jobAnalysis = Object.assign({}, jobResults, {
+        analysis: {
+            passed: true
+        }
+    });
+    return jobAnalysis;
 }
 
 async function run(jobResultsFilePath) {
