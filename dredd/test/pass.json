@@ -1,7 +1,36 @@
 {
   "profile": "stress",
   "jobId": "1234567890",
-  "updates": [{
-    "jobId": "20191222_141734_083"
-  }]
+  "updates": [
+    {
+      "jobId": "20191222_141734_083",
+      "executor_port": 4568,
+      "executor_pid": 927,
+      "status": "DONE",
+      "vchain": 2013,
+      "live_clients": 0,
+      "runtime": 15573,
+      "duration_sec": 10,
+      "tpm": 60,
+      "summary": {
+        "total_dur": 957,
+        "total_tx_count": 9,
+        "err_tx_count": 0,
+        "max_service_time_ms": 121,
+        "stddev_service_time_ms": 32,
+        "avg_service_time_ms": 106,
+        "median_service_time_ms": 117,
+        "p90_service_time_ms": 121,
+        "p95_service_time_ms": 121,
+        "p99_service_time_ms": 121,
+        "max_alloc_mem": 0,
+        "max_goroutines": 0,
+        "semantic_version": "v1.3.4-0fc42017",
+        "commit_hash": "0fc42017650990102a8993c7c28a6a2033084629"
+      },
+      "start_time": "2019-12-22T14:17:35.131Z",
+      "end_time": "2019-12-22T14:17:50.704Z",
+      "client_cmd": "docker run -t --rm endurance:client ./client 2013,35.161.123.97 20191222_141734_083_0,9,60"
+    }
+  ]
 }

@@ -4,8 +4,8 @@ const {info} = require('./src/util');
 const fs = require('fs');
 
 // Config is optional - it will contain tolerated thresholds for passing a test, etc.
-function passed(jobResults, cfg = {}) {
-    if (!jobResults) {
+function passed({current, previous, config={}}) {
+    if (!current) {
         return {
             analysis: {
                 passed: false,
@@ -13,29 +13,26 @@ function passed(jobResults, cfg = {}) {
             }
         };
     }
-    if (jobResults.error && jobResults.error.length > 0) {
-        const jobAnalysis = Object.assign({}, jobResults, {
-            analysis: {
-                passed: false,
-                reason: `Returned with error: ${jobResults.error}`
-            }
-        });
-        return jobAnalysis;
-    }
-    if (!jobResults.updates || jobResults.updates.length === 0) {
-        const jobAnalysis = Object.assign({}, jobResults, {
-            analysis: {
-                passed: false,
-                reason: `No updates`
-            }
-        });
-        return jobAnalysis;
-    }
-    const jobAnalysis = Object.assign({}, jobResults, {
+    let jobAnalysis = Object.assign({}, current, {
         analysis: {
-            passed: true
+            passed: false,
+            reason: `Returned with error: ${current.error}`
         }
     });
+    if (current.error && current.error.length > 0) {
+        jobAnalysis.analysis.reason = `Returned with error: ${current.error}`;
+        return jobAnalysis;
+    }
+    if (!current.updates || current.updates.length === 0) {
+        jobAnalysis.analysis.reason = `No updates`;
+        return jobAnalysis;
+    }
+    const latestUpdate = current.updates[current.updates.length-1];
+
+    jobAnalysis = Object.assign(jobAnalysis, latestUpdate);
+    jobAnalysis.analysis.passed = true;
+    jobAnalysis.analysis.reason = null;
+    jobAnalysis.summary = latestUpdate.summary;
     return jobAnalysis;
 }
 
