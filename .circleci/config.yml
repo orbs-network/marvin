@@ -1,27 +1,24 @@
 version: 2
 jobs:
-  build:
+  orchestrator-tests:
     docker:
       - image: circleci/node:11.13
-    working_directory: /home/circleci/project/orchestrator
     steps:
-      - run: pwd
       - checkout
-      - run: ls -lh
 
       # Download and cache dependencies
-      # - restore_cache:
-      #     keys:
-      #       - v1-dependencies-{{ checksum "package.json" }}
-      #       # fallback to using the latest cache if no exact match is found
-      #       - v1-dependencies-
+      - restore_cache:
+          keys:
+            - v1-orch-dependencies-{{ checksum "orchestrator/package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-orch-dependencies-
 
-      - run: npm install
+      - run: cd orchestrator && npm install
 
       - save_cache:
           paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+            - orchestrator/node_modules
+          key: v1-orch-dependencies-{{ checksum "orchestrator/package.json" }}
 
       # run tests!
-      - run:  npm test
+      - run: cd orchestrator && npm test
