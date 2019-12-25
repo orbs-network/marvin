@@ -61,8 +61,8 @@ router.get('/list/all/:profile/branch/:branch*', async (req, res) => {
     const { profile, branch } = req.params;
 
     const gitBranch = `${branch}${req.params[0]}`;
+    const { result } = await db.getActiveJobs({ profile, "meta.gitBranch": gitBranch });
 
-    const { result } = await db.getActiveJobs({ profile, meta: { gitBranch } });
     res.json({ data: result.splice(0, 10) }).end();
 });
 
