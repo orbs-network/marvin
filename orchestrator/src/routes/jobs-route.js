@@ -60,7 +60,7 @@ router.get('/list/active/:profile', async (req, res) => {
 router.get('/list/all/:profile/branch/:branch', async (req, res) => {
     const { profile, branch } = req.params;
     const { result } = await db.getActiveJobs({ profile, meta: { gitBranch: branch } });
-    res.json({ data: result }).end();
+    res.json({ data: result.splice(0, 10) }).end();
 });
 
 /* get all jobs from all profiles types and with all statuses */
