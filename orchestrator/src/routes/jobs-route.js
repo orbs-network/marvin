@@ -13,7 +13,6 @@ const db = new PersistenceService({ connector });
 
 const s = new JobsService({ availableProfiles, db });
 
-
 /**
  * To start a job the following params at the moment are:
  * 
@@ -58,6 +57,12 @@ router.get('/list/active/:profile', async (req, res) => {
     res.json({ data: result }).end();
 });
 
+router.get('/list/all/:profile/branch/:branch', async (req, res) => {
+    const { profile, branch } = req.params;
+    const { result } = await db.getActiveJobs({ profile, meta: { gitBranch: branch } });
+    res.json({ data: result }).end();
+});
+
 /* get all jobs from all profiles types and with all statuses */
 router.get('/list', async (_, res) => {
     const { result } = await db.getActiveJobs({});
@@ -66,9 +71,9 @@ router.get('/list', async (_, res) => {
 
 router.get('/:id/status', async (req, res) => {
     try {
-        const result = await db.getJobById({jobId: req.params.id});
+        const result = await db.getJobById({ jobId: req.params.id });
         res.json(result).end();
-    } catch(err) {
+    } catch (err) {
         res.status(404).send(err).end();
     }
 });

@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: circleci/node:11.13
 
-    working_directory: ~/repo
+    working_directory: ~/project/orchestrator
 
     steps:
       - checkout
@@ -16,11 +16,7 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: ./build/setup.sh
-
-      # clean up run cache
-      - run: rm -rf _terraform
-      - run: yarn install
+      - run: npm install
 
       - save_cache:
           paths:
@@ -28,5 +24,4 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
 
       # run tests!
-      - run: aws help --version
-      - run: ./build/test.sh
+      - run:  npm test

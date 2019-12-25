@@ -46,7 +46,6 @@ const transferFrenzy = {
         return {ok, errors};
     },
     async start(data, jobId) {
-
         const response = Object.assign({}, data);
 
         const validationResult = this.validate(data);

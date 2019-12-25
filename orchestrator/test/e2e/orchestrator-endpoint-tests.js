@@ -65,13 +65,16 @@ describe('job executor jobs endpoint suite', () => {
     });
 
     it('should reply back with a job info in case the job exists /jobs/:id/status', async () => {
-        const res = await chai.request(app).post('/jobs/start/helloWorld');
+        const res = await chai.request(app).post('/jobs/start/helloWorld')
+            .send({ gitBranch: 'some-branch' });
         const { jobId } = res.body;
 
         // Check that the job exists in the db and is in status 'NOT_STARTED'
         let result = await chai.request(app).get(`/jobs/${jobId}/status`);
         expect(result.body.status).to.equal('NOT_STARTED');
         expect(result.body.jobId).to.equal(jobId);
+        expect(result.body.meta).to.have.any.keys(['gitBranch']);
+        expect(result.body.meta.gitBranch).to.equal('some-branch');
 
         // We now wait for 2 seconds and want to see the state of the job change
         // in the db to 'PENDING'
@@ -88,5 +91,37 @@ describe('job executor jobs endpoint suite', () => {
         result = await chai.request(app).get(`/jobs/${jobId}/status`);
         expect(result.body.status).to.equal('DONE');
         expect(result.body.jobId).to.equal(jobId);
+    });
+
+    it('should filter jobs of a certain branch when using /jobs/list/helloWorld/branch/:branch', async () => {
+        const res = await chai.request(app).post('/jobs/start/helloWorld')
+            .send({ gitBranch: 'some-branch' });
+
+        expect(res.ok).to.equal(true);
+        const { jobId } = res.body;
+
+        const resMaster = await chai.request(app).post('/jobs/start/helloWorld')
+            .send({ gitBranch: 'master' });
+
+        expect(resMaster.ok).to.equal(true);
+        const { jobId: jobIdMaster } = resMaster.body;
+
+        const resList = await chai.request(app).get('/jobs/list/active/helloWorld');
+        expect(resList.body.data.length).to.equal(2);
+
+        const resByBranchMasterList = await chai.request(app).get('/jobs/list/all/helloWorld/branch/master');
+        expect(resByBranchMasterList.ok).to.equal(true);
+    
+        expect(resByBranchMasterList.body.data.length).to.equal(1);
+        expect(resByBranchMasterList.body.data[0].jobId).to.equal(jobIdMaster);
+
+        const resByBranchSomeBranchList = await chai.request(app).get('/jobs/list/all/helloWorld/branch/some-branch');
+        expect(resByBranchSomeBranchList.ok).to.equal(true);
+        expect(resByBranchSomeBranchList.body.data.length).to.equal(1);
+        expect(resByBranchSomeBranchList.body.data[0].jobId).to.equal(jobId);
+
+        // We now wait for 5 seconds and want to see the state of the job change
+        // in the db to 'DONE'
+        await new Promise((r) => { setTimeout(r, 10 * 1000) });
     });
 });
