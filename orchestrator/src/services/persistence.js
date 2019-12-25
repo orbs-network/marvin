@@ -1,14 +1,14 @@
 const JOBS_COLLECTION_NAME = 'jobs';
-const {generateJobId, info} = require('./../util');
+const { generateJobId, info } = require('./../util');
 const moment = require('moment');
-const {ObjectID} = require('mongodb');
+const { ObjectID } = require('mongodb');
 
 class PersistenceService {
-    constructor({connector = null}) {
+    constructor({ connector = null }) {
         this.connector = connector;
     }
 
-    async insertJob({profile, meta}) {
+    async insertJob({ profile, meta }) {
         const db = await this.connector.getConnection();
         const collection = db.collection(JOBS_COLLECTION_NAME);
         const jobId = generateJobId();
@@ -38,7 +38,7 @@ class PersistenceService {
         };
     }
 
-    async updateJob({jobId, data}) {
+    async updateJob({ jobId, data }) {
         info(`updateJob(): ${JSON.stringify(data)}`);
         const db = await this.connector.getConnection();
         const collection = db.collection(JOBS_COLLECTION_NAME);
@@ -46,8 +46,8 @@ class PersistenceService {
         let result, err = null;
 
         try {
-            const job = await this.getJobById({jobId});
-            const {updates = []} = job;
+            const job = await this.getJobById({ jobId });
+            const { updates = [] } = job;
             const newUpdates = updates.concat(data);
 
             const updateItems = {
@@ -58,7 +58,7 @@ class PersistenceService {
                 updateItems.job_end = moment(data.end_time).toDate();
             }
 
-            result = await collection.updateOne({_id: new ObjectID(job._id)}, {
+            result = await collection.updateOne({ _id: new ObjectID(job._id) }, {
                 $set: updateItems
             });
         } catch (e) {
@@ -72,11 +72,11 @@ class PersistenceService {
         };
     }
 
-    async getJobById({jobId}) {
+    async getJobById({ jobId }) {
         const db = await this.connector.getConnection();
         const collection = db.collection(JOBS_COLLECTION_NAME);
 
-        const result = await collection.find({jobId}).sort({}).toArray();
+        const result = await collection.find({ jobId }).sort({}).toArray();
 
         if (result.length >= 1) {
             return result[0];
@@ -89,9 +89,9 @@ class PersistenceService {
         const db = await this.connector.getConnection();
         const collection = db.collection(JOBS_COLLECTION_NAME);
 
-        const result = await collection.find(query).sort({}).toArray();
+        const result = await collection.find(query).sort({ _id: -1 }).toArray();
 
-        return {result};
+        return { result };
     }
 }
 
