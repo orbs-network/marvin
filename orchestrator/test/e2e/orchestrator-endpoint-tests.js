@@ -41,11 +41,9 @@ describe('job executor jobs endpoint suite', () => {
             });
     });
 
-    it.only('should list the available profiles', async () => {
+    it('should list the available profiles', async () => {
         const result = await chai.request(app)
-            .get('/jobs/list/profiles');
-
-        console.log(result.body);
+            .get('/profiles/list');
 
         expect(result.body.length).to.be.greaterThan(0);
     });
