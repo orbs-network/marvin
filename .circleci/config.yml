@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: circleci/node:11.13
-
+    working_directory: /home/circleci/project/orchestrator
     steps:
       - run: pwd
       - checkout
