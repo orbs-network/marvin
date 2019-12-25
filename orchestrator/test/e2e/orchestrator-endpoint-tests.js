@@ -43,7 +43,7 @@ describe('job executor jobs endpoint suite', () => {
 
     it.only('should list the available profiles', async () => {
         const result = await chai.request(app)
-            .get('/jobs/list/profiles');
+            .get('/profiles/list');
 
         console.log(result.body);
 
