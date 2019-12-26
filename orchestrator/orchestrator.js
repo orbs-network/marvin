@@ -28,6 +28,13 @@ app.use('/status', statusRouter);
 app.use('/profiles', profilesRouter);
 app.use('/', (_, res) => res.status(404).send('Not found'));
 
+app.post('/api/github/events', (req, res) => {
+    console.log('incoming webhook from github:');
+    console.log(req.body);
+    console.log('---------------------')
+    res.json({ ok: true }).end();
+});
+
 const server = app.listen(port, () => console.log(`Orchestrator listening on port ${port}!`));
 
 module.exports = {
