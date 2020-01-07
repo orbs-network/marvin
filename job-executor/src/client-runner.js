@@ -106,6 +106,14 @@ function processClientOutput(clientOutput, state) {
     // info(`TX_DURATIONS (${all_tx.tx_durations.length}): ${JSON.stringify(all_tx.tx_durations)}`);
     state.summary.total_tx_count += clientOutput.totalTransactions;
     state.summary.err_tx_count += clientOutput.errorTransactions;
+    for (let [k, v] of clientOutput.txResultTypes.entries()) {
+        console.log("k=", k);
+        console.log("v=", v);
+        state.summary.tx_result_types[v.TxResult] = state.summary.tx_result_types[v.TxResult] || 0;
+        state.summary.tx_result_types[v.TxResult] += v.TxResultCount;
+        console.log("state.summary.tx_result_types[v.TxResultType]=", JSON.stringify(state.summary.tx_result_types));
+    }
+    // state.summary.tx_result_types = clientOutput.txResultTypes;
     const totalDurPerClient = _.reduce(clientTxDurations, (acc, val) => acc + val, 0);
     state.summary.total_dur += totalDurPerClient;
     state.summary.semantic_version = clientOutput.semanticVersion;

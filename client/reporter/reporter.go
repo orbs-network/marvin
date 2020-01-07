@@ -34,20 +34,28 @@ type Status struct {
 	Version version `json:"Version"`
 }
 
+type TxResultType struct {
+	TxResult      string `json:"TxResult"`
+	TxResultCount uint64 `json:"TxResultCount"`
+}
+
 type RunResult struct {
 	Txs           []*ShortTransaction
 	ErrorTxsCount uint64
 	SlowestTxMs   uint64
+	TxResultTypes map[string]uint64
 }
 
 type Report struct {
-	Name                 string `json:"name"`
-	Error                string `json:"error"`
-	StartTime            string `json:"startTime"`
-	EndTime              string `json:"endTime"`
-	TotalTransactions    uint64 `json:"totalTransactions"`
-	ErrorTransactions    uint64 `json:"errorTransactions"`
-	VChain               uint32 `json:"vchain"`
+	Name              string            `json:"name"`
+	Error             string            `json:"error"`
+	StartTime         string            `json:"startTime"`
+	EndTime           string            `json:"endTime"`
+	TotalTransactions uint64            `json:"totalTransactions"`
+	ErrorTransactions uint64            `json:"errorTransactions"`
+	VChain            uint32            `json:"vchain"`
+	TxResultTypes     map[string]uint64 `json:"txResultTypes"`
+	//TxResultTypes        []*TxResultType `json:"txResultTypes"`
 	CommitHash           string `json:"commitHash"`
 	SemanticVersion      string `json:"semanticVersion"`
 	SlowestTransactionMs uint64 `json:"slowestTransactionMs"`
@@ -68,7 +76,19 @@ func (r *Report) Update(runResult *RunResult) {
 	r.EndTime = util.TimeToISO(time.Now())
 	r.TotalTransactions = uint64(len(runResult.Txs))
 	r.ErrorTransactions = runResult.ErrorTxsCount
-	r.Transactions = runResult.Txs
+	r.TxResultTypes = runResult.TxResultTypes
+	//r.TxResultTypes = []*TxResultType{}
+	//for k, v := range runResult.TxResultTypes {
+	//	r.TxResultTypes = append(r.TxResultTypes, &TxResultType{
+	//		TxResult:      k,
+	//		TxResultCount: v,
+	//	})
+	//}
+	//sort.Slice(r.TxResultTypes[:], func(i, j int) bool {
+	//	return r.TxResultTypes[i].TxResultCount > r.TxResultTypes[j].TxResultCount
+	//})
+	r.Transactions = nil // Revert this to print all transactions
+	//r.Transactions = runResult.Txs
 	r.SlowestTransactionMs = runResult.SlowestTxMs
 
 }

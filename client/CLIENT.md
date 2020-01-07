@@ -36,6 +36,9 @@ The Orbs Client uses repo `orbs-client-sdk-go` for interacting with the virtual 
 
 ### Stress tests
 
+Important: make sure the OS open-files limit is high enough. The default 256 on Mac 
+does not support high TPS rate. Use `ulimit -n <somevalue>`. On mac, the max is 24576. 
+
 TBD Configuration
 
 ### Endurance tests

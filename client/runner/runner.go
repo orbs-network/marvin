@@ -63,6 +63,7 @@ func (runner *Runner) loop(runtimeCtx context.Context) (runResult *reporter.RunR
 		Txs:           []*reporter.ShortTransaction{},
 		ErrorTxsCount: 0,
 		SlowestTxMs:   0,
+		TxResultTypes: make(map[string]uint64),
 	}
 
 	interval := time.Minute / time.Duration(runner.Config.runConfig.tpm)
@@ -84,6 +85,7 @@ func (runner *Runner) loop(runtimeCtx context.Context) (runResult *reporter.RunR
 				if runResult.SlowestTxMs < tx.Duration {
 					runResult.SlowestTxMs = tx.Duration
 				}
+				runResult.TxResultTypes[tx.Result]++
 			}
 		}
 	}(runtimeCtx)

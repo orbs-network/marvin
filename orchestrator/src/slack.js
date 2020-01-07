@@ -27,7 +27,7 @@ function createSlackMessageJobRunning(jobUpdate, state) {
     return `*--------------------------------------------------------------------------*
 *RUNNING* for *${Math.floor((jobUpdate.runtime || 0) / 1000)}* of ${jobUpdate.duration_sec} seconds, on vchain ${jobUpdate.vchain} with ${jobUpdate.tpm} tx/min.
 *--------------------------------------------------------------------------*
-Sent *${jobUpdate.summary.total_tx_count}* transactions with *${jobUpdate.summary.err_tx_count}* errors.
+Sent *${jobUpdate.summary.total_tx_count}* transactions with *${jobUpdate.summary.err_tx_count}* errors. ${jobUpdate.summary.tx_result_types}
 Service times (ms): AVG=*${jobUpdate.summary.avg_service_time_ms}* MEDIAN=*${jobUpdate.summary.median_service_time_ms}* P90=*${jobUpdate.summary.p90_service_time_ms}* P99=*${jobUpdate.summary.p99_service_time_ms}* MAX=*${jobUpdate.summary.max_service_time_ms}* STDDEV=*${jobUpdate.summary.stddev_service_time_ms}*
 MaxAllocMem: ${state.summary.max_alloc_mem} bytes, MaxGoroutines: ${state.summary.max_goroutines}
 Errors: ${jobUpdate.error || 'none'}
@@ -46,7 +46,7 @@ async function createSlackMessageJobDone(jobUpdate, state) {
     return `*--------------------------------------------------------------------------*
 *DONE* running after *${Math.floor((jobUpdate.runtime || 0) / 1000)}* seconds on vchain ${jobUpdate.vchain} with ${jobUpdate.tpm} tx/min.
 *--------------------------------------------------------------------------*
-Sent *${jobUpdate.summary.total_tx_count}* transactions with *${jobUpdate.summary.err_tx_count}* errors.
+Sent *${jobUpdate.summary.total_tx_count}* transactions with *${jobUpdate.summary.err_tx_count}* errors. ${jobUpdate.summary.tx_result_types}
 Service times (ms): AVG=*${jobUpdate.summary.avg_service_time_ms}* MEDIAN=*${jobUpdate.summary.median_service_time_ms}* P90=*${jobUpdate.summary.p90_service_time_ms}* P99=*${jobUpdate.summary.p99_service_time_ms}* MAX=*${jobUpdate.summary.max_service_time_ms}* STDDEV=*${jobUpdate.summary.stddev_service_time_ms}*
 MaxAllocMem: ${state.summary.max_alloc_mem} bytes, MaxGoroutines: ${state.summary.max_goroutines}
 Errors: ${jobUpdate.error || 'none'}

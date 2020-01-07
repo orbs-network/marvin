@@ -52,7 +52,7 @@ This is the visualization app. It reads data from Prometheus and serves it in a 
 
 ## Mongo
 * AWS: use Mongo client to connect to host: `ec2-34-222-245-15.us-west-2.compute.amazonaws.com` port `27017`
-
+* Local: `docker run -d  -p 27017:27017 mongo`
 ## SQL (phasing out)
 `Part of docker compose`
 
