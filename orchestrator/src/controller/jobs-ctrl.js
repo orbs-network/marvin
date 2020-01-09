@@ -6,6 +6,12 @@ const { readPrometheus } = require('../prometheus');
 const { info, debug } = require('../util');
 
 async function updateStateFromPrometheus(job, state) {
+
+    state.summary.max_alloc_mem = 0;
+    state.summary.max_goroutines = 0;
+    job.summary.max_alloc_mem = 0;
+    job.summary.max_goroutines = 0;
+
     try {
         info(`updateStateFromPrometheus(): job=${JSON.stringify(job)}`);
         const startTime = toUtcISO(job.start_time);
@@ -30,10 +36,10 @@ async function updateStateFromPrometheus(job, state) {
         const maxAllocMemNode0 = maxOverSpecificNode(rawAllocMemRes, 0);
         const maxGoroutinesNode0 = maxOverSpecificNode(rawGoroutinesRes, 0);
 
-        info(`[PROMETHEUS]: MAX_ALLOC_MEM=${maxAllocMem}`);
-        info(`[PROMETHEUS]: MAX_GOROUTINES=${maxGoroutines}`);
-        info(`[PROMETHEUS]: MAX_ALLOC_MEM_NODE0=${maxAllocMemNode0}`);
-        info(`[PROMETHEUS]: MAX_GOROUTINES_NODE0=${maxGoroutinesNode0}`);
+        debug(`[PROMETHEUS]: MAX_ALLOC_MEM=${maxAllocMem}`);
+        debug(`[PROMETHEUS]: MAX_GOROUTINES=${maxGoroutines}`);
+        debug(`[PROMETHEUS]: MAX_ALLOC_MEM_NODE0=${maxAllocMemNode0}`);
+        debug(`[PROMETHEUS]: MAX_GOROUTINES_NODE0=${maxGoroutinesNode0}`);
 
         state.summary.max_alloc_mem = maxAllocMemNode0;
         state.summary.max_goroutines = maxGoroutinesNode0;
@@ -42,7 +48,8 @@ async function updateStateFromPrometheus(job, state) {
 
     } catch (ex) {
         info(`[PROMETHEUS] exception: ${ex}`);
-        throw ex;
+        // This is not a fatal error, ignore this exception after logging it
+        // throw ex;
     }
 
 }

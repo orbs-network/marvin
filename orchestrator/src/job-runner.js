@@ -6,7 +6,7 @@ const path = require('path');
 const {config} = require('./orchestrator-config');
 const {state} = require('./orch-state');
 
-const {info} = require('./util');
+const {info, debug} = require('./util');
 const {insertTransaction} = require('./mysql');
 
 async function storeBatchOutputs(dataAsString) {
@@ -72,8 +72,9 @@ function sendJobStartToExecutor(jobProps) {
 }
 
 function shutdownExecutor(jobUpdate) {
-    info(`Shutting down executor on port ${jobUpdate.executor_port}`);
+    info(`Shutting down executor pid=${jobUpdate.executor_pid} on port ${jobUpdate.executor_port}`);
     const uri = `http://${config.executor_host}:${jobUpdate.executor_port}/shutdown`;
+    debug(`HTTP GET ${uri}`);
     const options = {
         method: 'GET',
         uri: uri,

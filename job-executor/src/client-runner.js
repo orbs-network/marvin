@@ -1,7 +1,7 @@
 'use strict';
 
 const {exec} = require('child_process');
-const {info, debug} = require('./util');
+const {info, debug, sanitizeErrorMessage} = require('./util');
 const {all_tx} = require('./executor-state');
 const _ = require('lodash');
 
@@ -114,6 +114,7 @@ function processClientOutput(clientOutput, state) {
     state.summary.err_tx_count += clientOutput.errorTransactions;
     _.forEach(clientOutput.txResultTypes, (v,k) => {
         const idx = state.summary.tx_result_types.findIndex(x => x.name === k);
+        k = sanitizeErrorMessage(k);
         if (idx === -1) {
             state.summary.tx_result_types.push({name: k, count: v});
         } else {
@@ -137,6 +138,7 @@ function processClientOutput(clientOutput, state) {
     info(`Client completed, total duration of ${clientOutput.transactions.length} transactions: ${totalDurPerClient}`);
 
 }
+
 
 module.exports = {
     startClientContainers: startClientContainers,

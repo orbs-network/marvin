@@ -35,7 +35,7 @@ app.post('/api/github/events', (req, res) => {
     res.json({ ok: true }).end();
 });
 
-const server = app.listen(port, () => console.log(`Orchestrator listening on port ${port}!`));
+const server = app.listen(port, () => console.log(`Orchestrator listening on port ${port}, pid=${process.pid}!`));
 
 module.exports = {
     app,

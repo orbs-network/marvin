@@ -95,7 +95,7 @@ router.post('/:id/update', async (req, res) => {
 
     info(`RECEIVED /jobs/${req.params.id}/update: status: ${data.status} ${JSON.stringify(data)}`);
     const msg = _.assign({}, data/*, { summary: state.summary }*/);
-    logJson(msg);
+    // logJson(msg);
 
     let result;
 
