@@ -53,51 +53,6 @@ This is the visualization app. It reads data from Prometheus and serves it in a 
 ## Mongo
 * AWS: use Mongo client to connect to host: `ec2-34-222-245-15.us-west-2.compute.amazonaws.com` port `27017`
 * Local: `docker run -d  -p 27017:27017 mongo`
-## SQL (phasing out)
-`Part of docker compose`
-
-This database holds all transaction results.
-* Use an app such as `Sequel Pro` to access the DB.
-* Connection details in Sequel Pro: Enter the *SSH* tab and enter the connection details: 
-    
-    * MySQL Host: 127.0.0.1
-    * User/pass: the DB's user/pass
-    * Database: marvin
-    * Port: 3306
-    * SSH Host: ec2-34-222-245-15.us-west-2.compute.amazonaws.com (or your machine)
-    * SSH User: ubuntu (or whatever applies to you)
-    * SSH Password: empty
-    * SSH Port: empty
-    * Connect using SSL: unchecked
-    
-All transactions are in table `transactions`.    
-    
- > Changing any DB property (such as user / password / DB name) in docker-compose requires restarting docker with `./start-network.sh`
- 
- > It takes time (30s on a Mac) to initialize the DB, after running `./start-network.sh`
-
-We use [knex](http://knexjs.org/) library to communicate with the DB.
-Regular connection:
-```
-const knex = require('knex')({
-    client: 'mysql2',
-    version: '5.7',
-    connection: {
-        host: '127.0.0.1',
-        user: process.env.MYSQL_USER,
-        password: process.env.MYSQL_PASSWORD,
-        database: 'marvin'
-    },
-    pool: {min: 0}
-});
-
-```
-
-Connection with SSH:
-```
-
-```
-
 
 ## Client
 
@@ -110,6 +65,14 @@ See the [client guide](client/CLIENT.md)
 * Runs one or more instances of the Client, depending on the required load on the testnet.
 * Reads output of the Client, inserts to SQL
 * VERBOSE=true MYSQL_USER=<...> MYSQL_PASSWORD=<...> node index.js
+
+## Job Executor
+* Starts clients and listens to their stdout
+* Aggregates results from client runs
+* Sends results to Orchestrator's /jobs/update endpoint
+
+Results are aggregated with https://github.com/HdrHistogram/HdrHistogramJS
+
 ## ELK
 Based on https://github.com/deviantony/docker-elk
 * To configure Orbs to send logs to ELK, add the following property to Boyar config:
