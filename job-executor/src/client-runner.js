@@ -103,6 +103,8 @@ function calcClientTimeout(durationSec, clientTimeoutSec, startTime) {
 // }
 
 
+// TODO: Refactor to a reducer and write tests
+
 function processClientOutput(clientOutput, state) {
     console.log(JSON.stringify(clientOutput));
     clientOutput.transactions = clientOutput.transactions || [];
@@ -111,8 +113,12 @@ function processClientOutput(clientOutput, state) {
     state.summary.total_tx_count += clientOutput.totalTransactions;
     state.summary.err_tx_count += clientOutput.errorTransactions;
     _.forEach(clientOutput.txResultTypes, (v,k) => {
-        state.summary.tx_result_types[k] = state.summary.tx_result_types[k] || 0;
-        state.summary.tx_result_types[k] += v;
+        const idx = state.summary.tx_result_types.findIndex(x => x.name === k);
+        if (idx === -1) {
+            state.summary.tx_result_types.push({name: k, count: v});
+        } else {
+            state.summary.tx_result_types[idx].count += v;
+        }
     });
     // state.summary.tx_result_types = clientOutput.txResultTypes;
     const totalDurPerClient = _.reduce(clientOutput.txDurations, (acc, val) => acc + val, 0);

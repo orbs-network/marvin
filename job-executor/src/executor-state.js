@@ -22,7 +22,7 @@ module.exports = {
             total_dur: 0,
             total_tx_count: 0,
             err_tx_count: 0,
-            tx_result_types: {},
+            tx_result_types: [],
             max_service_time_ms: 0,
             stddev_service_time_ms: 0,
             avg_service_time_ms: 0,
