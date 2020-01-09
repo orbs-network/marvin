@@ -49,6 +49,9 @@ async function updateStateFromPrometheus(job, state) {
 
 function maxOverAllNodes(prometheusResponse) {
     const maxPerNode = _.map(prometheusResponse, resultPerNode => {
+        if (!resultPerNode) {
+            return 0;
+        }
         const values = _.map(resultPerNode.values, pair => { return pair[1]; });
         return Math.max(...values);
     });
@@ -57,6 +60,10 @@ function maxOverAllNodes(prometheusResponse) {
 
 function maxOverSpecificNode(prometheusResponse, nodeIdx) {
     const nodeResults = prometheusResponse[nodeIdx];
+    if (!nodeResults) {
+        return 0;
+    }
+
     const values = _.map(nodeResults.values, pair => { return pair[1]; });
     return Math.max(...values);
 }
