@@ -2,7 +2,7 @@
 
 const rp = require('request-promise-native');
 const { startClientContainers } = require('../client-runner');
-const { info, sleep } = require('../util');
+const { info, debug, sleep } = require('../util');
 
 async function startJob(state) {
     return runJobAndWaitForCompletion(state);
@@ -56,9 +56,9 @@ async function runJobAndWaitForCompletion(state) {
             await startClientContainers(step, state);
         }
 
-        info(`[Iteration ${iteration}]: started ${totalClients} clients, now waiting for their completion`);
+        debug(`[Iteration ${iteration}]: started ${totalClients} clients, now waiting for their completion`);
         await waitForAllClientsCompletion(state, 200);
-        info(`[Iteration ${iteration}]: clients completed.`);
+        debug(`[Iteration ${iteration}]: clients completed.`);
         const now = new Date();
         if (now - state.start_time > state.duration_sec * 1000) {
             info(`[Iteration ${iteration}]: THIS WAS THE LAST ITERATION`);
@@ -82,7 +82,7 @@ async function runJobAndWaitForCompletion(state) {
     state.end_time = endTime;
     info(`Summary: ${JSON.stringify(state.summary)}`);
     await updateParentWithJob(state);
-    info(`Sent update to orchestrator`);
+    debug(`Sent update to orchestrator`);
     // await updateParentWithJob(state, aggregatedResults);
 }
 
