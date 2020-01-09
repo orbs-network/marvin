@@ -4,3 +4,5 @@ docker/_tmp
 docker/prometheus/prometheus-volume
 docker/grafana/grafana-volume
 docker/mysql/mysql-volume
+
+client/client
