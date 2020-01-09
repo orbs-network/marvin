@@ -69,7 +69,7 @@ async function runJobAndWaitForCompletion(state) {
         // info(`Wait for client completion before next iteration. #live=${state.live_clients}`);
 
         state.job_runtime_millis = now - state.start_time;
-        info(`[Iteration ${iteration}]: Finished running ${totalClients} clients. Accumulated: ${state.summary.total_tx_count} tx in ${now - state.start_time} ms.`)
+        info(`[Iteration ${iteration}]: Finished running ${totalClients} clients. Accumulated: ${state.summary.total_tx_count} tx in ${now - state.start_time} ms.`);
         await updateParentWithJob(state);
     }
 
@@ -108,6 +108,7 @@ async function updateParentWithJob(currentState) {
         tpm: currentState.tpm,
         summary: currentState.summary || {},
         start_time: currentState.start_time,
+        current_time: new Date(),
         end_time: currentState.end_time,
         client_cmd: currentState.client_cmd,
     };
