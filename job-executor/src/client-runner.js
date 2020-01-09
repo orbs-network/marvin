@@ -1,13 +1,13 @@
 'use strict';
 
 const {exec} = require('child_process');
-const {info} = require('./util');
+const {info, debug} = require('./util');
 const {all_tx} = require('./executor-state');
 const _ = require('lodash');
 
 async function startClientContainers(step, state) {
 
-    info(`startClientContainers(): running step: ${step.display_name}`);
+    debug(`startClientContainers(): running step: ${step.display_name}`);
     const clients = [];
     for (let i = 0; i < step.instances; i++) {
         clients.push({
@@ -23,6 +23,7 @@ async function startClientContainers(step, state) {
 
     await Promise.all(clients.map(async (client) => {
         try {
+            const clientStdouts = [];
             let cmd;
             if (state.use_mock_client) {
                 cmd = `./src/mock-client.sh ${client.id} ${remainingDurationSec} ${state.vchain} 10 2`;
@@ -44,7 +45,8 @@ async function startClientContainers(step, state) {
             info(`Started client #${state.live_clients}, pid=${clientProc.pid}: ${cmd}`);
             clientProc.stdout.on('data', (data) => {
                 try {
-                    processClientOutput(JSON.parse(data || {}), state);
+                    clientStdouts.push(data);
+                    // processClientOutput(JSON.parse(data || {}), state);
                 } catch (ex) {
                     info(`Error parsing data from client, skipping. Ex=${ex}. Data=${data}`);
                 }
@@ -53,6 +55,9 @@ async function startClientContainers(step, state) {
 
             clientProc.on('close', (code) => {
                 state.live_clients--;
+                info(`Closing client. Stdout has ${clientStdouts.length} parts`);
+                const data = clientStdouts.join('');
+                processClientOutput(JSON.parse(data || {}), state);
                 // info(`child proc ${clientProc.pid} exited with code ${code}. #live=${state.live_clients}`);
             });
         } catch (ex) {
@@ -69,7 +74,7 @@ function calcClientTimeout(durationSec, clientTimeoutSec, startTime) {
     const now = new Date();
     const remainingDuration = Math.floor((durationSec*1000 - (now-startTime))/1000);
     const clientTimeout = Math.min(remainingDuration, clientTimeoutSec);
-    info(`calcClientTimeout(): duration_sec=${durationSec} start_time=${startTime}, client_timeout=${clientTimeout}`);
+    debug(`calcClientTimeout(): duration_sec=${durationSec} start_time=${startTime}, client_timeout=${clientTimeout}`);
     return clientTimeout;
 }
 
@@ -99,32 +104,29 @@ function calcClientTimeout(durationSec, clientTimeoutSec, startTime) {
 
 
 function processClientOutput(clientOutput, state) {
+    console.log(JSON.stringify(clientOutput));
     clientOutput.transactions = clientOutput.transactions || [];
-    const clientTxDurations = _.map(clientOutput.transactions, tx => (tx.dur || 0));
-    all_tx.tx_durations = _.concat(all_tx.tx_durations, clientTxDurations||[]);
-    _.forEach(clientTxDurations||[], dur => all_tx.hdr.recordValue(dur));
-    // info(`TX_DURATIONS (${all_tx.tx_durations.length}): ${JSON.stringify(all_tx.tx_durations)}`);
+    clientOutput.txResultTypes = clientOutput.txResultTypes || {};
+    _.forEach(clientOutput.txDurations, dur => { all_tx.hdr.recordValue(dur); });
     state.summary.total_tx_count += clientOutput.totalTransactions;
     state.summary.err_tx_count += clientOutput.errorTransactions;
-    for (let [k, v] of clientOutput.txResultTypes.entries()) {
-        console.log("k=", k);
-        console.log("v=", v);
-        state.summary.tx_result_types[v.TxResult] = state.summary.tx_result_types[v.TxResult] || 0;
-        state.summary.tx_result_types[v.TxResult] += v.TxResultCount;
-        console.log("state.summary.tx_result_types[v.TxResultType]=", JSON.stringify(state.summary.tx_result_types));
-    }
+    _.forEach(clientOutput.txResultTypes, (v,k) => {
+        state.summary.tx_result_types[k] = state.summary.tx_result_types[k] || 0;
+        state.summary.tx_result_types[k] += v;
+    });
     // state.summary.tx_result_types = clientOutput.txResultTypes;
-    const totalDurPerClient = _.reduce(clientTxDurations, (acc, val) => acc + val, 0);
+    const totalDurPerClient = _.reduce(clientOutput.txDurations, (acc, val) => acc + val, 0);
     state.summary.total_dur += totalDurPerClient;
     state.summary.semantic_version = clientOutput.semanticVersion;
     state.summary.commit_hash = clientOutput.commitHash;
+    state.summary.avg_service_time_ms = Math.floor(all_tx.hdr.getMean()||0);
     state.summary.median_service_time_ms = all_tx.hdr.getValueAtPercentile(50);
     state.summary.p90_service_time_ms = all_tx.hdr.getValueAtPercentile(90);
     state.summary.p95_service_time_ms = all_tx.hdr.getValueAtPercentile(95);
     state.summary.p99_service_time_ms = all_tx.hdr.getValueAtPercentile(99);
-    state.summary.avg_service_time_ms = Math.floor(all_tx.hdr.getMean()||0);
     state.summary.max_service_time_ms = all_tx.hdr.maxValue;
     state.summary.stddev_service_time_ms = Math.floor(all_tx.hdr.getStdDeviation()||0);
+    state.summary.total_count = all_tx.hdr.getTotalCount();
 
     info(`Client completed, total duration of ${clientOutput.transactions.length} transactions: ${totalDurPerClient}`);
 

@@ -43,7 +43,7 @@ router.post('/start/:profile', async (req, res) => {
             profile: req.params.profile,
             meta,
         });
-        info(`Returned with result ${JSON.stringify(result)}`);
+        info(`Responding to caller with: ${JSON.stringify(result)}`);
         res.json(result).end();
     } catch (err) {
         console.log(err);
