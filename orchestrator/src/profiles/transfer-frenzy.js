@@ -11,8 +11,8 @@ const transferFrenzy = {
     },
     load_properties: {
         tpm: 18000,
-        duration_sec: 600,
-        client_timeout_sec: 60,
+        duration_sec: 3600,
+        client_timeout_sec: 600,
     },
     validate(data) {
         let errors = [], ok = true;
