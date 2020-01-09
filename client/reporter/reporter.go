@@ -55,6 +55,7 @@ type Report struct {
 	ErrorTransactions uint64            `json:"errorTransactions"`
 	VChain            uint32            `json:"vchain"`
 	TxResultTypes     map[string]uint64 `json:"txResultTypes"`
+	TxDurations       []uint64          `json:"txDurations"`
 	//TxResultTypes        []*TxResultType `json:"txResultTypes"`
 	CommitHash           string `json:"commitHash"`
 	SemanticVersion      string `json:"semanticVersion"`
@@ -89,6 +90,11 @@ func (r *Report) Update(runResult *RunResult) {
 	//})
 	r.Transactions = nil // Revert this to print all transactions
 	//r.Transactions = runResult.Txs
+	txDurations := make([]uint64, len(runResult.Txs))
+	for i, tx := range runResult.Txs {
+		txDurations[i] = tx.Duration
+	}
+	r.TxDurations = txDurations
 	r.SlowestTransactionMs = runResult.SlowestTxMs
 
 }
