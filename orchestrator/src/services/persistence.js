@@ -39,7 +39,7 @@ class PersistenceService {
     }
 
     async updateJob({ jobId, data }) {
-        info(`updateJob(): ${JSON.stringify(data)}`);
+        info(`[MONGO] updateJob(): ${JSON.stringify(data)}`);
         const db = await this.connector.getConnection();
         const collection = db.collection(JOBS_COLLECTION_NAME);
 
