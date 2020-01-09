@@ -10,8 +10,9 @@ const transferFrenzy = {
         description: "Transfer money using benchmark token to a range of accounts"
     },
     load_properties: {
-        tpm: 60,
-        duration_sec: 10,
+        tpm: 18000,
+        duration_sec: 600,
+        client_timeout_sec: 60,
     },
     validate(data) {
         let errors = [], ok = true;
@@ -20,8 +21,9 @@ const transferFrenzy = {
             errors.push('Missing JSON body');
         }
 
-        data.duration_sec = data.duration_sec || this.load_properties.duration_sec;
-        data.tpm = data.tpm || this.load_properties.tpm;
+        for (let prop of Object.keys(this.load_properties)) {
+            data[prop] = data[prop] || this.load_properties[prop];
+        }
 
         if (!data.tpm) {
             errors.push("Missing or zero tpm property");
@@ -88,7 +90,7 @@ const transferFrenzy = {
             case 'ERROR':
                 info(`Received ERROR, shutting down executor`);
                 shutdownExecutor();
-                // notifySlack(createSlackMessageJobError(data, state));
+            // notifySlack(createSlackMessageJobError(data, state));
         }
 
         return {
