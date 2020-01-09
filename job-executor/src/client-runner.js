@@ -113,8 +113,8 @@ function processClientOutput(clientOutput, state) {
     state.summary.total_tx_count += clientOutput.totalTransactions;
     state.summary.err_tx_count += clientOutput.errorTransactions;
     _.forEach(clientOutput.txResultTypes, (v,k) => {
-        const idx = state.summary.tx_result_types.findIndex(x => x.name === k);
         k = sanitizeErrorMessage(k);
+        const idx = state.summary.tx_result_types.findIndex(x => x.name === k);
         if (idx === -1) {
             state.summary.tx_result_types.push({name: k, count: v});
         } else {
