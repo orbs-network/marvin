@@ -1,4 +1,4 @@
-const {info} = require('../util');
+const {debug, info} = require('../util');
 
 class JobsService {
     constructor({ availableProfiles = {}, db = {} }) {
@@ -75,7 +75,7 @@ class JobsService {
      * The metadata can include stuff like: tpm, durationInSeconds, clientMaxTimeout, ip, etc..
      */
     async update({ jobId, data = {} }) {
-        console.log(`update(): jobId=${jobId}`);
+        debug(`update(): jobId=${jobId}`);
         const profile = await this.getProfileByJobId(jobId);
         if (!profile) {
             return new Error(`update(): Could not find a profile from jobId: '${jobId}'`);
