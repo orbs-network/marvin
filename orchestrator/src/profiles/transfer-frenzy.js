@@ -2,7 +2,7 @@
 
 const {info} = require('../util');
 const {sendJob, shutdownExecutor} = require('../job-runner');
-const {updateStateFromPrometheus} = require('../controller/jobs-ctrl');
+const {updateStateFromMetrics} = require('../controller/jobs-ctrl');
 const {state} = require('../orch-state');
 
 const transferFrenzy = {
@@ -76,14 +76,14 @@ const transferFrenzy = {
 
         switch (data.status) {
             case 'RUNNING':
-                await updateStateFromPrometheus(data, state).catch(appendErr);
+                // await updateStateFromPrometheus(data, state).catch(appendErr);
                 // notifySlack(createSlackMessageJobRunning(data, state));
                 break;
 
             case 'DONE':
+                info('RECEIVED DONE FROM EXECUTOR');
                 shutdownExecutor(data);
-
-                await updateStateFromPrometheus(data, state).catch(appendErr);
+                // await updateStateFromPrometheus(data, state).catch(appendErr);
                 // notifySlack(await createSlackMessageJobDone(data, state));
                 break;
 

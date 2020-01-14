@@ -6,16 +6,17 @@ const {debug} = require('./util');
 async function readPrometheus(state, startTimeISO, endTimeISO, metric, vchain) {
 
     const STEP_SEC=10;
+    const timeoutMillis = 5000;
 
     if (!startTimeISO || !endTimeISO) {
         throw "readPrometheus(): startTime or endTime are empty";
     }
     const queryUrl = `${state.prometheus_url}/api/v1/query_range?query=${metric}{vcid="${vchain}"}&start=${startTimeISO}&end=${endTimeISO}&step=${STEP_SEC}s`;
-    debug(`[PROMETHEUS] calling URL: ${queryUrl}`);
+    debug(`[PROMETHEUS] calling URL (timeout=${timeoutMillis}): ${queryUrl}`);
 
     const options = {
         method: 'GET',
-        timeout: 15000,
+        timeout: timeoutMillis,
         uri: queryUrl,
         json: true,
     };

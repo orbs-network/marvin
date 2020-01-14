@@ -17,8 +17,8 @@ async function updateStateFromPrometheus(job, state) {
         const startTime = toUtcISO(job.start_time);
         const endTime = toUtcISO(job.end_time);
 
-        const heapAllocPromise = readPrometheus(state, startTime, endTime, 'Runtime_HeapAlloc_Bytes', job.vchain);
-        const goroutinePromise = readPrometheus(state, startTime, endTime, 'Runtime_NumGoroutine_Number', job.vchain);
+        const heapAllocPromise = await readPrometheus(state, startTime, endTime, 'Runtime_HeapAlloc_Bytes', job.vchain);
+        const goroutinePromise = await readPrometheus(state, startTime, endTime, 'Runtime_NumGoroutine_Number', job.vchain);
 
         const [rawAllocMem, rawGoroutines] = await Promise.all([heapAllocPromise, goroutinePromise]);
 

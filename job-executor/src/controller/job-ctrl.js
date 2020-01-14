@@ -70,6 +70,7 @@ async function runJobAndWaitForCompletion(state) {
 
         state.job_runtime_millis = now - state.start_time;
         info(`[Iteration ${iteration}]: Finished running ${totalClients} clients. Accumulated: ${state.summary.total_tx_count} tx in ${now - state.start_time} ms.`);
+        await updateStateFromMetrics(state);
         await updateParentWithJob(state);
     }
 
@@ -123,6 +124,47 @@ async function updateParentWithJob(currentState) {
         .catch(err => {
             info(`Error sending to orchestrator, ignoring: ${err}`);
         });
+}
+
+async function readMetrics(ip, vchain) {
+    const metricsUrl = `http://${ip}/vchains/${vchain}/metrics`;
+    const options = {
+        method: 'GET',
+        uri: metricsUrl,
+        json: true,
+    };
+    info(`[METRICS] HTTP GET to ${metricsUrl}`);
+    return rp(options);
+}
+
+async function updateStateFromMetrics(state) {
+
+    const targetIpsStr = (state.target_ips||[]).join('|');
+    if (!targetIpsStr || targetIpsStr.length === 0) {
+        throw "state.target_ips is empty";
+    }
+    if (!state.vchain) {
+        throw "state.vchain is empty";
+    }
+
+    try {
+        info(`IPs=${JSON.stringify(targetIpsStr)}`);
+        const metrics = await readMetrics(targetIpsStr, state.vchain);
+        state.summary.max_alloc_mem = metrics['Runtime.HeapAlloc.Bytes'].Value;
+        state.summary.max_goroutines = metrics['Runtime.NumGoroutine.Number'].Value;
+        info(`[METRICS] Updated max_alloc_mem=${state.summary.max_alloc_mem} and max_goroutines=${state.summary.max_goroutines}`);
+    } catch(ex) {
+        info(`[METRICS] Failed to read metrics from ${targetIpsStr} vchain ${state.vchain}: ${ex}`);
+        // Don't throw the exception further up, this is not a fatal error
+    }
+
+
+
+
+    // READ METRICS
+    // Get memory and goroutines
+
+    // Update state
 }
 
 function calculateSteps(state) {
