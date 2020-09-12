@@ -20,7 +20,7 @@
     "mongodb": "^3.3.4",
     "mysql2": "^1.7.0",
     "nock": "^11.7.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "ssh2": "^0.8.5"
