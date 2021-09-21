@@ -23,7 +23,7 @@
     "node-fetch": "^2.6.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
-    "ssh2": "^0.8.5"
+    "ssh2": "^1.4.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
