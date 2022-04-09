@@ -16,7 +16,7 @@
     "child-process-promise": "^2.2.1",
     "express": "^4.17.1",
     "knex": "^0.20.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "mongodb": "^3.3.4",
     "mysql2": "^1.7.0",
     "nock": "^11.7.0",
