@@ -15,7 +15,7 @@
     "body-parser": "^1.19.0",
     "child-process-promise": "^2.2.1",
     "express": "^4.17.1",
-    "knex": "^0.20.0",
+    "knex": "^2.4.0",
     "moment": "^2.24.0",
     "mongodb": "^3.3.4",
     "mysql2": "^1.7.0",
